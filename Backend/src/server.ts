@@ -15,6 +15,10 @@ app.get('/test123', (_req: Request, res: Response) => {
   res.send('This is GET method')
 })
 
+app.get('/123', (_req: Request, res: Response) => {
+  res.send('This is GET method')
+})
+
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`)
 })
