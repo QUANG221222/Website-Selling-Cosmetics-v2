@@ -6,7 +6,7 @@
   "main": "index.js",
   "repository": "https://github.com/QUANG221222/Website-Selling-Cosmetics-v2.git",
   "author": "WangCoder2k5",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "engines": {
     "node": ">=20.x"
   },
