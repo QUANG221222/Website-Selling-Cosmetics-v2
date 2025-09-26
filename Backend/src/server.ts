@@ -1,24 +1,39 @@
-import express, { Request, Response } from 'express'
+import express from 'express'
+import { env } from './configs/enviroment'
+import { CONNECT_DB } from './configs/mongodb'
 
-const app = express()
-const port = 3000
+const StartServer = () => {
+  const app = express()
 
-app.get('/', (_req: Request, res: Response) => {
-  res.send('Hello Express + TypeScript + Yarn!')
-})
+  // Enable req.body json data
+  app.use(express.json())
 
-app.get('/test', (_req: Request, res: Response) => {
-  res.send('This is GET method')
-})
+  if (env.BUILD_MODE === 'dev') {
+    app.listen(Number(env.LOCAL_APP_PORT), String(env.LOCAL_APP_HOST), () => {
+      console.log(
+        `LOCAL DEV: Hello ${env.AUTHOR_NAME}, Server is running at http://${env.LOCAL_APP_HOST}:${env.LOCAL_APP_PORT}`
+      )
+    })
+  } else {
+    app.listen(Number(process.env.PORT), () => {
+      console.log(
+        `PRODUCTION: Hello ${env.AUTHOR_NAME}, Backend Server is running successfully at Port: ${process.env.PORT}`
+      )
+    })
+  }
+}
 
-app.get('/test123', (_req: Request, res: Response) => {
-  res.send('This is GET method')
-})
+// IIFE to start the server
+;(async () => {
+  try {
+    console.log('1. Connecting to MongoDB...')
+    await CONNECT_DB()
+    console.log('2. Connected to MongoDB successfully!')
 
-app.get('/123', (_req: Request, res: Response) => {
-  res.send('This is GET method')
-})
-
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`)
-})
+    // Start the server
+    StartServer()
+  } catch (error) {
+    console.error('Error connecting to MongoDB:', error)
+    process.exit(0) // Exit the process with failure
+  }
+})()
