@@ -1,4 +1,5 @@
 import express from 'express'
+import { errorHandlingMiddlewares } from './middlewares/errorHandlingMiddlewares'
 import { env } from './configs/enviroment'
 import { CONNECT_DB } from './configs/mongodb'
 
@@ -7,6 +8,9 @@ const StartServer = () => {
 
   // Enable req.body json data
   app.use(express.json())
+
+  // Error Handling Middlewares
+  app.use(errorHandlingMiddlewares)
 
   if (env.BUILD_MODE === 'dev') {
     app.listen(Number(env.LOCAL_APP_PORT), String(env.LOCAL_APP_HOST), () => {
