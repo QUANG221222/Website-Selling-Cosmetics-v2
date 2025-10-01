@@ -1,12 +1,13 @@
+import { Request, Response, NextFunction, ErrorRequestHandler } from 'express'
 import { StatusCodes } from 'http-status-codes'
-import { env } from '../configs/enviroment'
+import { env } from '~/configs/enviroment'
 
-export const errorHandlingMiddlewares = (
+export const errorHandlingMiddleware: ErrorRequestHandler = (
   err: any,
-  _req: any,
-  res: any,
-  _next: any
-) => {
+  _req: Request,
+  res: Response,
+  _next: NextFunction
+): void => {
   //// If the developer forgets to set statusCode, default to 500 INTERNAL_SERVER_ERROR
 
   if (!err.statusCode) err.statusCode = StatusCodes.INTERNAL_SERVER_ERROR
