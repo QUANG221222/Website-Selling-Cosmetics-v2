@@ -1,7 +1,8 @@
 import express from 'express'
-import { errorHandlingMiddlewares } from './middlewares/errorHandlingMiddlewares'
-import { env } from './configs/enviroment'
-import { CONNECT_DB } from './configs/mongodb'
+import { middlewares } from '~/middlewares'
+import { env } from '~/configs/enviroment'
+import { CONNECT_DB } from '~/configs/mongodb'
+import { APIs_V1 } from '~/routes/v1/index'
 
 const StartServer = () => {
   const app = express()
@@ -9,8 +10,11 @@ const StartServer = () => {
   // Enable req.body json data
   app.use(express.json())
 
+  // Import All Routes
+  app.use('/v1', APIs_V1)
+
   // Error Handling Middlewares
-  app.use(errorHandlingMiddlewares)
+  app.use(middlewares.errorHandlingMiddleware)
 
   if (env.BUILD_MODE === 'dev') {
     app.listen(Number(env.LOCAL_APP_PORT), String(env.LOCAL_APP_HOST), () => {
