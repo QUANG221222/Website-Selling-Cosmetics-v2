@@ -7,6 +7,7 @@ declare global {
         username: string;
         email: string;
         password: string;
+        confirmPassword: string;
     }
     type FormInputProps = {
         name: string;

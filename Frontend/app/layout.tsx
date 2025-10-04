@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { inter } from "@/app/fonts";
 import "./globals.css";
 
+import { Toaster } from "@/components/ui/sonner"
+
+
 
 export const metadata: Metadata = {
   title: 'Beautify - Mỹ Phẩm Tự Nhiên',
@@ -19,6 +22,7 @@ export default function RootLayout({
         className={`${inter.className}antialiased`}
       >
         {children}
+        <Toaster position="top-right" richColors expand={true}/>
       </body>
     </html>
   );

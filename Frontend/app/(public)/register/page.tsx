@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import InputField from '@/components/forms/InputField';
 import { useForm, SubmitHandler  } from "react-hook-form"
 import FooterLink from '@/components/forms/FooterLink';
+import { toast } from "sonner"
+
 import { register as registerApi } from '@/lib/api';
 const Register = () => {
     const {
@@ -21,10 +23,14 @@ const Register = () => {
   })
 
    const onSubmit = async (data: SignUpFormData) => {
+ 
     try {
-        const res = await registerApi(data);
+       const { username, email, password } = data;
+    await registerApi({ username, email, password });
+        toast.success('Đăng ký thành công!');
         console.log(data);
     } catch (e) {
+        toast.error('Đăng ký thất bại!');
         console.error(e);
     }
   }
@@ -67,6 +73,19 @@ const Register = () => {
                     register={register}
                     error={errors.password}
                     validation={{ required: 'password is required',minLength: 8 }}
+                />
+                <InputField
+                    name="confirmPassword"
+                    label="Xác nhận mật khẩu"
+                    placeholder="Nhập lại mật khẩu..."
+                    type="password"
+                    register={register}
+                    error={errors.confirmPassword}
+                    validation={{
+                        required: 'Vui lòng xác nhận mật khẩu',
+                        validate: (value: string, formValues: SignUpFormData) =>
+                            value === formValues.password || 'Mật khẩu không khớp'
+                    }}
                 />
                   <Button
                     type="submit"
