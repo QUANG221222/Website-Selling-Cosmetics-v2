@@ -12,6 +12,47 @@ import {
 import { ObjectId } from 'mongodb'
 
 const COLLECTION_NAME: string = 'users'
+
+// ===== INTERFACES =====
+
+interface IUser {
+  _id?: ObjectId
+  email: string
+  password: string
+  username: string
+  fullName: string
+  role: string
+  isActive: boolean
+  verifyToken?: string
+  phone?: string
+  gender?: string
+  dob?: Date
+  avatar?: string
+  createdAt: Date
+  updatedAt: Date | null
+  _destroy: boolean
+}
+
+interface ICreateUserData {
+  email: string
+  password: string
+  username: string
+  fullName: string
+  role?: string
+  isActive?: boolean
+  verifyToken?: string
+}
+
+// interface IUpdateUserData {
+//   fullName?: string
+//   phone?: string
+//   gender?: string
+//   dob?: Date
+//   avatar?: string
+//   updatedAt: Date
+// }
+
+// ===== VALIDATION SCHEMA =====
 const USER_COLLECTION_SCHEMA: Joi.ObjectSchema = Joi.object({
   email: Joi.string()
     .required()
@@ -30,13 +71,17 @@ const USER_COLLECTION_SCHEMA: Joi.ObjectSchema = Joi.object({
     .default(USER_ROLES.CUSTOMER)
     .valid(USER_ROLES.CUSTOMER, USER_ROLES.ADMIN),
   isActive: Joi.boolean().default(false),
-  verifyToken: Joi.string(),
+  verifyToken: Joi.string().optional(),
+  phone: Joi.string().optional().allow(null),
+  gender: Joi.string().optional().allow(null),
+  dob: Joi.date().optional().allow(null),
+  avatar: Joi.string().optional().allow(null),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(null),
   _destroy: Joi.boolean().default(false)
 })
 
-const createNew = async (data: any): Promise<any> => {
+const createNew = async (data: ICreateUserData): Promise<any> => {
   try {
     const validData = await USER_COLLECTION_SCHEMA.validateAsync(data, {
       abortEarly: false
@@ -51,23 +96,24 @@ const createNew = async (data: any): Promise<any> => {
   }
 }
 
-const findOneByEmail = async (email: string): Promise<any> => {
+const findOneByEmail = async (email: string): Promise<IUser | null> => {
   try {
     const result = await GET_DB()
       .collection(COLLECTION_NAME)
-      .findOne({ email: email })
-    return result
+      .findOne({ email: email, _destroy: false })
+
+    return result as IUser | null
   } catch (error: any) {
     throw new Error(error)
   }
 }
 
-const findOneById = async (id: string): Promise<any> => {
+const findOneById = async (id: string): Promise<IUser | null> => {
   try {
     const result = await GET_DB()
       .collection(COLLECTION_NAME)
-      .findOne({ _id: new ObjectId(id) })
-    return result
+      .findOne({ _id: new ObjectId(id), _destroy: false })
+    return result as IUser | null
   } catch (error: any) {
     throw new Error(error)
   }
