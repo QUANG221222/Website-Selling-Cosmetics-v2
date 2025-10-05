@@ -1,7 +1,7 @@
 import { pickUser } from '~/utils/fomatter'
 import { Request } from 'express'
 import { StatusCodes } from 'http-status-codes'
-import { models } from '~/models'
+import { models, ICreateUserData } from '~/models'
 import ApiError from '~/utils/ApiError'
 import bcrypt from 'bcryptjs'
 import { v7 as uuidv7 } from 'uuid'
@@ -34,7 +34,7 @@ const createNew = async (req: Request): Promise<IUserResponse> => {
 
     const nameFromEmail: string = (req.body.email as string).split('@')[0]
 
-    const newUser: any = {
+    const newUser: ICreateUserData = {
       email: req.body.email,
       username: req.body.username,
       password: bcrypt.hashSync(req.body.password, 8),
@@ -82,7 +82,7 @@ const createNew = async (req: Request): Promise<IUserResponse> => {
   }
 }
 
-const verifyEmail = async (req: Request): Promise<any> => {
+const verifyEmail = async (req: Request): Promise<IUserResponse> => {
   try {
     const user = await models.userModel.findOneByEmail(req.body.email as string)
     if (!user) {
@@ -115,7 +115,7 @@ const verifyEmail = async (req: Request): Promise<any> => {
   }
 }
 
-const login = async (req: Request): Promise<any> => {
+const login = async (req: Request): Promise<IUserResponse> => {
   try {
     const user = await models.userModel.findOneByEmail(req.body.email as string)
     if (!user) {
@@ -139,6 +139,9 @@ const login = async (req: Request): Promise<any> => {
     throw error
   }
 }
+
+// ===== EXPORTS =====
+export type { IUserResponse }
 
 export const userService = {
   createNew,

@@ -165,6 +165,9 @@ const update = async (id: string, data: Partial<IUser>): Promise<any> => {
   }
 }
 
+// ===== EXPORTS =====
+export type { IUser, ICreateUserData }
+
 export const userModel = {
   findOneByEmail,
   createNew,
