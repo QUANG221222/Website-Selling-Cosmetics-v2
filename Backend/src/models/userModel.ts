@@ -117,6 +117,18 @@ const findOneByEmail = async (email: string): Promise<IUser | null> => {
   }
 }
 
+const findOneByUsername = async (username: string): Promise<IUser | null> => {
+  try {
+    const result = await GET_DB()
+      .collection(COLLECTION_NAME)
+      .findOne({ username: username, _destroy: false })
+
+    return result as IUser | null
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
 const findOneById = async (id: string): Promise<IUser | null> => {
   try {
     const result = await GET_DB()
@@ -157,5 +169,6 @@ export const userModel = {
   findOneByEmail,
   createNew,
   findOneById,
-  update
+  update,
+  findOneByUsername
 }

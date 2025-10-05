@@ -115,7 +115,33 @@ const verifyEmail = async (req: Request): Promise<any> => {
   }
 }
 
+const login = async (req: Request): Promise<any> => {
+  try {
+    const user = await models.userModel.findOneByEmail(req.body.email as string)
+    if (!user) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'User not found')
+    }
+    if (!user.isActive) {
+      throw new ApiError(StatusCodes.FORBIDDEN, 'User not verified')
+    }
+    const passwordIsValid = bcrypt.compareSync(
+      req.body.password,
+      user.password as string
+    )
+    if (!passwordIsValid) {
+      throw new ApiError(
+        StatusCodes.NOT_ACCEPTABLE,
+        'Your Email of Password is incorrect!'
+      )
+    }
+    return pickUser(user)
+  } catch (error) {
+    throw error
+  }
+}
+
 export const userService = {
   createNew,
-  verifyEmail
+  verifyEmail,
+  login
 }
