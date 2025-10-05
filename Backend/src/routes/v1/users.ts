@@ -14,4 +14,9 @@ Router.route('/verify').post(
   controllers.userController.verifyEmail
 )
 
+Router.route('/login').post(
+  validations.userValidation.login,
+  controllers.userController.login
+)
+
 export const userRouter = Router

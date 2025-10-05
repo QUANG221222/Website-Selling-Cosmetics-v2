@@ -1,4 +1,6 @@
 import express from 'express'
+import session from 'express-session'
+import { sessionConfig } from './configs/session'
 import { middlewares } from '~/middlewares'
 import { env } from '~/configs/enviroment'
 import { CONNECT_DB } from '~/configs/mongodb'
@@ -14,6 +16,9 @@ const StartServer = () => {
 
   // Enable req.body json data
   app.use(express.json())
+
+  // Enable session
+  app.use(session(sessionConfig))
 
   // Import All Routes
   app.use('/v1', APIs_V1)
