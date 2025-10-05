@@ -19,4 +19,6 @@ Router.route('/login').post(
   controllers.userController.login
 )
 
+Router.route('/logout').post(controllers.userController.logout)
+
 export const userRouter = Router
