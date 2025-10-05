@@ -29,12 +29,32 @@ const createNew = async (req: Request, _res: Response, next: NextFunction) => {
   try {
     await correctCondition.validateAsync(req.body, { abortEarly: false })
     next()
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Validation error'
-    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, message))
+  } catch (error: any) {
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, error.message))
+  }
+}
+const verifyEmail = async (
+  req: Request,
+  _res: Response,
+  next: NextFunction
+) => {
+  const correctCondition = Joi.object({
+    email: Joi.string()
+      .required()
+      .pattern(EMAIL_RULE)
+      .message(EMAIL_RULE_MESSAGE),
+
+    token: Joi.string().required()
+  })
+  try {
+    await correctCondition.validateAsync(req.body, { abortEarly: false })
+    next()
+  } catch (error: any) {
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, error.message))
   }
 }
 
 export const userValidation = {
-  createNew
+  createNew,
+  verifyEmail
 }
