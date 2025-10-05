@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { StatusCodes } from 'http-status-codes'
+import { env } from '~/configs/enviroment'
 import { services } from '~/services/index'
 import ApiError from '~/utils/ApiError'
 
@@ -101,6 +102,33 @@ const login = async (
   }
 }
 
+const logout = (req: Request, res: Response, next: NextFunction): void => {
+  try {
+    req.session.destroy((err) => {
+      if (err) {
+        return next(
+          new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, err.message)
+        )
+      }
+
+      res.clearCookie('connect.sid', {
+        path: '/',
+        httpOnly: true,
+        secure: env.BUILD_MODE === 'production',
+        sameSite: (env.BUILD_MODE === 'production' ? 'none' : 'lax') as
+          | 'none'
+          | 'lax'
+      })
+
+      res.status(StatusCodes.OK).json({
+        message: 'Logout successful'
+      })
+    })
+  } catch (error: any) {
+    next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message))
+  }
+}
+
 export type {
   CreateUserRequest,
   CreateUserResponse,
@@ -112,5 +140,6 @@ export type {
 export const userController = {
   createNew,
   verifyEmail,
-  login
+  login,
+  logout
 }
