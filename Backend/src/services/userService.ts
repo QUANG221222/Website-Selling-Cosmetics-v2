@@ -23,21 +23,21 @@ interface IUserResponse {
   createdAt: Date
 }
 
-const createNew = async (reqBody: Request): Promise<IUserResponse> => {
+const createNew = async (req: Request): Promise<IUserResponse> => {
   try {
     const existUser: any = await models.userModel.findOneByEmail(
-      reqBody.body.email as string
+      req.body.email as string
     )
     if (existUser) {
       throw new ApiError(StatusCodes.CONFLICT, 'Email already exists!')
     }
 
-    const nameFromEmail: string = (reqBody.body.email as string).split('@')[0]
+    const nameFromEmail: string = (req.body.email as string).split('@')[0]
 
     const newUser: any = {
-      email: reqBody.body.email,
-      username: reqBody.body.username,
-      password: bcrypt.hashSync(reqBody.body.password, 8),
+      email: req.body.email,
+      username: req.body.username,
+      password: bcrypt.hashSync(req.body.password, 8),
       fullName: nameFromEmail,
       verifyToken: uuidv7(),
       role: 'customer'
@@ -82,6 +82,40 @@ const createNew = async (reqBody: Request): Promise<IUserResponse> => {
   }
 }
 
+const verifyEmail = async (req: Request): Promise<any> => {
+  try {
+    const user = await models.userModel.findOneByEmail(req.body.email as string)
+    if (!user) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'User not found')
+    }
+    if (user.isActive) {
+      throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'User already verified')
+    }
+    if (user.verifyToken !== req.body.token) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid token')
+    }
+    const updateUser = {
+      isActive: true,
+      verifyToken: ''
+    }
+    if (!user._id) {
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        'User ID is missing'
+      )
+    }
+    const result = await models.userModel.update(
+      user._id.toString(),
+      updateUser
+    )
+
+    return pickUser(result)
+  } catch (error) {
+    throw error
+  }
+}
+
 export const userService = {
-  createNew
+  createNew,
+  verifyEmail
 }

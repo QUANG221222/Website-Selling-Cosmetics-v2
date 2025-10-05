@@ -81,6 +81,15 @@ const USER_COLLECTION_SCHEMA: Joi.ObjectSchema = Joi.object({
   _destroy: Joi.boolean().default(false)
 })
 
+// =======  INVALID_UPDATE_FIELDS ======
+// Fields that should not be updated directly
+const INVALID_UPDATE_FIELDS: string[] = [
+  '_id',
+  'email',
+  'username',
+  'createdAt'
+]
+
 const createNew = async (data: ICreateUserData): Promise<any> => {
   try {
     const validData = await USER_COLLECTION_SCHEMA.validateAsync(data, {
@@ -119,8 +128,34 @@ const findOneById = async (id: string): Promise<IUser | null> => {
   }
 }
 
+const update = async (id: string, data: Partial<IUser>): Promise<any> => {
+  try {
+    // Remove invalid fields from the update data
+    Object.keys(data).forEach((key) => {
+      if (INVALID_UPDATE_FIELDS.includes(key)) {
+        delete (data as any)[key]
+      }
+    })
+
+    const result = await GET_DB()
+      .collection(COLLECTION_NAME)
+      .findOneAndUpdate(
+        { _id: new ObjectId(id), _destroy: false },
+        { $set: data },
+        {
+          returnDocument: 'after'
+        }
+      )
+
+    return result as IUser | null
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
 export const userModel = {
   findOneByEmail,
   createNew,
-  findOneById
+  findOneById,
+  update
 }
