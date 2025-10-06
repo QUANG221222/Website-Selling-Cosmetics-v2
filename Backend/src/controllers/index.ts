@@ -1,4 +1,5 @@
 import { userController } from './userController'
+import { adminController } from './adminController'
 export type {
   CreateUserRequest,
   CreateUserResponse,
@@ -7,7 +8,9 @@ export type {
   LoginRequest,
   LoginResponse
 } from './userController'
+export type { CreateAdminRequest, CreateAdminResponse } from './adminController'
 
 export const controllers = {
-  userController
+  userController,
+  adminController
 }
