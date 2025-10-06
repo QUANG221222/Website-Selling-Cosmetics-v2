@@ -1,5 +1,6 @@
 import { userController } from './userController'
 import { adminController } from './adminController'
+import { cosmeticController } from './cosmeticController'
 export type {
   CreateUserRequest,
   CreateUserResponse,
@@ -9,8 +10,13 @@ export type {
   LoginResponse
 } from './userController'
 export type { CreateAdminRequest, CreateAdminResponse } from './adminController'
+export type {
+  CreateCosmeticRequest,
+  CreateCosmeticResponse
+} from './cosmeticController'
 
 export const controllers = {
   userController,
-  adminController
+  adminController,
+  cosmeticController
 }
