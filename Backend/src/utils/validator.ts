@@ -14,3 +14,6 @@ export const USER_ROLES = {
   ADMIN: 'admin',
   CUSTOMER: 'customer'
 }
+export const SECRET_KEY_RULE = /^[A-Za-z0-9+/]{43}=$/
+export const SECRET_KEY_MESSAGE =
+  'Secret key must be a valid 32-byte base64 encoded string (44 characters).'
