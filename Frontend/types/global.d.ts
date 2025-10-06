@@ -14,7 +14,7 @@ declare global {
         label: string;
         placeholder: string;
         type?: string;
-        register: UseFormRegister;
+        register: UseFormRegister<SignUpFormData>;
         error?: FieldError;
         validation?: RegisterOptions;
         disabled?: boolean;

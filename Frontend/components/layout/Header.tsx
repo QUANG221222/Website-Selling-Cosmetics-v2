@@ -15,7 +15,14 @@ import {
   X
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-const Header = () => {
+interface HeaderProps {
+  cartItemsCount: number;
+  onNavigate: (page: string) => void;
+  onSearch: (query: string) => void;
+  currentPage: string;
+}
+
+const Header = ({ cartItemsCount, onNavigate, onSearch, currentPage }: HeaderProps) => {
 const [isMenuOpen, setIsMenuOpen] = useState(false);
   return (
     <header className="bg-white border-b border-border sticky top-0 z-50 shadow-sm">
@@ -58,11 +65,11 @@ const [isMenuOpen, setIsMenuOpen] = useState(false);
                             className="relative cursor-pointer"
                         >
                         <ShoppingCart className="h-5 w-5" />
-                            {/* {cartItemsCount > 0 && (
+                            {cartItemsCount > 0 && (
                                 <span className="absolute -top-1 -right-1 bg-brand-deep-pink text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                                 {cartItemsCount}
                                 </span>
-                            )} */}
+                            )}
                         </Button>
     
                         {/* User Account */}

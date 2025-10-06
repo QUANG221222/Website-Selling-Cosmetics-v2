@@ -14,15 +14,17 @@ export interface User {
 
 export interface Cosmetic {
   _id: string
-  classify: string
+  brand: string
   nameCosmetic: string
   description?: string
-  content?: string
+  classify: string
   image?: string
   quantity: number
   originalPrice: number
   discountPrice: number
-  rating?: string
+  rating?: number
+  isNew?: boolean;
+  isSaleOff?: boolean;
   createdAt: Date
   updatedAt: Date
 }
