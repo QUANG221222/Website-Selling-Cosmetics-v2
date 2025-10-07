@@ -23,6 +23,11 @@ interface CreateCosmeticResponse {
   data: any
 }
 
+interface GetAllCosmeticsResponse {
+  message: string
+  data: any
+}
+
 const createNew = async (
   req: Request<{}, {}, CreateCosmeticRequest, {}>,
   res: Response<CreateCosmeticResponse>,
@@ -41,6 +46,21 @@ const createNew = async (
     res
       .status(StatusCodes.CREATED)
       .json({ message: 'Cosmetic created successfully', data: result })
+  } catch (error: any) {
+    next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message))
+  }
+}
+
+const getAll = async (
+  _req: Request,
+  res: Response<GetAllCosmeticsResponse>,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const result = await services.cosmeticService.getAll()
+    res
+      .status(StatusCodes.OK)
+      .json({ message: 'Cosmetics retrieved successfully', data: result })
   } catch (error: any) {
     next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message))
   }
@@ -103,5 +123,6 @@ export type { CreateCosmeticRequest, CreateCosmeticResponse }
 export const cosmeticController = {
   createNew,
   uploadSingleImage,
-  uploadMultipleImages
+  uploadMultipleImages,
+  getAll
 }

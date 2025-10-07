@@ -49,9 +49,19 @@ const createNew = async (data: Request): Promise<any> => {
   }
 }
 
+const getAll = async (): Promise<any> => {
+  try {
+    const result = await models.cosmeticModel.findAll()
+    return result.map((item) => pickCosmetic(item))
+  } catch (error: any) {
+    throw new Error(error.message)
+  }
+}
+
 // ===== EXPORTS =====
 export type { ICosmeticResponse }
 
 export const cosmeticService = {
-  createNew
+  createNew,
+  getAll
 }

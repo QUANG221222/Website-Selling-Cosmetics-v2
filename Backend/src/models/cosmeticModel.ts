@@ -94,10 +94,23 @@ const findOneById = async (id: string): Promise<ICosmetic | null> => {
   }
 }
 
+const findAll = async (): Promise<ICosmetic[]> => {
+  try {
+    const cosmetics = await GET_DB()
+      .collection(COLLECTION_NAME)
+      .find({ _destroy: false })
+      .toArray()
+    return cosmetics as ICosmetic[]
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
 // ===== EXPORTS =====
 export type { ICosmetic, ICosmeticCreateData }
 export const cosmeticModel = {
   createNew,
   findOneById,
-  findOneBySlug
+  findOneBySlug,
+  findAll
 }
