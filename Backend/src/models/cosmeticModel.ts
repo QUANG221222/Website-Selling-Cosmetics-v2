@@ -52,6 +52,7 @@ const COSMETIC_COLLECTION_SCHEMA: Joi.ObjectSchema = Joi.object({
   isNew: Joi.boolean().default(true),
   isSaleOff: Joi.boolean().default(false),
   image: Joi.string().uri().required(),
+  publicId: Joi.string().required(),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(null),
   _destroy: Joi.boolean().default(false)

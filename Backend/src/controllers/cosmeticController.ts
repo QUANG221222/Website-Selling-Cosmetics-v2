@@ -16,6 +16,7 @@ interface CreateCosmeticRequest {
   isNew?: boolean
   isSaleOff?: boolean
   image: string
+  publicId: string
 }
 
 interface CreateCosmeticResponse {
@@ -44,12 +45,13 @@ const createNew = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.file || !req.file.path) {
+    if (!req.file) {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'Image is required')
     }
     const reqBodyWithImage: CreateCosmeticRequest = {
       ...req.body,
-      image: req.file.path
+      image: req.file.path,
+      publicId: req.file.filename
     }
     req.body = reqBodyWithImage as CreateCosmeticRequest
     const result = await services.cosmeticService.createNew(req)

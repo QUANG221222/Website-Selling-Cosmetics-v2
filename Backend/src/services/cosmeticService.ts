@@ -16,6 +16,10 @@ interface ICosmeticResponse {
   originalPrice: number
   discountPrice: number
   image: string
+  publicId: string
+  rating: number
+  isNew: boolean
+  isSaleOff: boolean
   createdAt: Date
 }
 

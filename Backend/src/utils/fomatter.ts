@@ -25,6 +25,7 @@ export const pickCosmetic = (cosmetic: any): any => {
     'isNew',
     'isSaleOff',
     'image',
+    'publicId',
     'createdAt',
     'updatedAt'
   ])
