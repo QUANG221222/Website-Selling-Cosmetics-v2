@@ -49,10 +49,34 @@ const createNew = async (data: Request): Promise<any> => {
   }
 }
 
-const getAll = async (): Promise<any> => {
+const getAll = async (): Promise<ICosmeticResponse[]> => {
   try {
     const result = await models.cosmeticModel.findAll()
     return result.map((item) => pickCosmetic(item))
+  } catch (error: any) {
+    throw new Error(error.message)
+  }
+}
+
+const getById = async (id: string): Promise<ICosmeticResponse> => {
+  try {
+    const cosmetic = await models.cosmeticModel.findOneById(id)
+    if (!cosmetic) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Cosmetic not found')
+    }
+    return pickCosmetic(cosmetic)
+  } catch (error: any) {
+    throw new Error(error.message)
+  }
+}
+
+const getBySlug = async (slug: string): Promise<ICosmeticResponse> => {
+  try {
+    const cosmetic = await models.cosmeticModel.findOneBySlug(slug)
+    if (!cosmetic) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Cosmetic not found')
+    }
+    return pickCosmetic(cosmetic)
   } catch (error: any) {
     throw new Error(error.message)
   }
@@ -63,5 +87,7 @@ export type { ICosmeticResponse }
 
 export const cosmeticService = {
   createNew,
-  getAll
+  getAll,
+  getById,
+  getBySlug
 }
