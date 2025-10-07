@@ -28,6 +28,16 @@ interface GetAllCosmeticsResponse {
   data: any
 }
 
+interface GetCosmeticByIdResponse {
+  message: string
+  data: any
+}
+
+interface GetCosmeticBySlugResponse {
+  message: string
+  data: any
+}
+
 const createNew = async (
   req: Request<{}, {}, CreateCosmeticRequest, {}>,
   res: Response<CreateCosmeticResponse>,
@@ -61,6 +71,38 @@ const getAll = async (
     res
       .status(StatusCodes.OK)
       .json({ message: 'Cosmetics retrieved successfully', data: result })
+  } catch (error: any) {
+    next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message))
+  }
+}
+
+const getById = async (
+  req: Request<{ id: string }, {}, {}, {}>,
+  res: Response<GetCosmeticByIdResponse>,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { id } = req.params
+    const result = await services.cosmeticService.getById(id)
+    res
+      .status(StatusCodes.OK)
+      .json({ message: 'Cosmetic retrieved successfully', data: result })
+  } catch (error: any) {
+    next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message))
+  }
+}
+
+const getBySlug = async (
+  req: Request<{ slug: string }, {}, {}, {}>,
+  res: Response<GetCosmeticBySlugResponse>,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { slug } = req.params
+    const result = await services.cosmeticService.getBySlug(slug)
+    res
+      .status(StatusCodes.OK)
+      .json({ message: 'Cosmetic retrieved successfully', data: result })
   } catch (error: any) {
     next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message))
   }
@@ -119,10 +161,18 @@ const uploadMultipleImages = async (
 }
 // ===== EXPORTS =====
 
-export type { CreateCosmeticRequest, CreateCosmeticResponse }
+export type {
+  CreateCosmeticRequest,
+  CreateCosmeticResponse,
+  GetCosmeticByIdResponse,
+  GetAllCosmeticsResponse,
+  GetCosmeticBySlugResponse
+}
 export const cosmeticController = {
   createNew,
   uploadSingleImage,
   uploadMultipleImages,
-  getAll
+  getAll,
+  getById,
+  getBySlug
 }

@@ -12,7 +12,10 @@ export type {
 export type { CreateAdminRequest, CreateAdminResponse } from './adminController'
 export type {
   CreateCosmeticRequest,
-  CreateCosmeticResponse
+  CreateCosmeticResponse,
+  GetCosmeticByIdResponse,
+  GetAllCosmeticsResponse,
+  GetCosmeticBySlugResponse
 } from './cosmeticController'
 
 export const controllers = {
