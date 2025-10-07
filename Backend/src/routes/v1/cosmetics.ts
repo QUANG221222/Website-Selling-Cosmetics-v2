@@ -13,6 +13,8 @@ Router.route('/').post(
   controllers.cosmeticController.createNew
 )
 
+Router.route('/').get(controllers.cosmeticController.getAll)
+
 Router.route('/single').post(
   upload.single('image'),
   controllers.cosmeticController.uploadSingleImage
