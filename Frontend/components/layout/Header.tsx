@@ -15,30 +15,21 @@ import {
   X
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-interface HeaderProps {
-  cartItemsCount: number;
-  onNavigate: (page: string) => void;
-  onSearch: (query: string) => void;
-  currentPage: string;
-}
+ 
 
-const Header = ({ cartItemsCount, onNavigate, onSearch, currentPage }: HeaderProps) => {
+const Header = () => {
+
 const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   return (
     <header className="bg-white border-b border-border sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 py-4">
            <div className="flex flex-col">  
                 <div className="flex items-center justify-between">
     
-                    <div className="flex justitems-center justify-between">
-                        <Link href='/'>
-                                <Image  
-                                    src="/product0.webp"
-                                    alt="Signalist" 
-                                    width={90} 
-                                    height={30}
-                                    className="cursor-pointer mr-10"
-                                />
+                    <div className="flex items-center justify-between">
+                        <Link href='/' className='text-2xl text-brand-deep-pink mr-5'>
+                            Beautify
                         </Link> 
                         <nav className="hidden md:flex items-center space-x-8 mr-10"> 
                             <NavItems/>
@@ -58,30 +49,32 @@ const [isMenuOpen, setIsMenuOpen] = useState(false);
                         </Button>
     
                         {/* Cart */}
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            // onClick={() => onNavigate('cart')}
-                            className="relative cursor-pointer"
-                        >
-                        <ShoppingCart className="h-5 w-5" />
-                            {cartItemsCount > 0 && (
-                                <span className="absolute -top-1 -right-1 bg-brand-deep-pink text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                                {cartItemsCount}
-                                </span>
-                            )}
-                        </Button>
+                        <Link href="/cart">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="relative cursor-pointer"
+                            >
+                            <ShoppingCart className="h-5 w-5" />
+                                {/* {cartItemsCount > 0 && (
+                                    <span className="absolute -top-1 -right-1 bg-brand-deep-pink text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                    {cartItemsCount}
+                                    </span>
+                                )} */}
+                            </Button>
+                        </Link>
     
                         {/* User Account */}
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            // onClick={() => onNavigate('account')}
-                            className="hidden md:flex cursor-pointer"
-                        >
-                            <User className="h-5 w-5" />
-                        </Button>
-    
+                        <Link href="/profile">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="hidden md:flex cursor-pointer"
+                            >
+                                <User className="h-5 w-5" />
+                            </Button>
+                        </Link>
+        
                         {/* Mobile Menu Toggle */}
                         <Button
                             variant="ghost"

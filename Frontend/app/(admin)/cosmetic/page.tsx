@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -10,21 +10,38 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Search, Plus, Edit, Trash2, Star, Package, AlertTriangle } from "lucide-react";
+import { Search, Plus, Edit, Trash2, Star, Package, AlertTriangle, Loader2, Upload } from "lucide-react";
 import { mockCosmetics } from "@/data/mockData";
 import { Cosmetic } from "@/lib/types/index";
+import { createCosmetic, deleteCosmetic, fetchAllCosmetics, selectAllCosmetics, selectCosmeticLoading, updateCosmetic } from "@/lib/redux/cosmetic/cosmeticSlice";
+import { AppDispatch, RootState } from "@/lib/redux/store";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "sonner";
 
 const ProductsManagement = () => {
-  const [products, setProducts] = useState<Cosmetic[]>(mockCosmetics);
+
+    const dispatch = useDispatch<AppDispatch>();
+  const cosmetics = useSelector(selectAllCosmetics);
+  const loading = useSelector(selectCosmeticLoading);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [stockFilter, setStockFilter] = useState("all");
   const [selectedProduct, setSelectedProduct] = useState<Cosmetic | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+   // Fetch cosmetics on mount
+    useEffect(() => {
+        dispatch(fetchAllCosmetics());
+    }, [dispatch]);
 
   // Filter products
-  const filteredProducts = products.filter(product => {
+  const filteredProducts = cosmetics.filter(product => {
     const matchesSearch = product.nameCosmetic.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          product.brand.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = categoryFilter === "all" || product.classify === categoryFilter;
@@ -36,14 +53,42 @@ const ProductsManagement = () => {
     return matchesSearch && matchesCategory && matchesStock;
   });
 
+   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please select an image file');
+        return;
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Image size must be less than 5MB');
+        return;
+      }
+      
+      setImageFile(file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleEditProduct = (product: Cosmetic) => {
     setSelectedProduct(product);
+    setImagePreview(product.image || "");
+    setImageFile(null);
     setIsEditDialogOpen(true);
   };
 
   const handleAddProduct = () => {
     const newProduct: Cosmetic = {
-      _id: `c${Date.now()}`,
+      _id: "",
       brand: "",
       nameCosmetic: "",
       description: "",
@@ -59,27 +104,106 @@ const ProductsManagement = () => {
       updatedAt: new Date()
     };
     setSelectedProduct(newProduct);
+    setImagePreview("");
+    setImageFile(null);
     setIsAddDialogOpen(true);
   };
 
-  const handleSaveProduct = () => {
-    if (selectedProduct) {
+  const handleSaveProduct = async () => {
+    if (!selectedProduct) return;
+
+    //Validation
+    if (!selectedProduct.nameCosmetic.trim()) {
+        toast.error('Product name is required');
+        return;
+    }
+    if (!selectedProduct.brand.trim()) {
+      toast.error('Brand is required');
+      return;
+    }
+    if (selectedProduct.quantity < 0) {
+      toast.error('Quantity cannot be negative');
+      return;
+    }
+    if (selectedProduct.originalPrice < 0 || selectedProduct.discountPrice < 0) {
+      toast.error('Prices cannot be negative');
+      return;
+    }
+
+    // For new products, image is required
+    if (isAddDialogOpen && !imageFile) {
+      toast.error('Product image is required');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
       if (isAddDialogOpen) {
-        setProducts([...products, selectedProduct]);
+        // Create new product
+        await dispatch(createCosmetic({
+          data: {
+            nameCosmetic: selectedProduct.nameCosmetic,
+            brand: selectedProduct.brand,
+            classify: selectedProduct.classify,
+            quantity: selectedProduct.quantity,
+            description: selectedProduct.description || "",
+            originalPrice: selectedProduct.originalPrice,
+            discountPrice: selectedProduct.discountPrice,
+            rating: selectedProduct.rating,
+            isNew: selectedProduct.isNew,
+            isSaleOff: selectedProduct.isSaleOff
+          },
+          imageFile: imageFile!
+        })).unwrap();
+        
         setIsAddDialogOpen(false);
       } else {
-        setProducts(products.map(product => 
-          product._id === selectedProduct._id ? { ...selectedProduct, updatedAt: new Date() } : product
-        ));
+        // Update existing product
+        await dispatch(updateCosmetic({
+          id: selectedProduct._id,
+          data: {
+            nameCosmetic: selectedProduct.nameCosmetic,
+            brand: selectedProduct.brand,
+            classify: selectedProduct.classify,
+            quantity: selectedProduct.quantity,
+            description: selectedProduct.description,
+            originalPrice: selectedProduct.originalPrice,
+            discountPrice: selectedProduct.discountPrice,
+            rating: selectedProduct.rating,
+            isNew: selectedProduct.isNew,
+            isSaleOff: selectedProduct.isSaleOff
+          },
+          imageFile: imageFile || undefined
+        })).unwrap();
+        
         setIsEditDialogOpen(false);
       }
+      
       setSelectedProduct(null);
+      setImageFile(null);
+      setImagePreview("");
+    } catch (error) {
+      // Error handled by Redux slice
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleDeleteProduct = (productId: string) => {
-    setProducts(products.filter(product => product._id !== productId));
+
+  const handleDeleteProduct = async (productId: string) => {
+    if (confirm("Are you sure you want to delete this product?")){
+        await dispatch(deleteCosmetic(productId));
+    }
+
   };
+  const closeDialog = () => {
+    setIsEditDialogOpen(false);
+    setIsAddDialogOpen(false);
+    setSelectedProduct(null);
+    setImageFile(null);
+    setImagePreview("");
+  };
+
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('vi-VN', {
@@ -172,6 +296,12 @@ const ProductsManagement = () => {
               Thêm sản phẩm
             </Button>
           </div>
+           {/* Loading State */}
+            {loading && (
+                <div className="flex justify-center items-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+            )}
 
           {/* Products Table */}
           <div className="rounded-md border">
@@ -262,7 +392,7 @@ const ProductsManagement = () => {
 
           <div className="flex items-center justify-between space-x-2 py-4">
             <div className="text-sm text-muted-foreground">
-              Hiển thị {filteredProducts.length} / {products.length} sản phẩm
+              Hiển thị {filteredProducts.length} / {cosmetics.length} sản phẩm
             </div>
           </div>
         </CardContent>
@@ -271,11 +401,7 @@ const ProductsManagement = () => {
       {/* Edit/Add Product Dialog */}
       <Dialog 
         open={isEditDialogOpen || isAddDialogOpen} 
-        onOpenChange={() => {
-          setIsEditDialogOpen(false);
-          setIsAddDialogOpen(false);
-          setSelectedProduct(null);
-        }}
+        onOpenChange={closeDialog}
       >
         <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
           <DialogHeader>
@@ -288,6 +414,39 @@ const ProductsManagement = () => {
           </DialogHeader>
           {selectedProduct && (
             <div className="grid gap-4 py-4">
+                  {/* Image Upload */}
+              <div className="grid grid-cols-4 items-start gap-4">
+                <Label className="text-right pt-2">
+                  Hình ảnh {isAddDialogOpen && <span className="text-red-500">*</span>}
+                </Label>
+                <div className="col-span-3 space-y-2">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full"
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    {imageFile ? 'Thay đổi hình ảnh' : 'Tải lên hình ảnh'}
+                  </Button>
+                  {imagePreview && (
+                    <div className="relative w-full h-48 border rounded overflow-hidden">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="nameCosmetic" className="text-right">
                   Tên sản phẩm
@@ -339,17 +498,7 @@ const ProductsManagement = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="image" className="text-right">
-                  Hình ảnh URL
-                </Label>
-                <Input
-                  id="image"
-                  value={selectedProduct.image || ''}
-                  onChange={(e) => setSelectedProduct({...selectedProduct, image: e.target.value})}
-                  className="col-span-3"
-                />
-              </div>
+              
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="quantity" className="text-right">
                   Số lượng

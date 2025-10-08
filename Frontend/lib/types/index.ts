@@ -93,7 +93,7 @@ export interface Pagination {
 export interface ApiResponse<T = any> {
   message: string
   data: T
-  pagination?: Pagination
+  pagination?: Pagination   
 }
 
 export interface ApiError {
