@@ -1,8 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit'
-import { userReducer } from './user/userSlice'
 import { persistReducer } from 'redux-persist'
 import storageSession from 'redux-persist/lib/storage/session'
 import { combineReducers } from '@reduxjs/toolkit'
+import { userReducer } from './user/userSlice'
+import { cosmeticReducer } from "./cosmetic/cosmeticSlice"
+import { adminReducer } from './admin/adminSlice'
 
 const rootPersistConfig = {
   key: 'root', // The key for the root reducer
@@ -12,7 +14,9 @@ const rootPersistConfig = {
 
 // Combine all reducers
 const reducers = combineReducers({
-  user: userReducer
+  user: userReducer,
+admin: adminReducer,
+  cosmetic: cosmeticReducer
 })
 
 // Process persist Reducer
