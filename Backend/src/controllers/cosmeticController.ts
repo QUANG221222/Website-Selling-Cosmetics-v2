@@ -224,7 +224,9 @@ export type {
   CreateCosmeticResponse,
   GetCosmeticByIdResponse,
   GetAllCosmeticsResponse,
-  GetCosmeticBySlugResponse
+  GetCosmeticBySlugResponse,
+  UpdateCosmeticRequest,
+  UpdateCosmeticResponse
 }
 export const cosmeticController = {
   createNew,

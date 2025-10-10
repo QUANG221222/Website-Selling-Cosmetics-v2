@@ -42,3 +42,15 @@ export const pickUser = (user: any): any => {
     'updatedAt'
   ])
 }
+
+export const pickCart = (cart: any): any => {
+  return pick(cart, [
+    '_id',
+    'userId',
+    'items',
+    'totalAmount',
+    'totalItems',
+    'createdAt',
+    'updatedAt'
+  ])
+}
