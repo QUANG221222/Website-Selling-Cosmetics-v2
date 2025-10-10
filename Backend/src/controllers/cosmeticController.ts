@@ -110,6 +110,22 @@ const getBySlug = async (
   }
 }
 
+const deleteItem = async (
+  req: Request<{ id: string }, {}, {}, {}>,
+  res: Response<{ message: string }>,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { id } = req.params
+    await services.cosmeticService.deleteById(id)
+    res
+      .status(StatusCodes.OK)
+      .json({ message: 'Cosmetic deleted successfully' })
+  } catch (error: any) {
+    next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message))
+  }
+}
+
 const uploadSingleImage = async (
   req: Request,
   res: Response,
@@ -176,5 +192,6 @@ export const cosmeticController = {
   uploadMultipleImages,
   getAll,
   getById,
-  getBySlug
+  getBySlug,
+  deleteItem
 }

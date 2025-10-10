@@ -3,6 +3,7 @@ import { slugify, pickCosmetic } from '~/utils/fomatter'
 import { models, ICosmeticCreateData } from '~/models'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
+import { cloudinary } from '~/configs/cloudinary'
 
 // ===== INTERFACES & TYPES =====
 interface ICosmeticResponse {
@@ -86,6 +87,19 @@ const getBySlug = async (slug: string): Promise<ICosmeticResponse> => {
   }
 }
 
+const deleteById = async (id: string): Promise<void> => {
+  try {
+    const cosmetic = await models.cosmeticModel.findOneById(id)
+    if (!cosmetic) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Cosmetic not found')
+    }
+    await cloudinary.uploader.destroy(cosmetic.publicId)
+    await models.cosmeticModel.deleteById(id)
+  } catch (error: any) {
+    throw new Error(error.message)
+  }
+}
+
 // ===== EXPORTS =====
 export type { ICosmeticResponse }
 
@@ -93,5 +107,6 @@ export const cosmeticService = {
   createNew,
   getAll,
   getById,
-  getBySlug
+  getBySlug,
+  deleteById
 }

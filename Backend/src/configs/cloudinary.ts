@@ -40,3 +40,5 @@ export const upload = multer({
     }
   }
 })
+
+export { cloudinary }

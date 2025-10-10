@@ -15,7 +15,13 @@ Router.route('/').post(
 
 Router.route('/').get(controllers.cosmeticController.getAll)
 
-Router.route('/id/:id').get(controllers.cosmeticController.getById)
+Router.route('/id/:id')
+  .get(controllers.cosmeticController.getById)
+  .delete(
+    middlewares.authHandlingMiddleware.isAdmin,
+    validations.cosmeticValidation.deleteItem,
+    controllers.cosmeticController.deleteItem
+  )
 
 Router.route('/slug/:slug').get(controllers.cosmeticController.getBySlug)
 
