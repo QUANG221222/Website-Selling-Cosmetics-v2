@@ -3,6 +3,7 @@ import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 
 const COLLECTION_NAME: string = 'cosmetics'
+const INVALID_UPDATE_FIELDS: string[] = ['_id', 'createdAt']
 // ===== INTERFACES =====
 interface ICosmetic {
   _id?: ObjectId
@@ -37,6 +38,22 @@ interface ICosmeticCreateData {
   isNew?: boolean
   isSaleOff?: boolean
   image: string
+}
+
+interface ICosmeticUpdateData {
+  nameCosmetic?: string
+  slug?: string
+  brand?: string
+  classify?: string
+  quantity?: number
+  description?: string
+  originalPrice?: number
+  discountPrice?: number
+  rating?: number
+  isNew?: boolean
+  isSaleOff?: boolean
+  image?: string
+  publicId?: string
 }
 
 // ===== VALIDATION SCHEMA =====
@@ -121,12 +138,43 @@ const deleteById = async (id: string): Promise<void> => {
   }
 }
 
+const updateById = async (
+  id: string,
+  data: Partial<ICosmeticUpdateData>
+): Promise<ICosmetic | null> => {
+  try {
+    // Remove invalid fields from the update data
+    Object.keys(data).forEach((key) => {
+      if (INVALID_UPDATE_FIELDS.includes(key)) {
+        delete (data as any)[key]
+      }
+    })
+
+    const updatedData = { ...data }
+    const result = await GET_DB()
+      .collection(COLLECTION_NAME)
+      .updateOne({ _id: new ObjectId(id) }, { $set: updatedData })
+    if (result.matchedCount === 0) {
+      throw new Error('Cosmetic not found')
+    }
+
+    // Fetch and return the updated document
+    const updatedCosmetic = await GET_DB()
+      .collection(COLLECTION_NAME)
+      .findOne({ _id: new ObjectId(id) })
+    return updatedCosmetic as ICosmetic | null
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
 // ===== EXPORTS =====
-export type { ICosmetic, ICosmeticCreateData }
+export type { ICosmetic, ICosmeticCreateData, ICosmeticUpdateData }
 export const cosmeticModel = {
   createNew,
   findOneById,
   findOneBySlug,
   findAll,
-  deleteById
+  deleteById,
+  updateById
 }

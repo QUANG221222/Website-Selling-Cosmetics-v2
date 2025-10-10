@@ -17,6 +17,12 @@ Router.route('/').get(controllers.cosmeticController.getAll)
 
 Router.route('/id/:id')
   .get(controllers.cosmeticController.getById)
+  .put(
+    middlewares.authHandlingMiddleware.isAdmin,
+    upload.single('image'),
+    validations.cosmeticValidation.updateItem,
+    controllers.cosmeticController.updateItem
+  )
   .delete(
     middlewares.authHandlingMiddleware.isAdmin,
     validations.cosmeticValidation.deleteItem,

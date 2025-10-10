@@ -1,6 +1,6 @@
 import { Request } from 'express'
 import { slugify, pickCosmetic } from '~/utils/fomatter'
-import { models, ICosmeticCreateData } from '~/models'
+import { models, ICosmeticCreateData, ICosmeticUpdateData } from '~/models'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
 import { cloudinary } from '~/configs/cloudinary'
@@ -100,6 +100,37 @@ const deleteById = async (id: string): Promise<void> => {
   }
 }
 
+const updateItem = async (
+  id: string,
+  data: Partial<ICosmeticCreateData>
+): Promise<ICosmeticResponse> => {
+  try {
+    const cosmetic = await models.cosmeticModel.findOneById(id)
+    if (!cosmetic) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Cosmetic not found')
+    }
+    if (data.nameCosmetic && data.nameCosmetic !== cosmetic.nameCosmetic) {
+      data.slug = slugify(data.nameCosmetic)
+    }
+    if (data.image && data.image !== cosmetic.image) {
+      await cloudinary.uploader.destroy(cosmetic.publicId)
+    }
+
+    const updateCosmetic: ICosmeticUpdateData = {
+      ...data
+    }
+
+    const updatedCosmetic = await models.cosmeticModel.updateById(
+      id,
+      updateCosmetic
+    )
+
+    return pickCosmetic(updatedCosmetic)
+  } catch (error: any) {
+    throw new Error(error.message)
+  }
+}
+
 // ===== EXPORTS =====
 export type { ICosmeticResponse }
 
@@ -108,5 +139,6 @@ export const cosmeticService = {
   getAll,
   getById,
   getBySlug,
-  deleteById
+  deleteById,
+  updateItem
 }
