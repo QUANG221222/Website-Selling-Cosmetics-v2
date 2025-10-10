@@ -24,6 +24,26 @@ interface CreateCosmeticResponse {
   data: any
 }
 
+interface UpdateCosmeticRequest {
+  nameCosmetic?: string
+  brand?: string
+  classify?: string
+  quantity?: number
+  description?: string
+  originalPrice?: number
+  discountPrice?: number
+  rating?: number
+  isNew?: boolean
+  isSaleOff?: boolean
+  image?: string
+  publicId?: string
+}
+
+interface UpdateCosmeticResponse {
+  message: string
+  data: any
+}
+
 interface GetAllCosmeticsResponse {
   message: string
   data: any
@@ -58,6 +78,26 @@ const createNew = async (
     res
       .status(StatusCodes.CREATED)
       .json({ message: 'Cosmetic created successfully', data: result })
+  } catch (error: any) {
+    next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message))
+  }
+}
+
+const updateItem = async (
+  req: Request<{ id: string }, {}, Partial<UpdateCosmeticRequest>, {}>,
+  res: Response<UpdateCosmeticResponse>,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { id } = req.params
+    if (req.file) {
+      req.body.image = req.file.path
+      req.body.publicId = req.file.filename
+    }
+    const result = await services.cosmeticService.updateItem(id, req.body)
+    res
+      .status(StatusCodes.OK)
+      .json({ message: 'Cosmetic updated successfully', data: result })
   } catch (error: any) {
     next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message))
   }
@@ -193,5 +233,6 @@ export const cosmeticController = {
   getAll,
   getById,
   getBySlug,
-  deleteItem
+  deleteItem,
+  updateItem
 }
