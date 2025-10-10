@@ -1,6 +1,7 @@
 import { userController } from './userController'
 import { adminController } from './adminController'
 import { cosmeticController } from './cosmeticController'
+import {cartController} from './cartController'
 export type {
   CreateUserRequest,
   CreateUserResponse,
@@ -15,11 +16,14 @@ export type {
   CreateCosmeticResponse,
   GetCosmeticByIdResponse,
   GetAllCosmeticsResponse,
-  GetCosmeticBySlugResponse
+  GetCosmeticBySlugResponse,
+  UpdateCosmeticRequest,
+  UpdateCosmeticResponse
 } from './cosmeticController'
 
 export const controllers = {
   userController,
   adminController,
-  cosmeticController
+  cosmeticController,
+  cartController
 }
