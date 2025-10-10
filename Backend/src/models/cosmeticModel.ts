@@ -18,6 +18,7 @@ interface ICosmetic {
   isNew: boolean
   isSaleOff: boolean
   image: string
+  publicId: string
   createdAt: Date
   updatedAt: Date | null
   _destroy: boolean
@@ -107,11 +108,25 @@ const findAll = async (): Promise<ICosmetic[]> => {
   }
 }
 
+const deleteById = async (id: string): Promise<void> => {
+  try {
+    const result = await GET_DB()
+      .collection(COLLECTION_NAME)
+      .deleteOne({ _id: new ObjectId(id) })
+    if (result.deletedCount === 0) {
+      throw new Error('Cosmetic not found or already deleted')
+    }
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
 // ===== EXPORTS =====
 export type { ICosmetic, ICosmeticCreateData }
 export const cosmeticModel = {
   createNew,
   findOneById,
   findOneBySlug,
-  findAll
+  findAll,
+  deleteById
 }

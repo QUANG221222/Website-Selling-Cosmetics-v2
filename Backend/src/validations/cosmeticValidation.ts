@@ -1,6 +1,7 @@
 import Joi from 'joi'
 import { Request, Response, NextFunction } from 'express'
 import ApiError from '~/utils/ApiError'
+import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validator'
 import { StatusCodes } from 'http-status-codes'
 
 const createNew = async (req: Request, _res: Response, next: NextFunction) => {
@@ -23,6 +24,23 @@ const createNew = async (req: Request, _res: Response, next: NextFunction) => {
     next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, error.message))
   }
 }
+
+const deleteItem = async (req: Request, _res: Response, next: NextFunction) => {
+  const correctCondition = Joi.object({
+    id: Joi.string()
+      .required()
+      .pattern(OBJECT_ID_RULE)
+      .message(OBJECT_ID_RULE_MESSAGE)
+  })
+  try {
+    await correctCondition.validateAsync(req.params)
+
+    next()
+  } catch (error: any) {
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, error.message))
+  }
+}
 export const cosmeticValidation = {
-  createNew
+  createNew,
+  deleteItem
 }
