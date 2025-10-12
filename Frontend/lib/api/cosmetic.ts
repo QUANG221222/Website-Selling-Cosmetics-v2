@@ -14,6 +14,7 @@ export interface CreateCosmeticData {
   isNew?: boolean
   isSaleOff?: boolean
 }
+
 export interface UpdateCosmeticData extends Partial<CreateCosmeticData> {}
 
 export const cosmeticApi = {

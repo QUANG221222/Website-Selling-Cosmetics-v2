@@ -15,11 +15,15 @@ import {
   X
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { useSelector } from 'react-redux';
+import { selectCartTotalItems } from '@/lib/redux/cart/cartSlice';
+import CartBadge from '@/components/cart/CartBadge';
  
 
 const Header = () => {
 
 const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const cartItemsCount = useSelector(selectCartTotalItems);
 
   return (
     <header className="bg-white border-b border-border sticky top-0 z-50 shadow-sm">
@@ -50,18 +54,7 @@ const [isMenuOpen, setIsMenuOpen] = useState(false);
     
                         {/* Cart */}
                         <Link href="/cart">
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="relative cursor-pointer"
-                            >
-                            <ShoppingCart className="h-5 w-5" />
-                                {/* {cartItemsCount > 0 && (
-                                    <span className="absolute -top-1 -right-1 bg-brand-deep-pink text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                                    {cartItemsCount}
-                                    </span>
-                                )} */}
-                            </Button>
+                                <CartBadge/>
                         </Link>
     
                         {/* User Account */}
