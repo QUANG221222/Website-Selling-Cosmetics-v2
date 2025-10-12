@@ -107,7 +107,7 @@ const Register = () => {
             <FooterLink
               text="Already have an account?"
               linkText="Login"
-              href="/login"
+              href="users/login"
             />
           </CardContent>
         </Card>

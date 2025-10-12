@@ -1,165 +1,95 @@
-'use client';
-import { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import  ProductCard  from '@/components/product/ProductCard';
-import { Search, Filter, X } from 'lucide-react'
-import { Cosmetic } from '@/lib/types';
-import { Checkbox } from '@/components/ui/checkbox';
+"use client";
+import { useEffect, useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import ProductCard from "@/components/product/ProductCard";
+import { Search, Filter, X } from "lucide-react";
+import { Cosmetic } from "@/lib/types";
+import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "sonner";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch } from "@/lib/redux/store";
+import { fetchAllCosmetics, selectAllCosmetics, selectCosmeticLoading } from "@/lib/redux/cosmetic/cosmeticSlice";
+import { addToCart } from "@/lib/redux/cart/cartSlice";
+import { useRouter } from "next/navigation";
 
-import { toast } from 'sonner';
-interface ProductCatalogProps {
-  cosmetics: Cosmetic[];
-  onAddToCart: (cosmetics: Cosmetic) => void;
-  onViewProduct: (cosmetic: Cosmetic) => void;
-}
-export interface CartItem {
-  id: string;
-  cosmetic: {
-    id: string;
-    name: string;
-    price: number;
-    image?: string;
-    brand?: string;
-  };
-  quantity: number;
-  variant?: string;
-}
- const sampleCosmetics: Cosmetic[] = [
-    {
-      _id: '1',
-      nameCosmetic: 'Son Dưỡng Môi Hữu Cơ Rose',
-      discountPrice: 250000,
-      originalPrice: 320000,
-      image: '/product0.webp',
-      classify: 'Son môi',
-      brand: 'Natural Beauty',
-      rating: 4.8,
-      isNew: true,
-      isSaleOff: true,
-      quantity: 45,
-      description:'',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      _id: '2',
-      nameCosmetic: 'Son Dưỡng Môi Hữu Cơ Rose',
-      discountPrice: 250000,
-      originalPrice: 320000,
-      image: '/product0.webp',
-      classify: 'Son môi',
-      brand: 'Natural Beauty',
-      rating: 4.8,
-      isNew: true,
-      isSaleOff: true,
-      quantity: 45,
-      description:'',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      _id: '3',
-      nameCosmetic: 'Son Dưỡng Môi Hữu Cơ Rose',
-      discountPrice: 250000,
-      originalPrice: 320000,
-      image: '/product0.webp',
-      classify: 'Son môi',
-      brand: 'Natural Beauty',
-      rating: 4.8,
-      isNew: true,
-      isSaleOff: true,
-      quantity: 45,
-      description:'',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      _id: '4',
-      nameCosmetic: 'Son Dưỡng Môi Hữu Cơ Rose',
-      discountPrice: 250000,
-      originalPrice: 320000,
-      image: '/product0.webp',
-      classify: 'Son môi',
-      brand: 'Natural Beauty',
-      rating: 4.8,
-      isNew: true,
-      isSaleOff: true,
-      quantity: 45,
-      description:'',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      _id: '5',
-      nameCosmetic: 'Son Dưỡng Môi Hữu Cơ Rose',
-      discountPrice: 250000,
-      originalPrice: 320000,
-      image: '/product0.webp',
-      classify: 'Son môi',
-      brand: 'Natural Beauty',
-      rating: 4.8,
-      isNew: true,
-      isSaleOff: true,
-      quantity: 45,
-      description:'',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
+const ProductPage = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
+  const cosmetics = useSelector(selectAllCosmetics);
+  const loading = useSelector(selectCosmeticLoading);
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+  const [priceRange, setPriceRange] = useState<{ min: string; max: string }>({
+    min: "",
+    max: "",
+  });
+
+  // Fetch products on mount
+  useEffect(() => {
+    dispatch(fetchAllCosmetics());
+  }, [dispatch]);
+
+
+  const [sortBy, setSortBy] = useState("name");
+  const [showFilters, setShowFilters] = useState(false);
+
+  // Get unique categories and brands
+ // Get unique categories and brands
+  const categories = Array.from(new Set(cosmetics?.map(p => p.classify) || []));
+  const brands = Array.from(new Set(cosmetics?.map(p => p.brand).filter(Boolean) || []));
+
+    // Handle add to cart
+    const handleAddToCart = (cosmeitc: Cosmetic, quantity : number = 1, variant?: string) => {
+        dispatch(addToCart({
+            cosmeticId: cosmeitc._id, 
+            quantity,
+            variant
+         }));
+    };
     
-  ];
-
- 
-
-const ProductPage = ({cosmetics, onAddToCart, onViewProduct} : ProductCatalogProps) => {
-    const [searchQuery, setSearchQuery] = useState('');
-    const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-    const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
-    const [priceRange, setPriceRange] = useState<{min: string, max: string}>({min: '', max: ''});
-    const [sortBy, setSortBy] = useState('name');
-    const [showFilters, setShowFilters] = useState(false);
-    const [cartItems, setCartItems] = useState<CartItem[]>([]);
-
-     // Get unique categories and brands
-     const categories = Array.from(new Set(sampleCosmetics?.map(p => p.classify) || []));
-    const brands = Array.from(new Set(sampleCosmetics?.map(p => p.brand).filter(Boolean) || []));
-
-    const handleAddToCart = (cosmetic: Cosmetic, quantity: number = 1, variant?: string) => {
-        const cartItem: CartItem = {
-        id: `${cosmetic._id}-${variant || 'default'}-${Date.now()}`,
-        cosmetic: {
-            id: cosmetic._id,
-            name: cosmetic.nameCosmetic,
-            price: cosmetic.discountPrice,
-            image: cosmetic.image,
-            brand: cosmetic.brand,
-        },
-        quantity,
-        variant
+    // Handle view product detail
+    const handleViewProduct = (cosmetic: Cosmetic) => {
+    // Navigate to product detail page
+        router.push(`/product/${cosmetic._id}`);
     };
 
-    setCartItems(prev => [...prev, cartItem]);
-    toast.success(`Đã thêm ${cosmetic.nameCosmetic} vào giỏ hàng!`);
-  };
-
-    const filteredProducts = sampleCosmetics.filter(cosmetic => {
+  const filteredProducts = cosmetics.filter((cosmetic) => {
     // Search filter
-    if (searchQuery && !cosmetic.nameCosmetic.toLowerCase().includes(searchQuery.toLowerCase())) {
+    if (
+      searchQuery &&
+      !cosmetic.nameCosmetic.toLowerCase().includes(searchQuery.toLowerCase())
+    ) {
       return false;
     }
-    
+
     // Category filter
-    if (selectedCategories.length > 0 && !selectedCategories.includes(cosmetic.classify)) {
+    if (
+      selectedCategories.length > 0 &&
+      !selectedCategories.includes(cosmetic.classify)
+    ) {
       return false;
     }
-    
+
     // Brand filter
-    if (selectedBrands.length > 0 && cosmetic.brand && !selectedBrands.includes(cosmetic.brand)) {
+    if (
+      selectedBrands.length > 0 &&
+      cosmetic.brand &&
+      !selectedBrands.includes(cosmetic.brand)
+    ) {
       return false;
     }
-    
+
     // Price filter
     if (priceRange.min && cosmetic.discountPrice < parseInt(priceRange.min)) {
       return false;
@@ -167,20 +97,20 @@ const ProductPage = ({cosmetics, onAddToCart, onViewProduct} : ProductCatalogPro
     if (priceRange.max && cosmetic.discountPrice > parseInt(priceRange.max)) {
       return false;
     }
-    
+
     return true;
   });
 
   // Sort products
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     switch (sortBy) {
-      case 'price-asc':
+      case "price-asc":
         return a.discountPrice - b.discountPrice;
-      case 'price-desc':
+      case "price-desc":
         return b.discountPrice - a.discountPrice;
-      case 'name':
+      case "name":
         return a.nameCosmetic.localeCompare(b.nameCosmetic);
-      case 'rating':
+      case "rating":
         return (b.rating || 0) - (a.rating || 0);
       default:
         return 0;
@@ -189,38 +119,40 @@ const ProductPage = ({cosmetics, onAddToCart, onViewProduct} : ProductCatalogPro
 
   const handleCategoryChange = (category: string, checked: boolean) => {
     if (checked) {
-      setSelectedCategories(prev => [...prev, category]);
+      setSelectedCategories((prev) => [...prev, category]);
     } else {
-      setSelectedCategories(prev => prev.filter(c => c !== category));
+      setSelectedCategories((prev) => prev.filter((c) => c !== category));
     }
   };
 
   const handleBrandChange = (brand: string, checked: boolean) => {
     if (checked) {
-      setSelectedBrands(prev => [...prev, brand]);
+      setSelectedBrands((prev) => [...prev, brand]);
     } else {
-      setSelectedBrands(prev => prev.filter(b => b !== brand));
+      setSelectedBrands((prev) => prev.filter((b) => b !== brand));
     }
   };
 
   const clearFilters = () => {
-    setSearchQuery('');
+    setSearchQuery("");
     setSelectedCategories([]);
     setSelectedBrands([]);
-    setPriceRange({min: '', max: ''});
-    setSortBy('name');
+    setPriceRange({ min: "", max: "" });
+    setSortBy("name");
   };
 
-  const hasActiveFilters = searchQuery || selectedCategories.length > 0 || selectedBrands.length > 0 || priceRange.min || priceRange.max;
-
+  const hasActiveFilters =
+    searchQuery ||
+    selectedCategories.length > 0 ||
+    selectedBrands.length > 0 ||
+    priceRange.min ||
+    priceRange.max;
 
   return (
-     <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8">
       {/* Header */}
       <div className="space-y-4 mb-8">
-        <h1 className="font-inter text-foreground">
-          Danh Mục Sản Phẩm
-        </h1>
+        <h1 className="font-inter text-foreground">Danh Mục Sản Phẩm</h1>
         <p className="text-muted-foreground font-inter text-lg">
           Tìm kiếm sản phẩm phù hợp với nhu cầu làm đẹp của bạn.
         </p>
@@ -269,12 +201,17 @@ const ProductPage = ({cosmetics, onAddToCart, onViewProduct} : ProductCatalogPro
                     Danh mục
                   </label>
                   <div className="space-y-2">
-                    {categories.map(category => (
-                      <div key={category} className="flex items-center space-x-2">
+                    {categories.map((category) => (
+                      <div
+                        key={category}
+                        className="flex items-center space-x-2"
+                      >
                         <Checkbox
                           id={`category-${category}`}
                           checked={selectedCategories.includes(category)}
-                          onCheckedChange={(checked) => handleCategoryChange(category, !!checked)}
+                          onCheckedChange={(checked) =>
+                            handleCategoryChange(category, !!checked)
+                          }
                         />
                         <label
                           htmlFor={`category-${category}`}
@@ -294,12 +231,17 @@ const ProductPage = ({cosmetics, onAddToCart, onViewProduct} : ProductCatalogPro
                       Thương hiệu
                     </label>
                     <div className="space-y-2">
-                      {brands.map(brand => (
-                        <div key={brand} className="flex items-center space-x-2">
+                      {brands.map((brand) => (
+                        <div
+                          key={brand}
+                          className="flex items-center space-x-2"
+                        >
                           <Checkbox
                             id={`brand-${brand}`}
                             checked={selectedBrands.includes(brand!)}
-                            onCheckedChange={(checked) => handleBrandChange(brand!, !!checked)}
+                            onCheckedChange={(checked) =>
+                              handleBrandChange(brand!, !!checked)
+                            }
                           />
                           <label
                             htmlFor={`brand-${brand}`}
@@ -323,14 +265,24 @@ const ProductPage = ({cosmetics, onAddToCart, onViewProduct} : ProductCatalogPro
                       type="number"
                       placeholder="Từ"
                       value={priceRange.min}
-                      onChange={(e) => setPriceRange(prev => ({...prev, min: e.target.value}))}
+                      onChange={(e) =>
+                        setPriceRange((prev) => ({
+                          ...prev,
+                          min: e.target.value,
+                        }))
+                      }
                       className="bg-input-background border-border"
                     />
                     <Input
                       type="number"
                       placeholder="Đến"
                       value={priceRange.max}
-                      onChange={(e) => setPriceRange(prev => ({...prev, max: e.target.value}))}
+                      onChange={(e) =>
+                        setPriceRange((prev) => ({
+                          ...prev,
+                          max: e.target.value,
+                        }))
+                      }
                       className="bg-input-background border-border"
                     />
                   </div>
@@ -347,8 +299,7 @@ const ProductPage = ({cosmetics, onAddToCart, onViewProduct} : ProductCatalogPro
                     Xóa bộ lọc
                   </Button>
                 )}
-                 
-              </div> 
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -358,7 +309,7 @@ const ProductPage = ({cosmetics, onAddToCart, onViewProduct} : ProductCatalogPro
           {/* Sort and Results Count */}
           <div className="flex items-center justify-between mb-6">
             <p className="text-muted-foreground font-inter">
-              Hiển thị  sản phẩm
+              Hiển thị sản phẩm
             </p>
             <Select>
               <SelectTrigger className="w-48 bg-input-background border-border">
@@ -375,12 +326,12 @@ const ProductPage = ({cosmetics, onAddToCart, onViewProduct} : ProductCatalogPro
           {/* Products Grid */}
           {sortedProducts.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {sortedProducts.map(cosmetic => (
+              {sortedProducts.map((cosmetic) => (
                 <ProductCard
                   key={cosmetic._id}
                   cosmetic={cosmetic}
                   onAddToCart={handleAddToCart}
-                  onViewDetail={onViewProduct}
+                  onViewDetail={handleViewProduct}
                 />
               ))}
             </div>
@@ -402,7 +353,6 @@ const ProductPage = ({cosmetics, onAddToCart, onViewProduct} : ProductCatalogPro
       </div>
     </div>
   );
+};
 
-}
-
-export default ProductPage
+export default ProductPage;

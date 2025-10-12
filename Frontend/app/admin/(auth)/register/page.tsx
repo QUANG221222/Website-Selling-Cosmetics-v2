@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import axiosInstance from "@/lib/api/axios";
 import { useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import Link from "next/link";
 
 interface AdminRegisterForm {
   secretKey: string;
@@ -59,7 +60,7 @@ const AdminRegister = () => {
       <Card className="w-full max-w-md shadow-2xl">
         <CardHeader className="space-y-3 text-center">
           <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-            <Shield className="h-8 w-8 text-primary" />
+            <Shield className="h-8 w-8 text-[#E91E63]" />
           </div>
           <CardTitle className="text-2xl font-bold">Admin Registration</CardTitle>
           <CardDescription>
@@ -175,7 +176,7 @@ const AdminRegister = () => {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="w-full"
+              className="w-full bg-brand-deep-pink hover:bg-brand-deep-pink/90 text-white font-poppins"
             >
               {isSubmitting ? (
                 <>
@@ -191,9 +192,9 @@ const AdminRegister = () => {
           <div className="mt-6 text-center text-sm">
             <p className="text-muted-foreground">
               Already have an admin account?{" "}
-              <a href="/admin/login" className="text-primary hover:underline font-medium">
+              <Link href="/admin/login" className="text-[#E91E63] hover:underline font-medium">
                 Sign In
-              </a>
+              </Link>
             </p>
           </div>
         </CardContent>

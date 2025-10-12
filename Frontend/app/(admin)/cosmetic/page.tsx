@@ -11,7 +11,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Search, Plus, Edit, Trash2, Star, Package, AlertTriangle, Loader2, Upload } from "lucide-react";
-import { mockCosmetics } from "@/data/mockData";
 import { Cosmetic } from "@/lib/types/index";
 import { createCosmetic, deleteCosmetic, fetchAllCosmetics, selectAllCosmetics, selectCosmeticLoading, updateCosmetic } from "@/lib/redux/cosmetic/cosmeticSlice";
 import { AppDispatch, RootState } from "@/lib/redux/store";
