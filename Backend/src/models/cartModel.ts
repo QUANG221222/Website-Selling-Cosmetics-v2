@@ -151,7 +151,7 @@ const deleteById = async (id: string): Promise<void> => {
         {
           $set: {
             _destroy: true,
-            updatedAt: new Date()
+            updatedAt: Date.now()
           }
         }
       )

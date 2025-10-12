@@ -2,6 +2,9 @@ import { adminModel } from './adminModel'
 import { userModel } from './userModel'
 import { cosmeticModel } from './cosmeticModel'
 import { cartModel } from './cartModel'
+import { addressModel } from './addressModel'
+import { orderModel } from './orderModel'
+
 export type { ICreateUserData, IUser } from './userModel'
 export type { IAdmin, ICreateAdminData } from './adminModel'
 export type {
@@ -15,10 +18,26 @@ export type {
   ICartCreateData,
   ICartUpdateData
 } from './cartModel'
+export type {
+  IAddress,
+  IAddressCreateData,
+  IAddressUpdateData,
+  IAddressItem,
+  IAddressItemUpdateData
+} from './addressModel'
+export type {
+  IOrder,
+  ICreateOrderData,
+  IUpdateOrderData,
+  IOrderItem,
+  IOrderPayment
+} from './orderModel'
 
 export const models = {
   userModel,
   adminModel,
   cosmeticModel,
-  cartModel
+  cartModel,
+  addressModel,
+  orderModel
 }

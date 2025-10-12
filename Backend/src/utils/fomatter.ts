@@ -54,3 +54,24 @@ export const pickCart = (cart: any): any => {
     'updatedAt'
   ])
 }
+
+export const pickAddress = (address: any): any => {
+  return pick(address, ['_id', 'userId', 'addresses', 'createdAt', 'updatedAt'])
+}
+
+export const pickOrder = (order: any): any => {
+  return pick(order, [
+    '_id',
+    'userId',
+    'receiverName',
+    'receiverPhone',
+    'receiverAddress',
+    'items',
+    'totalAmount',
+    'totalItems',
+    'status',
+    'payment',
+    'createdAt',
+    'updatedAt'
+  ])
+}
