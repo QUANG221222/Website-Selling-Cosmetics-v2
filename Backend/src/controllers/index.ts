@@ -3,6 +3,7 @@ import { adminController } from './adminController'
 import { cosmeticController } from './cosmeticController'
 import { cartController } from './cartController'
 import { addressController } from './addressController'
+import { orderController } from './orderController'
 
 export type {
   CreateUserRequest,
@@ -31,11 +32,18 @@ export type {
   GetAddressResponse,
   GetAddressesResponse
 } from './addressController'
+export type {
+  CreateOrderRequest,
+  CreateOrderResponse,
+  GetOrderByIdResponse,
+  GetAllOrdersResponse
+} from './orderController'
 
 export const controllers = {
   userController,
   adminController,
   cosmeticController,
   cartController,
-  addressController
+  addressController,
+  orderController
 }

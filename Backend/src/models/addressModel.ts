@@ -165,7 +165,7 @@ const updateById = async (
         {
           $set: {
             ...updateData,
-            updatedAt: new Date()
+            updatedAt: Date.now()
           }
         },
         { returnDocument: 'after' }
@@ -211,7 +211,7 @@ const updateAddressItem = async (
         {
           $set: {
             addresses: addressDoc.addresses,
-            updatedAt: new Date()
+            updatedAt: Date.now()
           }
         },
         { returnDocument: 'after' }
@@ -257,7 +257,7 @@ const addAddressItem = async (
         {
           $set: {
             addresses: addressDoc.addresses,
-            updatedAt: new Date()
+            updatedAt: Date.now()
           }
         },
         { returnDocument: 'after' }
@@ -298,7 +298,7 @@ const removeAddressItem = async (
         {
           $set: {
             addresses: addressDoc.addresses,
-            updatedAt: new Date()
+            updatedAt: Date.now()
           }
         },
         { returnDocument: 'after' }
@@ -319,7 +319,7 @@ const deleteById = async (id: string): Promise<void> => {
         {
           $set: {
             _destroy: true,
-            updatedAt: new Date()
+            updatedAt: Date.now()
           }
         }
       )
@@ -354,7 +354,7 @@ const setDefaultAddress = async (
         {
           $set: {
             addresses: addressDoc.addresses,
-            updatedAt: new Date()
+            updatedAt: Date.now()
           }
         },
         { returnDocument: 'after' }

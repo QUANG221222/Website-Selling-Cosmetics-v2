@@ -3,6 +3,8 @@ import { userModel } from './userModel'
 import { cosmeticModel } from './cosmeticModel'
 import { cartModel } from './cartModel'
 import { addressModel } from './addressModel'
+import { orderModel } from './orderModel'
+
 export type { ICreateUserData, IUser } from './userModel'
 export type { IAdmin, ICreateAdminData } from './adminModel'
 export type {
@@ -23,11 +25,19 @@ export type {
   IAddressItem,
   IAddressItemUpdateData
 } from './addressModel'
+export type {
+  IOrder,
+  ICreateOrderData,
+  IUpdateOrderData,
+  IOrderItem,
+  IOrderPayment
+} from './orderModel'
 
 export const models = {
   userModel,
   adminModel,
   cosmeticModel,
   cartModel,
-  addressModel
+  addressModel,
+  orderModel
 }
