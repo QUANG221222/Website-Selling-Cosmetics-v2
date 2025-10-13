@@ -25,7 +25,7 @@ const ProductCard = ({cosmetic, onAddToCart, onViewDetail}: ProductProps) => {
           onClick={() => onViewDetail(cosmetic)}
         >
           <Image
-            src={cosmetic.image}
+            src={cosmetic?.image || ''}
             alt={cosmetic.nameCosmetic}
             width={120}
             height={64}
