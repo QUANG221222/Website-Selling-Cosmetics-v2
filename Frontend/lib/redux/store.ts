@@ -19,7 +19,6 @@ const reducers = combineReducers({
   admin: adminReducer,
   cosmetic: cosmeticReducer,
   cart: cartReducer,
-  cart: cartReducer,
 });
 
 // Process persist Reducer

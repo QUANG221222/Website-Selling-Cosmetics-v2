@@ -23,7 +23,6 @@ import CartBadge from '@/components/cart/CartBadge';
 const Header = () => {
 
 const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const cartItemsCount = useSelector(selectCartTotalItems);
 
   return (
     <header className="bg-white border-b border-border sticky top-0 z-50 shadow-sm">

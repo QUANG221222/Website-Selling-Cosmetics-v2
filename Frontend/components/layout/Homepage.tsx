@@ -1,7 +1,41 @@
+"use client"
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { fetchAllCosmetics, selectAllCosmetics } from '@/lib/redux/cosmetic/cosmeticSlice';
+import { AppDispatch } from '@/lib/redux/store';
 import Image from 'next/image';
+import { useDispatch, useSelector } from 'react-redux';
+import ProductCard from '../product/ProductCard';
+import { Cosmetic } from '@/lib/types';
+import { useEffect } from 'react';
+import { addToCart } from '@/lib/redux/cart/cartSlice';
+import { useRouter } from 'next/navigation';
 const HomePage = () => {
+
+    const router = useRouter();
+    const cosmetics = useSelector(selectAllCosmetics)
+    const dispatch = useDispatch<AppDispatch>(); 
+
+     // Fetch products on mount
+      useEffect(() => {
+        dispatch(fetchAllCosmetics());
+      }, [dispatch]);
+
+    // Handle add to cart
+        const handleAddToCart = (cosmeitc: Cosmetic, quantity : number = 1, variant?: string) => {
+            dispatch(addToCart({
+                cosmeticId: cosmeitc._id, 
+                quantity,
+                variant
+             }));
+        };
+        
+        // Handle view product detail
+        const handleViewProduct = (cosmetic: Cosmetic) => {
+        // Navigate to product detail page
+            router.push(`/product/${cosmetic._id}`);
+        };
+
   return (
     <div className="space-y-16">
       {/* Hero Banner */}
@@ -48,14 +82,14 @@ const HomePage = () => {
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {/* {featuredProducts.map((product) => (
+          {cosmetics.map((cosmetic) => (
             <ProductCard
-              key={product.id}
-              product={product}
-              onAddToCart={onAddToCart}
-              onViewDetail={onViewProduct}
+              key={cosmetic._id}
+              cosmetic={cosmetic}
+              onAddToCart={handleAddToCart}
+              onViewDetail={handleViewProduct}
             />
-          ))} */}
+          ))}
         </div>
         
         <div className="text-center">

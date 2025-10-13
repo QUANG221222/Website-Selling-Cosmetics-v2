@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -9,13 +9,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import Image from "next/image";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { AppDispatch } from "@/lib/redux/store";
+import { selectCurrentUser } from "@/lib/redux/user/userSlice";
 import {
   clearCart,
   decrementQuantity,
@@ -28,16 +28,22 @@ import {
 } from "@/lib/redux/cart/cartSlice";
 
 const ShoppingCart = () => {
+
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
+  const loading = useSelector(selectCartLoading);
+  
   const cartItems = useSelector(selectCartItems);
   const totalPrice = useSelector(selectCartTotalPrice);
-  const loading = useSelector(selectCartLoading);
+  const currentUser = useSelector(selectCurrentUser);
 
-  // Fetch cart when component mounts
+  // Check authentication and fetch cart on mount
   useEffect(() => {
+    // Only fetch cart if user is logged in
     dispatch(fetchCart());
   }, [dispatch]);
+
+ 
 
   // Show loading state
   if (loading) {
@@ -55,7 +61,10 @@ const ShoppingCart = () => {
         <ShoppingBag className="w-16 h-16 text-gray-400" />
         <h2 className="text-2xl font-semibold text-gray-700">Giỏ hàng trống</h2>
         <p className="text-gray-500">Hãy thêm sản phẩm vào giỏ hàng của bạn</p>
-        <Button onClick={() => router.push("/")} className="mt-4 bg-brand-deep-pink text-white">
+        <Button
+          onClick={() => router.push("/")}
+          className="mt-4 bg-brand-deep-pink text-white"
+        >
           Tiếp tục mua sắm
         </Button>
       </div>
@@ -191,7 +200,7 @@ const ShoppingCart = () => {
                         </TableCell>
                         <TableCell>
                           <span className="font-poppins font-medium">
-                            {formatPrice(item.cosmetic.discountPrice)}
+                            {formatPrice(item.cosmetic?.discountPrice)}
                           </span>
                         </TableCell>
                         <TableCell>
@@ -223,7 +232,9 @@ const ShoppingCart = () => {
                         </TableCell>
                         <TableCell>
                           <span className="font-poppins font-medium text-brand-deep-pink">
-                            {formatPrice(item.cosmetic.discountPrice * item.quantity)}
+                            {formatPrice(
+                              item.cosmetic?.discountPrice * item.quantity
+                            )}
                           </span>
                         </TableCell>
                         <TableCell>
@@ -282,7 +293,9 @@ const ShoppingCart = () => {
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => handleRemoveItem(item.cosmetic._id)}
+                              onClick={() =>
+                                handleRemoveItem(item.cosmetic._id)
+                              }
                               className="text-destructive hover:text-destructive"
                             >
                               <Trash2 className="h-4 w-4" />
@@ -316,7 +329,9 @@ const ShoppingCart = () => {
                               </Button>
                             </div>
                             <span className="font-poppins font-medium text-brand-deep-pink">
-                              {formatPrice(item.cosmetic.discountPrice * item.quantity)}
+                              {formatPrice(
+                                item.cosmetic.discountPrice * item.quantity
+                              )}
                             </span>
                           </div>
                         </div>

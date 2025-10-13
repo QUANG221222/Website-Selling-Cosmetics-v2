@@ -20,12 +20,14 @@ import { AppDispatch } from "@/lib/redux/store";
 import { fetchAllCosmetics, selectAllCosmetics, selectCosmeticLoading } from "@/lib/redux/cosmetic/cosmeticSlice";
 import { addToCart } from "@/lib/redux/cart/cartSlice";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
 
 const ProductPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const cosmetics = useSelector(selectAllCosmetics);
   const loading = useSelector(selectCosmeticLoading);
+   const { requireUserAuth, isUserLoggedIn } = useAuth();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -50,12 +52,15 @@ const ProductPage = () => {
   const brands = Array.from(new Set(cosmetics?.map(p => p.brand).filter(Boolean) || []));
 
     // Handle add to cart
-    const handleAddToCart = (cosmeitc: Cosmetic, quantity : number = 1, variant?: string) => {
+    const handleAddToCart = (cosmetic: Cosmetic, quantity : number = 1, variant?: string) => {
+        requireUserAuth(() => {
         dispatch(addToCart({
-            cosmeticId: cosmeitc._id, 
+            cosmeticId: cosmetic._id, 
             quantity,
             variant
-         }));
+        }));
+        toast.success('Đã thêm sản phẩm vào giỏ hàng!');
+        }, 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!');
     };
     
     // Handle view product detail
