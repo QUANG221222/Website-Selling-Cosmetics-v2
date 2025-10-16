@@ -44,6 +44,7 @@ interface ICreateOrderData {
   receiverName: string
   receiverPhone: string
   receiverAddress: string
+  orderNotes?: string;
   items: {
     cosmeticId: string
     quantity: number
@@ -84,6 +85,7 @@ const ORDER_COLLECTION_SCHEMA: Joi.ObjectSchema = Joi.object({
     .pattern(/^[0-9]{10,11}$/)
     .required(),
   receiverAddress: Joi.string().trim().min(10).max(200).required(),
+  orderNotes: Joi.string().trim().max(500).optional(),
   items: Joi.array()
     .items(
       Joi.object({

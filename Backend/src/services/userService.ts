@@ -53,7 +53,7 @@ const createNew = async (req: Request): Promise<IUserResponse> => {
       )
     }
     // Send a welcome email to the new user
-    const verificationLink = `${WEBSITE_DOMAIN}/account/verification?email=${getNewUser.email}&token=${getNewUser.verifyToken}`
+    const verificationLink = `${WEBSITE_DOMAIN}/users/account/verification?email=${getNewUser.email}&token=${getNewUser.verifyToken}`
     const customSubject =
       'Skinsoothe: Please verify your email before using our services!'
     const htmlContent = `
@@ -140,11 +140,21 @@ const login = async (req: Request): Promise<IUserResponse> => {
   }
 }
 
+const getById = async (userId: string): Promise<IUserResponse | null> => {
+  try {
+    const user = await models.userModel.findOneById(userId)
+    if (!user) return null
+    return pickUser(user)
+  } catch (error) {
+    throw error
+  }
+}
 // ===== EXPORTS =====
 export type { IUserResponse }
 
 export const userService = {
   createNew,
   verifyEmail,
-  login
+  login,
+  getById
 }

@@ -9,12 +9,31 @@ declare global {
         password: string;
         confirmPassword: string;
     }
+    type CheckoutFormData = {
+        receiverName: string;
+        receiverAddress: string;
+        receiverPhone: string;
+        orderNotes?: string; 
+        paymentMethod: 'COD' | 'BANK';
+    }
+
     type FormInputProps = {
         name: string;
         label: string;
         placeholder: string;
         type?: string;
         register: UseFormRegister<SignUpFormData>;
+        error?: FieldError;
+        validation?: RegisterOptions;
+        disabled?: boolean;
+        value?: string;
+    }   
+    type FormCheckoutInputProps = {
+        name: keyof CheckoutFormData;
+        label: string;
+        placeholder: string;
+        type?: string;
+        register: UseFormRegister<CheckoutFormData>;
         error?: FieldError;
         validation?: RegisterOptions;
         disabled?: boolean;

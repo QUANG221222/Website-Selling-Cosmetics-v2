@@ -12,7 +12,8 @@ export const injectStore = (mainStore: any) => {
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL ||  'http://localhost:8080/v1/',
   headers: { 'Content-Type': 'application/json' },
-  withCredentials: true
+  withCredentials: true,
+  timeout: 1000 * 60 * 30
 });
 
 
@@ -21,32 +22,48 @@ axiosInstance.interceptors.response.use(
   (response) => {
     return response
   },
-  (error) => {
-    // Handle 401 Unauthorized
-    toast.error('Session expired. Please log in again!');
+  (error: AxiosError) => {
+    console.log('❌ Axios interceptor - ERROR:', error.response?.status, error.response?.data); // Debug
+    // Handle 401 Unauthorized - ONLY for authentication errors
+    if (error.response?.status === 401) {
+      toast.error('Session expired. Please log in again!');
       
-      // Xóa user data trong Redux store
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('user');
-        window.location.href = 'users/login';
+      // Clear user data in Redux store
+      if (axiosReduxStore) {
+        axiosReduxStore.dispatch({ type: 'user/logoutUserApi/fulfilled' });
       }
+      
+      // Redirect to login
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('persist:root');
+        sessionStorage.clear();
+        window.location.href = '/users/login';
+      }
+      return Promise.reject(error);
+    }
+    
     // Handle 429 Too Many Requests
     if (error.response?.status === 429) {
-      // Optionally, you can implement a retry mechanism or show a user-friendly message
-      toast.error('Too many requests. Please try again later.')
+      toast.error('Too many requests. Please try again later.');
+      return Promise.reject(error);
     }
-    if (error.response?.status !== 401 && error.response?.status !== 429) {
-      // Handle other errors
-      let errorMessage = error?.message
-      if (error?.response?.data?.message) {
-        errorMessage = error.response.data.message
+    
+    // Handle other errors (400, 403, 404, 500, etc.)
+    if (error.response?.status && error.response.status !== 401) {
+      let errorMessage = error.message;
+      
+      if (error.response?.data) {
+        const data = error.response.data as any;
+        errorMessage = data.message || data.error || errorMessage;
       }
 
-      if (errorMessage) {
-        toast.error(errorMessage)
+      // Only show toast for errors that aren't handled elsewhere
+      if (errorMessage && !error.config?.headers?.['X-No-Toast']) {
+        toast.error(errorMessage);
       }
     }
-    return Promise.reject(error)
+    
+    return Promise.reject(error);
   }
 )
 

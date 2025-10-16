@@ -11,11 +11,14 @@ import {
 } from "@/components/ui/table";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import Image from "next/image";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { AppDispatch } from "@/lib/redux/store";
-import { selectCurrentUser } from "@/lib/redux/user/userSlice";
+import {
+  selectCurrentUser,
+  fetchCurrentUser,
+} from "@/lib/redux/user/userSlice";
 import {
   clearCart,
   decrementQuantity,
@@ -28,22 +31,31 @@ import {
 } from "@/lib/redux/cart/cartSlice";
 
 const ShoppingCart = () => {
-
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
+  const currentUser = useSelector(selectCurrentUser);
   const loading = useSelector(selectCartLoading);
-  
+
   const cartItems = useSelector(selectCartItems);
   const totalPrice = useSelector(selectCartTotalPrice);
-  const currentUser = useSelector(selectCurrentUser);
 
-  // Check authentication and fetch cart on mount
+  // Memoize calculated values
+  const shipping = useMemo(
+    () => (totalPrice > 500000 ? 0 : 30000),
+    [totalPrice]
+  );
+  const finalTotal = useMemo(
+    () => totalPrice + shipping,
+    [totalPrice, shipping]
+  );
+
+  // Fetch current user and cart on mount
   useEffect(() => {
-    // Only fetch cart if user is logged in
+    // Try to fetch current user from session first
+    dispatch(fetchCurrentUser());
+    // Fetch cart data
     dispatch(fetchCart());
   }, [dispatch]);
-
- 
 
   // Show loading state
   if (loading) {
@@ -74,9 +86,6 @@ const ShoppingCart = () => {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("vi-VN").format(price) + " VNĐ";
   };
-
-  const shipping = totalPrice > 500000 ? 0 : 30000;
-  const finalTotal = totalPrice + shipping;
 
   const handleRemoveItem = (itemId: string) => {
     if (confirm("Bạn có chắc muốn xóa sản phẩm này?")) {

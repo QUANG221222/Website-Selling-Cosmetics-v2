@@ -1,16 +1,18 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { persistReducer } from "redux-persist";
+import { persistReducer, persistStore } from "redux-persist";
 import storageSession from "redux-persist/lib/storage/session";
 import { combineReducers } from "@reduxjs/toolkit";
 import { userReducer } from "./user/userSlice";
 import { cosmeticReducer } from "./cosmetic/cosmeticSlice";
 import { adminReducer } from "./admin/adminSlice";
 import { cartReducer } from "./cart/cartSlice";
+import { orderReducer } from "./order/orderSlice";
+import { injectStore } from "../api/axios";
 
 const rootPersistConfig = {
   key: "root", // The key for the root reducer
   storage: storageSession, // Use session storage for persisting user data
-  whitelist: ["user"], // user data can store in redux when press f5
+  whitelist: ["user", "admin"], // user data can store in redux when press f5
 };
 
 // Combine all reducers
@@ -19,6 +21,7 @@ const reducers = combineReducers({
   admin: adminReducer,
   cosmetic: cosmeticReducer,
   cart: cartReducer,
+  order: orderReducer,
 });
 
 // Process persist Reducer
@@ -30,11 +33,19 @@ export const store = configureStore({
   // Fix warning: error when implement redux-persist (NON-SERIALIZABLE : Date, Symbol, Promise)
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      serializableCheck: false,
+      serializableCheck: {
+        ignoredActions: [
+          "persist/PERSIST",
+          "persist/REHYDRATE",
+        ],
+      },
     }),
 });
 
-// Infer the `RootState` and `AppDispatch` types from the store itself
+// Inject store to axios for interceptor
+injectStore(store);
+
+export const persistor = persistStore(store);
+
 export type RootState = ReturnType<typeof store.getState>;
-// Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
 export type AppDispatch = typeof store.dispatch;

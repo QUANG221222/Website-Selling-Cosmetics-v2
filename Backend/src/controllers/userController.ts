@@ -129,6 +129,32 @@ const logout = (req: Request, res: Response, next: NextFunction): void => {
   }
 }
 
+const getCurrentUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const userId = req.session.user?.userId
+    
+    if (!userId) {
+      res.status(StatusCodes.UNAUTHORIZED).json({
+        message: 'Not authenticated'
+      })
+      return
+    }
+    
+    const user = await services.userService.getById(userId)
+    
+    res.status(StatusCodes.OK).json({
+      message: 'User retrieved successfully',
+      data: user
+    })
+  } catch (error: any) {
+    next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message))
+  }
+}
+
 export type {
   CreateUserRequest,
   CreateUserResponse,
@@ -141,5 +167,6 @@ export const userController = {
   createNew,
   verifyEmail,
   login,
-  logout
+  logout,
+  getCurrentUser,
 }
