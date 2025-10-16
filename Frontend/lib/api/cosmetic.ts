@@ -1,6 +1,6 @@
 import { ApiResponse, Cosmetic } from "@/lib/types/index";
 import axiosInstance from "@/lib/api/axios";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 
 export interface CreateCosmeticData {
   nameCosmetic: string

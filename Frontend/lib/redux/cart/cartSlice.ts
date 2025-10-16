@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { cartApi, AddToCartData, UpdateQuantityData } from "@/lib/api/cart";
+import { createSelector } from 'reselect';
 import { Cart } from "@/lib/types";
 import { toast } from "sonner";
 
@@ -282,17 +283,39 @@ export const cartSlice = createSlice({
 // ===== ACTIONS =====
 export const { clearError } = cartSlice.actions;
 
-// ===== SELECTORS =====
-export const selectCart = (state: { cart: CartState }) => state.cart.cart;
-export const selectCartItems = (state: { cart: CartState }) =>
-  state.cart.cart?.items || [];
-export const selectCartTotalItems = (state: { cart: CartState }) =>
-  state.cart.cart?.totalItems || 0;
-export const selectCartTotalPrice = (state: { cart: CartState }) =>
-  state.cart.cart?.totalAmount || 0;
-export const selectCartLoading = (state: { cart: CartState }) =>
-  state.cart.loading;
-export const selectCartError = (state: { cart: CartState }) => state.cart.error;
+// ===== BASE SELECTORS =====
+const selectCartState = (state: { cart: CartState }) => state.cart;
+
+// ===== MEMOIZED SELECTORS =====
+export const selectCart = createSelector(
+  [selectCartState],
+  (cartState) => cartState.cart
+);
+
+export const selectCartItems = createSelector(
+  [selectCart],
+  (cart) => cart?.items || []
+);
+
+export const selectCartTotalItems = createSelector(
+  [selectCart],
+  (cart) => cart?.totalItems || 0
+);
+
+export const selectCartTotalPrice = createSelector(
+  [selectCart],
+  (cart) => cart?.totalAmount || 0
+);
+
+export const selectCartLoading = createSelector(
+  [selectCartState],
+  (cartState) => cartState.loading
+);
+
+export const selectCartError = createSelector(
+  [selectCartState],
+  (cartState) => cartState.error
+);
 
 // ===== REDUCER =====
 export const cartReducer = cartSlice.reducer;

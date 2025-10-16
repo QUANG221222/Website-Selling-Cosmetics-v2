@@ -75,6 +75,7 @@ export interface Order {
   receiverName: string
   receiverPhone: string
   receiverAddress: string
+  orderNotes?: string;
   totalPrice: number
   status: 'pending' | 'processing' | 'completed' | 'cancelled'
   items: OrderItem[]

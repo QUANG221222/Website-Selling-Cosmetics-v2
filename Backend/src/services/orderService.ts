@@ -11,6 +11,7 @@ interface IOrderResponse {
   receiverName: string
   receiverPhone: string
   receiverAddress: string
+  orderNotes?: string;
   items: Array<{
     cosmeticId: string
     quantity: number
@@ -39,6 +40,7 @@ const createNew = async (req: Request): Promise<IOrderResponse> => {
       receiverName,
       receiverPhone,
       receiverAddress,
+      orderNotes,
       items,
       paymentMethod
     } = req.body
@@ -84,6 +86,7 @@ const createNew = async (req: Request): Promise<IOrderResponse> => {
       receiverName,
       receiverPhone,
       receiverAddress,
+      orderNotes,
       items: orderItems,
       totalAmount,
       totalItems,

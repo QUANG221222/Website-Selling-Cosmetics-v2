@@ -27,6 +27,9 @@ const createOrder = async (
       'string.min': 'Address must be at least 10 characters',
       'string.max': 'Address must be at most 200 characters'
     }),
+    orderNotes: Joi.string().trim().max(500).optional().allow('').messages({
+      'string.max': 'Order notes must be at most 500 characters'
+    }),
     items: Joi.array()
       .items(
         Joi.object({

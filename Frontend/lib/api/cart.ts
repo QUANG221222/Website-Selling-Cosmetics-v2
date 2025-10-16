@@ -1,30 +1,6 @@
 import { ApiResponse, Cart } from "../types"
 import axiosInstance from "./axios"
 
-// ===== INTERFACES =====
-// export interface CartItem {
-//   cosmeticId: string
-//   quantity: number
-//   price: number
-//   subtotal: number
-//   cosmetic?: {
-//     _id: string
-//     nameCosmetic: string
-//     image?: string
-//     brand?: string
-//   }
-// }
-
-// export interface Cart {
-//   _id: string
-//   userId: string
-//   items: CartItem[]
-//   totalAmount: number
-//   totalItems: number
-//   createdAt: Date
-//   updatedAt: Date | null
-// }
-
 export interface AddToCartData {
   cosmeticId: string
   quantity: number
