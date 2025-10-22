@@ -29,11 +29,13 @@ import Image from "next/image";
 
 import { toast } from "sonner"
 import { useAuth } from "@/hooks/useAuth";
+import { fetchCurrentUser, selectCurrentUser } from "@/lib/redux/user/userSlice";
 
 const cosmeticDetail = () => {
   const params = useParams();
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
+  const currentUser = useSelector(selectCurrentUser);
   const { requireUserAuth } = useAuth();
 
   const cosmetic = useSelector(selectSelectedCosmetic);
@@ -41,6 +43,14 @@ const cosmeticDetail = () => {
 
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
+
+
+    // ✅ Fetch user từ session khi component mount
+    useEffect(() => {
+        if (!currentUser) {
+        dispatch(fetchCurrentUser());
+        }
+    }, [dispatch, currentUser]);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("vi-VN").format(price) + " VNĐ";
@@ -150,7 +160,7 @@ const cosmeticDetail = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Back Button */}
-      <Link href="/" className="mb-6 font-poppins">
+      <Link href="/" className="mb-6 font-poppins flex items-center text-white bg-brand-deep-pink px-4 py-2 rounded-md hover:underline w-fit cursor-pointer">
         <ArrowLeft className="h-4 w-4 mr-2" />
         Quay lại
       </Link>
@@ -158,37 +168,16 @@ const cosmeticDetail = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         {/* cosmetic Images */}
         <div className="space-y-4">
-          <div className="aspect-square overflow-hidden rounded-lg border border-border">
+          <div className="aspect-square overflow-hidden rounded-lg border border-border relative w-full h-126 md:h-124 lg:h-122 cursor-pointer">
             <Image
-              src={cosmetic?.image || "/cosmetic0.webp"}
+              src={cosmetic?.image || ""}
               alt={cosmetic?.nameCosmetic || "cosmetic Image"}
-              width={120}
-              height={100}
-              className="w-full h-full object-cover"
+                fill
+                priority
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
             />
           </div>
-          {/* Mulitple image */}
-          {/* <div className="grid grid-cols-3 gap-4">
-            {cosmeticImages.map((image, index) => (
-              <button
-                key={index}
-                onClick={() => setSelectedImage(index)}
-                className={`aspect-square overflow-hidden rounded-lg border-2 transition-colors ${
-                  selectedImage === index 
-                    ? 'border-brand-deep-pink' 
-                    : 'border-border'
-                }`}
-              >
-                <Image
-                    width={120}
-                    height={100}
-                    src={cosmetic?.image || '/product0.webp'}
-                    alt={`${cosmetic?.nameCosmetic} ${index + 1}`}
-                    className="w-full h-full object-cover"
-                />
-              </button>
-            ))}
-          </div> */}
         </div>
 
         {/* cosmetic Info */}

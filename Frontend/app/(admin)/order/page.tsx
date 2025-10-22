@@ -21,13 +21,13 @@ const OrdersManagement = () => {
 
   // Filter orders
   const filteredOrders = orders.filter(order => {
-    const matchesSearch = order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         order.receiverName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         order.receiverPhone.includes(searchTerm);
-    const matchesStatus = statusFilter === "all" || order.status === statusFilter;
-    const matchesPayment = paymentFilter === "all" || order.payment.status === paymentFilter;
-    
-    return matchesSearch && matchesStatus && matchesPayment;
+        const matchesSearch = order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            order.receiverName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            order.receiverPhone.includes(searchTerm);
+        const matchesStatus = statusFilter === "all" || order.status === statusFilter;
+        const matchesPayment = paymentFilter === "all" || order.payment.status === paymentFilter;
+        
+        return matchesSearch && matchesStatus && matchesPayment;
   });
 
   const handleStatusUpdate = (orderId: string, newStatus: Order['status']) => {
@@ -165,7 +165,7 @@ const OrdersManagement = () => {
                       </div>
                     </TableCell>
                     <TableCell className="font-medium">
-                      {formatCurrency(order.totalPrice)}
+                      {formatCurrency(order.totalAmount)}
                     </TableCell>
                     <TableCell>
                       {getStatusBadge(order.status)}
@@ -293,7 +293,7 @@ const OrdersManagement = () => {
               <div className="flex justify-end">
                 <div className="text-right">
                   <div className="text-lg font-medium">
-                    Tổng cộng: {formatCurrency(selectedOrder.totalPrice)}
+                    Tổng cộng: {formatCurrency(selectedOrder.totalAmount)}
                   </div>
                 </div>
               </div>

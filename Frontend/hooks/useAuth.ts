@@ -1,5 +1,5 @@
 import { useSelector } from 'react-redux'
-import { selectCurrentUser } from '@/lib/redux/user/userSlice'
+import { selectCurrentUser, selectUserLoading } from '@/lib/redux/user/userSlice'
 import { selectCurrentAdmin } from '@/lib/redux/admin/adminSlice'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
@@ -8,9 +8,16 @@ import { toast } from 'sonner'
 export const useAuth = () => {
   const currentUser = useSelector(selectCurrentUser)
   const currentAdmin = useSelector(selectCurrentAdmin)
+  const userLoading = useSelector(selectUserLoading)
    const router = useRouter()
 
     const requireUserAuth = (callback: () => void, message?: string) => {
+        console.log('Current User:', currentUser); // Debugging line
+       
+        if (userLoading) {
+            return false
+        }
+
         if (!currentUser) {
             toast.error(message || 'You must be logged in to perform this action.')
             router.push('/users/login')

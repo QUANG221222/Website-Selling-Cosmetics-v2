@@ -62,8 +62,18 @@ const createNew = async (req: Request): Promise<ICartResponse> => {
 const getByUserId = async (userId: string): Promise<ICartResponse> => {
   try {
     const cart = await models.cartModel.findOneByUserId(userId)
+
+    // If no cart exists yet, return an empty cart shape (don't throw)
     if (!cart) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Cart not found')
+      return {
+        _id: '',
+        userId,
+        items: [],
+        totalAmount: 0,
+        totalItems: 0,
+        createdAt: new Date(),
+        updatedAt: null
+      }
     }
 
     // Populate cosmetic details for each item
@@ -85,6 +95,8 @@ const getByUserId = async (userId: string): Promise<ICartResponse> => {
       items: populatedItems
     }
   } catch (error: any) {
+    // Preserve ApiError instances so controller/error middleware can use proper status
+    if (error instanceof ApiError) throw error
     throw new Error(error.message)
   }
 }

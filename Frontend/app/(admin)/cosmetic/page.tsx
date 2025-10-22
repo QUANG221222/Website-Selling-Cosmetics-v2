@@ -20,19 +20,19 @@ import { toast } from "sonner";
 const ProductsManagement = () => {
 
     const dispatch = useDispatch<AppDispatch>();
-  const cosmetics = useSelector(selectAllCosmetics);
-  const loading = useSelector(selectCosmeticLoading);
+    const cosmetics = useSelector(selectAllCosmetics);
+    const loading = useSelector(selectCosmeticLoading);
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("all");
-  const [stockFilter, setStockFilter] = useState("all");
-  const [selectedProduct, setSelectedProduct] = useState<Cosmetic | null>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [categoryFilter, setCategoryFilter] = useState("all");
+    const [stockFilter, setStockFilter] = useState("all");
+    const [selectedProduct, setSelectedProduct] = useState<Cosmetic | null>(null);
+    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+    const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string>("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
    // Fetch cosmetics on mount
     useEffect(() => {
@@ -40,17 +40,17 @@ const ProductsManagement = () => {
     }, [dispatch]);
 
   // Filter products
-  const filteredProducts = cosmetics.filter(product => {
-    const matchesSearch = product.nameCosmetic.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.brand.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = categoryFilter === "all" || product.classify === categoryFilter;
-    const matchesStock = stockFilter === "all" || 
-                        (stockFilter === "in-stock" && product.quantity > 0) ||
-                        (stockFilter === "out-of-stock" && product.quantity === 0) ||
-                        (stockFilter === "low-stock" && product.quantity > 0 && product.quantity <= 10);
-    
-    return matchesSearch && matchesCategory && matchesStock;
-  });
+    const filteredProducts = cosmetics.filter(product => {
+        const matchesSearch = product.nameCosmetic.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            product.brand.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesCategory = categoryFilter === "all" || product.classify === categoryFilter;
+        const matchesStock = stockFilter === "all" || 
+                            (stockFilter === "in-stock" && product.quantity > 0) ||
+                            (stockFilter === "out-of-stock" && product.quantity === 0) ||
+                            (stockFilter === "low-stock" && product.quantity > 0 && product.quantity <= 10);
+        
+        return matchesSearch && matchesCategory && matchesStock;
+    });
 
    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -78,174 +78,174 @@ const ProductsManagement = () => {
     }
   };
 
-  const handleEditProduct = (product: Cosmetic) => {
-    setSelectedProduct(product);
-    setImagePreview(product.image || "");
-    setImageFile(null);
-    setIsEditDialogOpen(true);
-  };
-
-  const handleAddProduct = () => {
-    const newProduct: Cosmetic = {
-      _id: "",
-      brand: "",
-      nameCosmetic: "",
-      description: "",
-      classify: "skincare",
-      image: "",
-      quantity: 0,
-      originalPrice: 0,
-      discountPrice: 0,
-      rating: 0,
-      isNew: false,
-      isSaleOff: false,
-      createdAt: new Date(),
-      updatedAt: new Date()
+    const handleEditProduct = (product: Cosmetic) => {
+        setSelectedProduct(product);
+        setImagePreview(product.image || "");
+        setImageFile(null);
+        setIsEditDialogOpen(true);
     };
-    setSelectedProduct(newProduct);
-    setImagePreview("");
-    setImageFile(null);
-    setIsAddDialogOpen(true);
-  };
 
-  const handleSaveProduct = async () => {
-    if (!selectedProduct) return;
+    const handleAddProduct = () => {
+        const newProduct: Cosmetic = {
+            _id: "",
+            brand: "",
+            nameCosmetic: "",
+            description: "",
+            classify: "skincare",
+            image: "",
+            quantity: 0,
+            originalPrice: 0,
+            discountPrice: 0,
+            rating: 0,
+            isNew: false,
+            isSaleOff: false,
+            createdAt: new Date(),
+            updatedAt: new Date()
+        };
+        setSelectedProduct(newProduct);
+        setImagePreview("");
+        setImageFile(null);
+        setIsAddDialogOpen(true);
+    };
 
-    //Validation
-    if (!selectedProduct.nameCosmetic.trim()) {
-        toast.error('Product name is required');
-        return;
-    }
-    if (!selectedProduct.brand.trim()) {
-      toast.error('Brand is required');
-      return;
-    }
-    if (selectedProduct.quantity < 0) {
-      toast.error('Quantity cannot be negative');
-      return;
-    }
-    if (selectedProduct.originalPrice < 0 || selectedProduct.discountPrice < 0) {
-      toast.error('Prices cannot be negative');
-      return;
-    }
+    const handleSaveProduct = async () => {
+        if (!selectedProduct) return;
 
-    // For new products, image is required
-    if (isAddDialogOpen && !imageFile) {
-      toast.error('Product image is required');
-      return;
-    }
+        //Validation
+        if (!selectedProduct.nameCosmetic.trim()) {
+            toast.error('Product name is required');
+            return;
+        }
+        if (!selectedProduct.brand.trim()) {
+            toast.error('Brand is required');
+            return;
+        }
+        if (selectedProduct.quantity < 0) {
+            toast.error('Quantity cannot be negative');
+            return;
+        }
+            if (selectedProduct.originalPrice < 0 || selectedProduct.discountPrice < 0) {
+            toast.error('Prices cannot be negative');
+            return;
+        }
 
-    setIsSubmitting(true);
-    try {
-      if (isAddDialogOpen) {
-        // Create new product
-        await dispatch(createCosmetic({
-          data: {
-            nameCosmetic: selectedProduct.nameCosmetic,
-            brand: selectedProduct.brand,
-            classify: selectedProduct.classify,
-            quantity: selectedProduct.quantity,
-            description: selectedProduct.description || "",
-            originalPrice: selectedProduct.originalPrice,
-            discountPrice: selectedProduct.discountPrice,
-            rating: selectedProduct.rating,
-            isNew: selectedProduct.isNew,
-            isSaleOff: selectedProduct.isSaleOff
-          },
-          imageFile: imageFile!
-        })).unwrap();
+        // For new products, image is required
+        if (isAddDialogOpen && !imageFile) {
+            toast.error('Product image is required');
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+        if (isAddDialogOpen) {
+            // Create new product
+            await dispatch(createCosmetic({
+            data: {
+                nameCosmetic: selectedProduct.nameCosmetic,
+                brand: selectedProduct.brand,
+                classify: selectedProduct.classify,
+                quantity: selectedProduct.quantity,
+                description: selectedProduct.description || "",
+                originalPrice: selectedProduct.originalPrice,
+                discountPrice: selectedProduct.discountPrice,
+                rating: selectedProduct.rating,
+                isNew: selectedProduct.isNew,
+                isSaleOff: selectedProduct.isSaleOff
+            },
+            imageFile: imageFile!
+            })).unwrap();
+            
+            setIsAddDialogOpen(false);
+        } else {
+            // Update existing product
+            await dispatch(updateCosmetic({
+            id: selectedProduct._id,
+            data: {
+                nameCosmetic: selectedProduct.nameCosmetic,
+                brand: selectedProduct.brand,
+                classify: selectedProduct.classify,
+                quantity: selectedProduct.quantity,
+                description: selectedProduct.description,
+                originalPrice: selectedProduct.originalPrice,
+                discountPrice: selectedProduct.discountPrice,
+                rating: selectedProduct.rating,
+                isNew: selectedProduct.isNew,
+                isSaleOff: selectedProduct.isSaleOff
+            },
+            imageFile: imageFile || undefined
+            })).unwrap();
+            
+            setIsEditDialogOpen(false);
+        }
         
-        setIsAddDialogOpen(false);
-      } else {
-        // Update existing product
-        await dispatch(updateCosmetic({
-          id: selectedProduct._id,
-          data: {
-            nameCosmetic: selectedProduct.nameCosmetic,
-            brand: selectedProduct.brand,
-            classify: selectedProduct.classify,
-            quantity: selectedProduct.quantity,
-            description: selectedProduct.description,
-            originalPrice: selectedProduct.originalPrice,
-            discountPrice: selectedProduct.discountPrice,
-            rating: selectedProduct.rating,
-            isNew: selectedProduct.isNew,
-            isSaleOff: selectedProduct.isSaleOff
-          },
-          imageFile: imageFile || undefined
-        })).unwrap();
-        
+        setSelectedProduct(null);
+        setImageFile(null);
+        setImagePreview("");
+        } catch (error) {
+        // Error handled by Redux slice
+        } finally {
+        setIsSubmitting(false);
+        }
+    };
+
+
+    const handleDeleteProduct = async (productId: string) => {
+        if (confirm("Are you sure you want to delete this product?")){
+            await dispatch(deleteCosmetic(productId));
+        }
+
+    };
+    const closeDialog = () => {
         setIsEditDialogOpen(false);
-      }
-      
-      setSelectedProduct(null);
-      setImageFile(null);
-      setImagePreview("");
-    } catch (error) {
-      // Error handled by Redux slice
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-
-  const handleDeleteProduct = async (productId: string) => {
-    if (confirm("Are you sure you want to delete this product?")){
-        await dispatch(deleteCosmetic(productId));
-    }
-
-  };
-  const closeDialog = () => {
-    setIsEditDialogOpen(false);
-    setIsAddDialogOpen(false);
-    setSelectedProduct(null);
-    setImageFile(null);
-    setImagePreview("");
-  };
-
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND'
-    }).format(amount);
-  };
-
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('vi-VN');
-  };
-
-  const getStockBadge = (quantity: number) => {
-    if (quantity === 0) {
-      return <Badge variant="destructive" className="flex items-center gap-1">
-        <AlertTriangle className="h-3 w-3" />
-        Hết hàng
-      </Badge>;
-    } else if (quantity <= 10) {
-      return <Badge variant="secondary" className="flex items-center gap-1">
-        <Package className="h-3 w-3" />
-        Sắp hết
-      </Badge>;
-    } else {
-      return <Badge variant="outline" className="flex items-center gap-1">
-        <Package className="h-3 w-3" />
-        Còn hàng
-      </Badge>;
-    }
-  };
-
-  const getCategoryBadge = (category: string) => {
-    const categoryConfig = {
-      skincare: { label: 'Chăm sóc da', variant: 'default' as const },
-      makeup: { label: 'Trang điểm', variant: 'secondary' as const },
-      fragrance: { label: 'Nước hoa', variant: 'outline' as const }
+        setIsAddDialogOpen(false);
+        setSelectedProduct(null);
+        setImageFile(null);
+        setImagePreview("");
     };
-    
-    const config = categoryConfig[category as keyof typeof categoryConfig] || 
-                  { label: category, variant: 'outline' as const };
-    
-    return <Badge variant={config.variant}>{config.label}</Badge>;
-  };
+
+
+    const formatCurrency = (amount: number) => {
+        return new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND'
+        }).format(amount);
+    };
+
+    const formatDate = (date: Date) => {
+        return new Date(date).toLocaleDateString('vi-VN');
+    };
+
+    const getStockBadge = (quantity: number) => {
+        if (quantity === 0) {
+        return <Badge variant="destructive" className="flex items-center gap-1">
+            <AlertTriangle className="h-3 w-3" />
+            Hết hàng
+        </Badge>;
+        } else if (quantity <= 10) {
+        return <Badge variant="secondary" className="flex items-center gap-1">
+            <Package className="h-3 w-3" />
+            Sắp hết
+        </Badge>;
+        } else {
+        return <Badge variant="outline" className="flex items-center gap-1">
+            <Package className="h-3 w-3" />
+            Còn hàng
+        </Badge>;
+        }
+    };
+
+    const getCategoryBadge = (category: string) => {
+        const categoryConfig = {
+        skincare: { label: 'Chăm sóc da', variant: 'default' as const },
+        makeup: { label: 'Trang điểm', variant: 'secondary' as const },
+        fragrance: { label: 'Nước hoa', variant: 'outline' as const }
+        };
+        
+        const config = categoryConfig[category as keyof typeof categoryConfig] || 
+                    { label: category, variant: 'outline' as const };
+        
+        return <Badge variant={config.variant}>{config.label}</Badge>;
+    };
 
   return (
     <div className="space-y-6">

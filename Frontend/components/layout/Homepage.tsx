@@ -35,6 +35,9 @@ const HomePage = () => {
         // Navigate to product detail page
             router.push(`/product/${cosmetic._id}`);
         };
+        const handleDirect = () => {
+            router.push('/product');
+        }
 
   return (
     <div className="space-y-16">
@@ -60,9 +63,9 @@ const HomePage = () => {
               Mỹ phẩm an toàn, chất lượng từ thiên nhiên
             </p>
             <Button
-             
-              className="bg-brand-deep-pink hover:bg-brand-deep-pink/90 text-white font-poppins px-8 py-3"
-              size="lg"
+                onClick={handleDirect}
+                className="bg-brand-deep-pink hover:bg-brand-deep-pink/90 text-white font-poppins px-8 py-3 cursor-pointer"
+                size="lg"
             >
               Mua Sắm Ngay
             </Button>

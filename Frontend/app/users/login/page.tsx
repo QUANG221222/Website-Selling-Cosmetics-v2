@@ -8,8 +8,11 @@ import { authApi } from "@/lib/api/auth";
 import axios from "axios";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-
+import { AppDispatch } from "@/lib/redux/store";
+import { loginUserApi } from "@/lib/redux/user/userSlice";
+import { useDispatch } from "react-redux";
 const SignIn = () => {
+    const dispatch = useDispatch<AppDispatch>();
     const router = useRouter();
   const {
     register,
@@ -19,8 +22,8 @@ const SignIn = () => {
 
   const onSubmit = async (data: SignInFormData) => {
     try {
-      const { email, password } = data;
-        await authApi.login({ email, password });
+        await dispatch(loginUserApi(data)).unwrap();
+
          toast.success('Đăng nhập thành công!');
          router.push("/")
     } catch (error) {
@@ -75,7 +78,7 @@ const SignIn = () => {
               <FooterLink
                 text="Don't have an account?"
                 linkText="Register"
-                href="/register"
+                href="/users/register"
               />
             </form>
           </CardContent>

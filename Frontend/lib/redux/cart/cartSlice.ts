@@ -28,7 +28,7 @@ export const fetchCart = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error?.response?.data?.message || "Failed to fetch cart"
+        error?.response?.data?.message
       );
     }
   }
@@ -40,7 +40,6 @@ export const addToCart = createAsyncThunk(
   async (data: AddToCartData, { rejectWithValue }) => {
     try {
       const response = await cartApi.addToCart(data);
-      toast.success("Đã thêm sản phẩm vào giỏ hàng!");
       return response.data;
     } catch (error: any) {
       const message = error?.response?.data?.message || "Failed to add to cart";
@@ -108,7 +107,7 @@ export const incrementQuantity = createAsyncThunk(
     try {
       const state = getState() as { cart: CartState };
       const item = state.cart.cart?.items.find(
-        (i) => i.cosmetic._id === cosmeticId
+        (i) => i.cosmetic?._id === cosmeticId
       );
 
       if (!item) {
@@ -135,7 +134,7 @@ export const decrementQuantity = createAsyncThunk(
     try {
       const state = getState() as { cart: CartState };
       const item = state.cart.cart?.items.find(
-        (i) => i.cosmetic._id === cosmeticId
+        (i) => i.cosmetic?._id === cosmeticId
       );
 
       if (!item) {

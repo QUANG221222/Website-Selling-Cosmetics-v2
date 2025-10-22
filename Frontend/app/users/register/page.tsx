@@ -24,7 +24,7 @@ const Register = () => {
             // Sử dụng authApi.register thay vì registerApi
             await authApi.register({ username, email, password });
             toast.success('Registration successful!');
-            router.push("/login")   
+            router.push("/users/login")   
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 toast.error(error.response?.data?.message || 'Đăng ký thất bại!');
@@ -80,7 +80,14 @@ const Register = () => {
                 type="password"
                 register={register}
                 error={errors.password}
-                validation={{ required: "password is required", minLength: 8 }}
+                validation={{ 
+                    required: "password is required", 
+                    minLength: 6,
+                    pattern: {
+                         value: /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]).+$/,
+                        message: "Password must contain at least 1 uppercase letter, 1 number, 1 special character, and at least 6 characters long",   
+                    }
+                 }}
               />
               <InputField
                 name="confirmPassword"
