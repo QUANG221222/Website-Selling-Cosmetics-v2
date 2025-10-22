@@ -18,18 +18,19 @@ const ProductCard = ({cosmetic, onAddToCart, onViewDetail}: ProductProps) => {
     ? Math.round(((cosmetic.originalPrice - cosmetic.discountPrice) / cosmetic.originalPrice) * 100)
     : 0;
   return (
-    <Card className="group hover:shadow-lg transition-all duration-300 border-border bg-white overflow-hidden">
-      <div className="relative overflow-hidden">
+    <Card className="group hover:shadow-lg transition-all duration-300 border-border bg-white overflow-hidden cursor-pointer flex flex-col">
+      <div className="relative w-full overflow-hidden rounded-t-lg">
         <div 
-          className="cursor-pointer"
+          className="relative w-full h-56 md:h-64 lg:h-72 cursor-pointer"
           onClick={() => onViewDetail(cosmetic)}
         >
           <Image
             src={cosmetic?.image || ''}
             alt={cosmetic.nameCosmetic}
-            width={120}
-            height={64}
-            className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
+            fill
+            priority
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         </div>
         
@@ -111,14 +112,14 @@ const ProductCard = ({cosmetic, onAddToCart, onViewDetail}: ProductProps) => {
         <div className="w-full space-y-2">
           <Button
             onClick={() => onAddToCart(cosmetic)}
-            className="w-full bg-brand-deep-pink hover:bg-brand-deep-pink/90 text-white font-poppins"
+            className="w-full bg-brand-deep-pink hover:bg-brand-deep-pink/90 text-white font-poppins cursor-pointer"
           >
             Thêm vào giỏ hàng
           </Button>
           <Button
             variant="outline"
             onClick={() => onViewDetail(cosmetic)}
-            className="w-full border-brand-pink text-brand-deep-pink hover:bg-brand-pink hover:text-foreground font-poppins"
+            className="w-full border-brand-pink text-brand-deep-pink hover:bg-brand-pink hover:text-foreground font-poppins cursor-pointer"
           >
             Xem chi tiết
           </Button>

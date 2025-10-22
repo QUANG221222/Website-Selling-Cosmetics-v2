@@ -4,23 +4,24 @@ import { toast } from "sonner";
 import { RootState } from "../store";
 // Add proper types
 interface LoginData {
-  email: string
-  password: string
+  email: string;
+  password: string;
 }
 
 interface User {
-  _id: string
-  email: string
-  username: string
-  fullName: string
-  role: string
-  isActive: boolean
+  _id: string;
+  email: string;
+  username: string;
+  fullName: string;
+  phone: string;
+  role: string;
+  isActive: boolean;
 }
 
 interface UserState {
-  currentUser: User | null
-  loading: boolean
-  error: string | null
+  currentUser: User | null;
+  loading: boolean;
+  error: string | null;
 }
 
 // Declare initial state in userSlice
@@ -36,7 +37,7 @@ export const loginUserApi = createAsyncThunk(
   async (data: LoginData, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post("users/login", data);
-      const userData = response.data; 
+      const userData = response.data.data || response.data;
 
       if (!userData || !userData._id) {
         console.error("❌ Invalid user data:", userData);
@@ -75,7 +76,12 @@ export const fetchCurrentUser = createAsyncThunk(
   "user/fetchCurrentUser",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get("users/me"); // API để lấy user hiện tại
+      // Add header to skip auth redirect for this silent check
+      const response = await axiosInstance.get("users/me", {
+        headers: {
+          "X-Skip-Auth-Redirect": "true",
+        },
+      });
       const userData = response.data.data || response.data;
 
       if (!userData || !userData._id) {

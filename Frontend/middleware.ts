@@ -11,9 +11,12 @@ export function middleware(request: NextRequest) {
     path.startsWith("/cosmetic") ||
     path.startsWith("/setting");
 
+  const isUserRoute =
+    path.startsWith("/checkout") || path.startsWith("/profile");
+
   const isAuthRoute =
-    path.startsWith("/login") ||
-    path.startsWith("/register") ||
+    path.startsWith("/users/login") ||
+    path.startsWith("/users/register") ||
     path.startsWith("/admin/login");
 
   //Get sessions cookie
@@ -26,6 +29,11 @@ export function middleware(request: NextRequest) {
   if (isAdminRoute && !isLoggedIn) {
     // Redirect to admin login if trying to access admin routes without login
     return NextResponse.redirect(new URL("/admin/login", request.url));
+  }
+
+  if (isUserRoute && !isLoggedIn) {
+    // Redirect to user login if trying to access user routes without login
+    return NextResponse.redirect(new URL("/users/login", request.url));
   }
 
   if (isAuthRoute && isLoggedIn) {
@@ -44,11 +52,12 @@ export const config = {
     "/order/:path*",
     "/cosmetic/:path*",
     "/setting/:path*",
-    // Protected routes
-    "/cart/:path*",
+    // Protected routes (only checkout needs login)
+    "/checkout/:path*",
+    "/profile/:path*",
     // Auth routes
-    "/login",
-    "/register",
+    "/users/login",
+    "/users/register",
     "/admin/login",
   ],
 };

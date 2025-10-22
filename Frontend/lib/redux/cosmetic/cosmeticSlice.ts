@@ -25,7 +25,7 @@ export const fetchAllCosmetics = createAsyncThunk(
       const response = await cosmeticApi.getAll()
       return response.data
     } catch (error: any) {
-      return rejectWithValue(error?.response?.data?.message || 'Failed to fetch cosmetics')
+      return rejectWithValue(error?.response?.data?.message)
     }
   }
 )

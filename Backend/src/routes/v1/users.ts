@@ -21,6 +21,8 @@ Router.route('/login').post(
 
 Router.route('/logout').post(controllers.userController.logout)
 // Thêm route mới
-Router.route('/me').get(controllers.userController.getCurrentUser)
+Router.route('/me').get(
+    controllers.userController.getCurrentUser
+)
 
 export const userRouter = Router

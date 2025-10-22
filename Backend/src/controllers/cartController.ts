@@ -48,6 +48,8 @@ const createNew = async (
       data: newCart
     })
   } catch (error: any) {
+    // forward ApiError or convert unknown errors to internal server error
+    if (error instanceof ApiError) return next(error)
     next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message))
   }
 }
@@ -65,6 +67,7 @@ const getCart = async (
       data: cart
     })
   } catch (error: any) {
+    if (error instanceof ApiError) return next(error)
     next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message))
   }
 }
@@ -89,6 +92,7 @@ const addToCart = async (
       data: updatedCart
     })
   } catch (error: any) {
+    if (error instanceof ApiError) return next(error)
     next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message))
   }
 }
@@ -112,6 +116,7 @@ const removeFromCart = async (
       data: updatedCart
     })
   } catch (error: any) {
+    if (error instanceof ApiError) return next(error)
     next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message))
   }
 }
@@ -136,6 +141,7 @@ const updateQuantity = async (
       data: updatedCart
     })
   } catch (error: any) {
+    if (error instanceof ApiError) return next(error)
     next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message))
   }
 }
@@ -153,6 +159,7 @@ const clearCart = async (
       message: 'Cart cleared successfully'
     })
   } catch (error: any) {
+    if (error instanceof ApiError) return next(error)
     next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message))
   }
 }

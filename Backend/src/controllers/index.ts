@@ -35,8 +35,8 @@ export type {
 export type {
   CreateOrderRequest,
   CreateOrderResponse,
-  GetOrderByIdResponse,
-  GetAllOrdersResponse
+  GetOrderResponse,
+  GetOrdersResponse
 } from './orderController'
 
 export const controllers = {

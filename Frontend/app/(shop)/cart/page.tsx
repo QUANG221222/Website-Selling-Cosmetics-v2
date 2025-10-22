@@ -16,7 +16,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { AppDispatch } from "@/lib/redux/store";
 import {
-  selectCurrentUser,
   fetchCurrentUser,
 } from "@/lib/redux/user/userSlice";
 import {
@@ -25,7 +24,6 @@ import {
   incrementQuantity,
   removeFromCart,
   selectCartItems,
-  selectCartLoading,
   selectCartTotalPrice,
   fetchCart,
 } from "@/lib/redux/cart/cartSlice";
@@ -33,11 +31,13 @@ import {
 const ShoppingCart = () => {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
-  const currentUser = useSelector(selectCurrentUser);
-  const loading = useSelector(selectCartLoading);
 
   const cartItems = useSelector(selectCartItems);
   const totalPrice = useSelector(selectCartTotalPrice);
+
+  // Helper function to safely get cosmetic ID
+  const getCosmeticId = (item: any) =>
+    item.cosmetic?._id || item.cosmeticId || "";
 
   // Memoize calculated values
   const shipping = useMemo(
@@ -57,14 +57,6 @@ const ShoppingCart = () => {
     dispatch(fetchCart());
   }, [dispatch]);
 
-  // Show loading state
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
-      </div>
-    );
-  }
 
   // Show empty cart state
   if (!cartItems || cartItems.length === 0) {
@@ -173,7 +165,7 @@ const ShoppingCart = () => {
                   </TableHeader>
                   <TableBody>
                     {cartItems.map((item) => (
-                      <TableRow key={item.cosmetic._id}>
+                      <TableRow key={getCosmeticId(item)}>
                         <TableCell>
                           <div className="flex items-center space-x-4">
                             <div className="w-16 h-16 overflow-hidden rounded-lg border border-border relative">
@@ -209,7 +201,7 @@ const ShoppingCart = () => {
                         </TableCell>
                         <TableCell>
                           <span className="font-poppins font-medium">
-                            {formatPrice(item.cosmetic?.discountPrice)}
+                            {formatPrice(item.cosmetic?.discountPrice || 0)}
                           </span>
                         </TableCell>
                         <TableCell>
@@ -218,7 +210,7 @@ const ShoppingCart = () => {
                               variant="outline"
                               size="icon"
                               onClick={() =>
-                                dispatch(decrementQuantity(item.cosmetic._id))
+                                dispatch(decrementQuantity(getCosmeticId(item)))
                               }
                               className="h-8 w-8"
                             >
@@ -231,7 +223,7 @@ const ShoppingCart = () => {
                               variant="outline"
                               size="icon"
                               onClick={() =>
-                                dispatch(incrementQuantity(item.cosmetic._id))
+                                dispatch(incrementQuantity(getCosmeticId(item)))
                               }
                               className="h-8 w-8"
                             >
@@ -242,7 +234,8 @@ const ShoppingCart = () => {
                         <TableCell>
                           <span className="font-poppins font-medium text-brand-deep-pink">
                             {formatPrice(
-                              item.cosmetic?.discountPrice * item.quantity
+                              (item.cosmetic?.discountPrice || 0) *
+                                item.quantity
                             )}
                           </span>
                         </TableCell>
@@ -250,7 +243,9 @@ const ShoppingCart = () => {
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => handleRemoveItem(item.cosmetic._id)}
+                            onClick={() =>
+                              handleRemoveItem(getCosmeticId(item))
+                            }
                             className="text-destructive hover:text-destructive"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -265,7 +260,7 @@ const ShoppingCart = () => {
               {/* Mobile Cards */}
               <div className="md:hidden space-y-4">
                 {cartItems.map((item) => (
-                  <Card key={item.cosmetic._id} className="border-border">
+                  <Card key={getCosmeticId(item)} className="border-border">
                     <CardContent className="p-4">
                       <div className="flex space-x-4">
                         <div className="w-20 h-20 overflow-hidden rounded-lg border border-border relative">
@@ -303,7 +298,7 @@ const ShoppingCart = () => {
                               variant="ghost"
                               size="icon"
                               onClick={() =>
-                                handleRemoveItem(item.cosmetic._id)
+                                handleRemoveItem(getCosmeticId(item))
                               }
                               className="text-destructive hover:text-destructive"
                             >
@@ -317,7 +312,9 @@ const ShoppingCart = () => {
                                 variant="outline"
                                 size="icon"
                                 onClick={() =>
-                                  dispatch(decrementQuantity(item.cosmetic._id))
+                                  dispatch(
+                                    decrementQuantity(getCosmeticId(item))
+                                  )
                                 }
                                 className="h-8 w-8"
                               >
@@ -330,7 +327,9 @@ const ShoppingCart = () => {
                                 variant="outline"
                                 size="icon"
                                 onClick={() =>
-                                  dispatch(incrementQuantity(item.cosmetic._id))
+                                  dispatch(
+                                    incrementQuantity(getCosmeticId(item))
+                                  )
                                 }
                                 className="h-8 w-8"
                               >
@@ -339,7 +338,8 @@ const ShoppingCart = () => {
                             </div>
                             <span className="font-poppins font-medium text-brand-deep-pink">
                               {formatPrice(
-                                item.cosmetic.discountPrice * item.quantity
+                                (item.cosmetic?.discountPrice || 0) *
+                                  item.quantity
                               )}
                             </span>
                           </div>

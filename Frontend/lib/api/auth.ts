@@ -29,13 +29,22 @@ export const authApi = {
             '/users/login',
             credentials
         )
-        toast.success('Login successful!')
+        return response.data;
+    },
+    logout: async () => {
+        const response = await axiosInstance.post('/users/logout');
+        toast.success('Logout successful!')
         return response.data;
     },
      register: async (data: { username: string; email: string; password: string }) => {
         const response = await axiosInstance.post('/users/register', data);
         return response.data;
-    },
+    },  
+    // Fetch current user
+    getCurrentUser: async (): Promise<ApiResponse<User>> => {
+        const response = await axiosInstance.get('/users/me');
+        return response.data;
+    }
     
 }
 

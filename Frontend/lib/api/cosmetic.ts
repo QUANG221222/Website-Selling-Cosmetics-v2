@@ -24,7 +24,6 @@ export const cosmeticApi = {
             const response = await axiosInstance.get("/cosmetics")
             return response.data
         } catch (error : any) {
-            toast.error("Failed to fetch cosmetics!")
             throw error
         }
     },
@@ -34,7 +33,6 @@ export const cosmeticApi = {
             const response = await axiosInstance.get(`/cosmetics/id/${id}`)
             return response.data
         } catch (error: any) {
-            toast.error("Failed to fetch cosmetic")
             throw error
         }
     },
@@ -44,7 +42,6 @@ export const cosmeticApi = {
             const response = await axiosInstance.get(`cosmetics/slug/${slug}`)
             return response.data
         } catch (error) {
-            toast.error('Failed to fetch cosmetic')
             throw error
         }
     },

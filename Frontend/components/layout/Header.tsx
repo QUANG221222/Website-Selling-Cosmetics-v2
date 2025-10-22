@@ -1,6 +1,5 @@
 'use client';
-import { useState } from 'react';
-
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import React from 'react'
@@ -9,20 +8,28 @@ import SearchBar from '@/components/layout/SearchBar';
 import { Button } from '@/components/ui/button';
 import { 
   Search, 
-  ShoppingCart, 
   User, 
   Menu,
   X
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { useSelector } from 'react-redux';
-import { selectCartTotalItems } from '@/lib/redux/cart/cartSlice';
 import CartBadge from '@/components/cart/CartBadge';
- 
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch } from '@/lib/redux/store';
+import { fetchCurrentUser, selectCurrentUser } from '@/lib/redux/user/userSlice';
+ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 const Header = () => {
 
-const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const dispatch = useDispatch<AppDispatch>();
+    const currentUser = useSelector(selectCurrentUser);
+
+    useEffect(() => {
+        if (!currentUser) {
+        dispatch(fetchCurrentUser());
+        }
+    }, [dispatch, currentUser]);
 
   return (
     <header className="bg-white border-b border-border sticky top-0 z-50 shadow-sm">
@@ -30,11 +37,11 @@ const [isMenuOpen, setIsMenuOpen] = useState(false);
            <div className="flex flex-col">  
                 <div className="flex items-center justify-between">
     
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between ">
                         <Link href='/' className='text-2xl text-brand-deep-pink mr-5'>
                             Beautify
                         </Link> 
-                        <nav className="hidden md:flex items-center space-x-8 mr-10"> 
+                        <nav className="hidden md:flex items-center space-x-8 mr-10 ml-[200px]"> 
                             <NavItems/>
                         </nav>
                         <SearchBar/>
@@ -57,15 +64,27 @@ const [isMenuOpen, setIsMenuOpen] = useState(false);
                         </Link>
     
                         {/* User Account */}
-                        <Link href="/profile">
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="hidden md:flex cursor-pointer"
-                            >
-                                <User className="h-5 w-5" />
-                            </Button>
-                        </Link>
+                        <div className="flex items-center gap-4">
+                            {currentUser ? (
+                            <Link href="/profile">
+                                <div className="flex items-center gap-2">
+                                <Avatar className="h-8 w-8">
+                                    <AvatarFallback>
+                                    {currentUser.fullName?.charAt(0).toUpperCase() || 'U'}
+                                    </AvatarFallback>
+                                </Avatar>
+                                <span className="hidden md:block">{currentUser.fullName}</span>
+                                </div>
+                            </Link>
+                            ) : (
+                            <Link href="/users/login">
+                                <Button variant="ghost">
+                                <User className="h-5 w-5 mr-2" />
+                                Đăng nhập
+                                </Button>
+                            </Link>
+                            )}
+                        </div>
         
                         {/* Mobile Menu Toggle */}
                         <Button
