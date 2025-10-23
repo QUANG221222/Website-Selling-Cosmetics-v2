@@ -2,7 +2,13 @@
 
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
@@ -38,18 +44,22 @@ const AdminRegister = () => {
     setIsSubmitting(true);
     try {
       const { secretKey, adminName, email, password } = data;
-      
-      await axiosInstance.post('admin/register', {
+
+      await axiosInstance.post("admin/register", {
         secretKey,
         adminName,
         email,
-        password
+        password,
       });
-      
-      toast.success('Admin account created! Please check your email to verify.');
+
+      toast.success(
+        "Tài khoản quản trị viên đã được tạo thành công! Vui lòng xác thực email của bạn."
+      );
       router.push("/admin/login");
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Registration failed!');
+      toast.error(
+        error?.response?.data?.message || "Đăng ký không thành công!"
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -62,58 +72,65 @@ const AdminRegister = () => {
           <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
             <Shield className="h-8 w-8 text-[#E91E63]" />
           </div>
-          <CardTitle className="text-2xl font-bold">Admin Registration</CardTitle>
+          <CardTitle className="text-2xl font-bold">
+            Đăng Ký Quản Trị Viên
+          </CardTitle>
           <CardDescription>
-            Create a new admin account (Secret key required)
+            Tạo tài khoản quản trị viên mới (Cần có khóa bí mật)
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Alert className="mb-4 border-amber-500 bg-amber-50 dark:bg-amber-950">
             <AlertCircle className="h-4 w-4 text-amber-600" />
             <AlertDescription className="text-amber-800 dark:text-amber-200">
-              You need a valid secret key to register as an admin
+              Bạn cần một khóa bí mật hợp lệ để đăng ký làm quản trị viên
             </AlertDescription>
           </Alert>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="secretKey">Secret Key *</Label>
+              <Label htmlFor="secretKey">Khóa Bí Mật *</Label>
               <Input
                 id="secretKey"
                 type="password"
-                placeholder="Enter admin secret key"
+                placeholder="Nhập khóa bí mật quản trị viên"
                 {...register("secretKey", {
-                  required: "Secret key is required",
+                  required: "Khóa bí mật là bắt buộc",
                 })}
                 className={errors.secretKey ? "border-red-500" : ""}
               />
               {errors.secretKey && (
-                <p className="text-sm text-red-500">{errors.secretKey.message}</p>
+                <p className="text-sm text-red-500">
+                  {errors.secretKey.message}
+                </p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="adminName">Admin Username *</Label>
+              <Label htmlFor="adminName">Tên Đăng Nhập Quản Trị Viên *</Label>
               <Input
                 id="adminName"
                 type="text"
                 placeholder="adminuser"
                 {...register("adminName", {
-                  required: "Admin username is required",
+                  required: "Tên đăng nhập quản trị viên là bắt buộc",
                   pattern: {
                     value: /^[a-zA-Z0-9_]{3,30}$/,
-                    message: "Username must be 3-30 characters (letters, numbers, underscores)",
+                    message:
+                      "Tên đăng nhập phải có 3-30 ký tự (chữ cái, số, dấu gạch dưới)",
                   },
                 })}
                 className={errors.adminName ? "border-red-500" : ""}
               />
               {errors.adminName && (
-                <p className="text-sm text-red-500">{errors.adminName.message}</p>
+                <p className="text-sm text-red-500">
+                  {errors.adminName.message}
+                </p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email Address *</Label>
+              <Label htmlFor="email">Địa Chỉ Email *</Label>
               <Input
                 id="email"
                 type="email"
@@ -133,43 +150,50 @@ const AdminRegister = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password *</Label>
+              <Label htmlFor="password">Mật Khẩu *</Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="Enter strong password"
+                placeholder="Nhập mật khẩu mạnh"
                 {...register("password", {
-                  required: "Password is required",
+                  required: "Mật khẩu là bắt buộc",
                   minLength: {
                     value: 8,
-                    message: "Password must be at least 8 characters",
+                    message: "Mật khẩu phải có ít nhất 8 ký tự",
                   },
                   pattern: {
-                    value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-                    message: "Password must contain uppercase, lowercase, number and special character",
+                    value:
+                      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                    message:
+                      "Mật khẩu phải chứa chữ hoa, chữ thường, số và ký tự đặc biệt",
                   },
                 })}
                 className={errors.password ? "border-red-500" : ""}
               />
               {errors.password && (
-                <p className="text-sm text-red-500">{errors.password.message}</p>
+                <p className="text-sm text-red-500">
+                  {errors.password.message}
+                </p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password *</Label>
+              <Label htmlFor="confirmPassword">Xác Nhận Mật Khẩu *</Label>
               <Input
                 id="confirmPassword"
                 type="password"
-                placeholder="Re-enter password"
+                placeholder="Nhập lại mật khẩu"
                 {...register("confirmPassword", {
-                  required: "Please confirm your password",
-                  validate: (value) => value === password || "Passwords do not match",
+                  required: "Vui lòng xác nhận mật khẩu của bạn",
+                  validate: (value) =>
+                    value === password || "Mật khẩu không khớp",
                 })}
                 className={errors.confirmPassword ? "border-red-500" : ""}
               />
               {errors.confirmPassword && (
-                <p className="text-sm text-red-500">{errors.confirmPassword.message}</p>
+                <p className="text-sm text-red-500">
+                  {errors.confirmPassword.message}
+                </p>
               )}
             </div>
 
@@ -181,19 +205,22 @@ const AdminRegister = () => {
               {isSubmitting ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Creating Account...
+                  Đang Tạo Tài Khoản...
                 </>
               ) : (
-                "Create Admin Account"
+                "Tạo Tài Khoản Quản Trị Viên"
               )}
             </Button>
           </form>
 
           <div className="mt-6 text-center text-sm">
             <p className="text-muted-foreground">
-              Already have an admin account?{" "}
-              <Link href="/admin/login" className="text-[#E91E63] hover:underline font-medium">
-                Sign In
+              Bạn đã có tài khoản quản trị viên?{" "}
+              <Link
+                href="/admin/login"
+                className="text-[#E91E63] hover:underline font-medium"
+              >
+                Đăng Nhập
               </Link>
             </p>
           </div>

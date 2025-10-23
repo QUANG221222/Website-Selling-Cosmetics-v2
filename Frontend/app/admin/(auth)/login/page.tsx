@@ -2,13 +2,22 @@
 
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/lib/redux/store";
-import { loginAdminApi, selectAdminLoading } from "@/lib/redux/admin/adminSlice";
+import {
+  loginAdminApi,
+  selectAdminLoading,
+} from "@/lib/redux/admin/adminSlice";
 import { Shield, Loader2 } from "lucide-react";
 
 interface AdminLoginForm {
@@ -45,22 +54,22 @@ const AdminLogin = () => {
           </div>
           <CardTitle className="text-2xl font-bold">Admin Portal</CardTitle>
           <CardDescription>
-            Sign in to access the admin dashboard
+            Đăng nhập để truy cập bảng điều khiển quản trị viên
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
+              <Label htmlFor="email">Địa Chỉ Email</Label>
               <Input
                 id="email"
                 type="email"
                 placeholder="admin@example.com"
                 {...register("email", {
-                  required: "Email is required",
+                  required: "Email là bắt buộc",
                   pattern: {
                     value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: "Invalid email address",
+                    message: "Địa chỉ email không hợp lệ",
                   },
                 })}
                 className={errors.email ? "border-red-500" : ""}
@@ -71,43 +80,43 @@ const AdminLogin = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">Mật Khẩu</Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="Enter your password"
+                placeholder="Nhập mật khẩu của bạn"
                 {...register("password", {
-                  required: "Password is required",
+                  required: "Mật khẩu là bắt buộc",
                   minLength: {
                     value: 8,
-                    message: "Password must be at least 8 characters",
+                    message: "Mật khẩu phải có ít nhất 8 ký tự",
                   },
                 })}
                 className={errors.password ? "border-red-500" : ""}
               />
               {errors.password && (
-                <p className="text-sm text-red-500">{errors.password.message}</p>
+                <p className="text-sm text-red-500">
+                  {errors.password.message}
+                </p>
               )}
             </div>
 
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full"
-            >
+            <Button type="submit" disabled={loading} className="w-full">
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Signing in...
+                  Đang Đăng Nhập...
                 </>
               ) : (
-                "Sign In"
+                "Đăng Nhập"
               )}
             </Button>
           </form>
 
           <div className="mt-6 text-center text-sm text-muted-foreground">
-            <p>Need admin access? Contact system administrator</p>
+            <p>
+              Cần quyền truy cập quản trị? Liên hệ với quản trị viên hệ thống
+            </p>
           </div>
         </CardContent>
       </Card>

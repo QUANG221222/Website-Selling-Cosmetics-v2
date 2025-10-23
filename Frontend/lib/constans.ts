@@ -1,5 +1,5 @@
 export const NAV_ITEMS = [
-    { href: '/', label: 'Homepage' },
-    { href: '/product', label: 'Product' },
-    { href: '/cart', label: 'Cart' },
+  { href: "/", label: "Trang Chủ" },
+  { href: "/product", label: "Sản Phẩm" },
+  { href: "/cart", label: "Giỏ Hàng" },
 ];
