@@ -15,9 +15,7 @@ export function middleware(request: NextRequest) {
     path.startsWith("/checkout") || path.startsWith("/profile");
 
   const isAuthRoute =
-    path.startsWith("/users/login") ||
-    path.startsWith("/users/register") ||
-    path.startsWith("/admin/login");
+    path.startsWith("/users/login") || path.startsWith("/users/register");
 
   //Get sessions cookie
   const sessionCookie = request.cookies.get("connect.sid");
