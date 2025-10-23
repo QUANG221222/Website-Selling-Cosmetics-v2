@@ -12,36 +12,38 @@ import { AppDispatch } from "@/lib/redux/store";
 import { loginUserApi } from "@/lib/redux/user/userSlice";
 import { useDispatch } from "react-redux";
 const SignIn = () => {
-    const dispatch = useDispatch<AppDispatch>();
-    const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-} = useForm<SignInFormData>();
+  } = useForm<SignInFormData>();
 
   const onSubmit = async (data: SignInFormData) => {
     try {
-        await dispatch(loginUserApi(data)).unwrap();
+      await dispatch(loginUserApi(data)).unwrap();
 
-         toast.success('Đăng nhập thành công!');
-         router.push("/")
+      toast.success("Đăng nhập thành công!");
+      router.push("/");
     } catch (error) {
-            if (axios.isAxiosError(error)) {
-                toast.error(error.response?.data?.message || 'Đăng nhập thất bại!');
-            } else {
-                toast.error('Đăng nhập thất bại!');
-            }
-            console.error(error);
-        }
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message || "Đăng nhập thất bại!");
+      } else {
+        toast.error("Đăng nhập thất bại!");
+      }
+      console.error(error);
+    }
   };
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-md mx-auto">
         <Card className="border-border">
-          <CardHeader className="text-center">
-            <CardTitle className="font-inter text-foreground">Login</CardTitle>
+          <CardHeader className="text-center mt-1">
+            <CardTitle className="font-inter text-foreground">
+              Đăng nhập
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -52,19 +54,19 @@ const SignIn = () => {
                 register={register}
                 error={errors.email}
                 validation={{
-                  required: "Email is required",
+                  required: "Email là bắt buộc",
                   pattern: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/,
                 }}
               />
 
               <InputField
                 name="password"
-                label="Password"
-                placeholder="Enter your password..."
+                label="Mật khẩu"
+                placeholder="Nhập mật khẩu của bạn..."
                 type="password"
                 register={register}
                 error={errors.password}
-                validation={{ required: "Password is required", minLength: 8 }}
+                validation={{ required: "Mật khẩu là bắt buộc", minLength: 8 }}
               />
 
               <Button
@@ -72,12 +74,12 @@ const SignIn = () => {
                 disabled={isSubmitting}
                 className="w-full bg-brand-deep-pink hover:bg-brand-deep-pink/90 text-white font-poppins"
               >
-                {isSubmitting ? "Logging in..." : "Login"}
+                {isSubmitting ? "Đang đăng nhập..." : "Đăng nhập"}
               </Button>
 
               <FooterLink
-                text="Don't have an account?"
-                linkText="Register"
+                text="Bạn chưa có tài khoản?"
+                linkText="Đăng ký"
                 href="/users/register"
               />
             </form>
