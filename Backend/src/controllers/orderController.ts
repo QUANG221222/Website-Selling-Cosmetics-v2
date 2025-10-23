@@ -56,7 +56,7 @@ const createNew = async (
   try {
     const newOrder = await services.orderService.createNew(req)
     res.status(StatusCodes.CREATED).json({
-      message: 'Order created successfully',
+      message: 'Đơn hàng đã được tạo thành công',
       data: newOrder
     })
   } catch (error: any) {
@@ -73,7 +73,7 @@ const getUserOrders = async (
     const { userId } = req.session.user!
     const orders = await services.orderService.getByUserId(userId)
     res.status(StatusCodes.OK).json({
-      message: 'Orders retrieved successfully',
+      message: 'Đơn hàng đã được lấy thành công',
       data: orders
     })
   } catch (error: any) {
@@ -90,7 +90,7 @@ const getOrderById = async (
     const { id } = req.params
     const order = await services.orderService.getById(id)
     res.status(StatusCodes.OK).json({
-      message: 'Order retrieved successfully',
+      message: 'Đơn hàng đã được lấy thành công',
       data: order
     })
   } catch (error: any) {
@@ -106,7 +106,7 @@ const getAllOrders = async (
   try {
     const orders = await services.orderService.getAll()
     res.status(StatusCodes.OK).json({
-      message: 'All orders retrieved successfully',
+      message: 'Tất cả đơn hàng đã được lấy thành công',
       data: orders
     })
   } catch (error: any) {
@@ -126,7 +126,7 @@ const updateOrder = async (
       updatedAt: new Date()
     })
     res.status(StatusCodes.OK).json({
-      message: 'Order updated successfully',
+      message: 'Đơn hàng đã được cập nhật thành công',
       data: updatedOrder
     })
   } catch (error: any) {
@@ -143,7 +143,7 @@ const deleteOrder = async (
     const { id } = req.params
     await services.orderService.deleteById(id)
     res.status(StatusCodes.OK).json({
-      message: 'Order deleted successfully'
+      message: 'Đơn hàng đã được xóa thành công'
     })
   } catch (error: any) {
     next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message))
@@ -165,7 +165,7 @@ const deleteOrderWhenOrderIsProcessing = async (
     }
     await services.orderService.deleteById(id)
     res.status(StatusCodes.OK).json({
-      message: 'Order deleted successfully'
+      message: 'Đơn hàng đã được xóa thành công'
     })
   } catch (error: any) {
     next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message))

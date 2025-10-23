@@ -53,7 +53,7 @@ const createNew = async (
   try {
     const newAdmin = await services.adminService.createNew(req)
     res.status(StatusCodes.CREATED).json({
-      message: 'Admin created successfully',
+      message: 'Tài khoản admin đã được tạo thành công',
       data: newAdmin
     })
   } catch (error: any) {
@@ -70,7 +70,7 @@ const verifyEmail = async (
     const { email, token } = req.body
     const verifiedAdmin = await services.adminService.verifyEmail(email, token)
     res.status(StatusCodes.OK).json({
-      message: 'Admin verified successfully',
+      message: 'Admin đã được xác thực thành công',
       data: verifiedAdmin
     })
   } catch (error: any) {
@@ -93,7 +93,7 @@ const login = async (
       }
     }
     res.status(StatusCodes.OK).json({
-      message: 'Login successful',
+      message: 'Đăng nhập thành công',
       data: result
     })
   } catch (error: any) {
@@ -120,7 +120,7 @@ const logout = (req: Request, res: Response, next: NextFunction): void => {
       })
 
       res.status(StatusCodes.OK).json({
-        message: 'Logout successful'
+        message: 'Đăng xuất thành công'
       })
     })
   } catch (error: any) {

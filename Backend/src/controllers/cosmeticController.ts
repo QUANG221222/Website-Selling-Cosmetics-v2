@@ -77,7 +77,7 @@ const createNew = async (
     const result = await services.cosmeticService.createNew(req)
     res
       .status(StatusCodes.CREATED)
-      .json({ message: 'Cosmetic created successfully', data: result })
+      .json({ message: 'Sản phẩm đã được tạo thành công', data: result })
   } catch (error: any) {
     next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message))
   }
@@ -97,7 +97,7 @@ const updateItem = async (
     const result = await services.cosmeticService.updateItem(id, req.body)
     res
       .status(StatusCodes.OK)
-      .json({ message: 'Cosmetic updated successfully', data: result })
+      .json({ message: 'Sản phẩm đã được cập nhật thành công', data: result })
   } catch (error: any) {
     next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message))
   }
@@ -112,7 +112,7 @@ const getAll = async (
     const result = await services.cosmeticService.getAll()
     res
       .status(StatusCodes.OK)
-      .json({ message: 'Cosmetics retrieved successfully', data: result })
+      .json({ message: 'Sản phẩm đã được lấy thành công', data: result })
   } catch (error: any) {
     next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message))
   }
@@ -128,7 +128,7 @@ const getById = async (
     const result = await services.cosmeticService.getById(id)
     res
       .status(StatusCodes.OK)
-      .json({ message: 'Cosmetic retrieved successfully', data: result })
+      .json({ message: 'Sản phẩm đã được lấy thành công', data: result })
   } catch (error: any) {
     next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message))
   }
@@ -144,7 +144,7 @@ const getBySlug = async (
     const result = await services.cosmeticService.getBySlug(slug)
     res
       .status(StatusCodes.OK)
-      .json({ message: 'Cosmetic retrieved successfully', data: result })
+      .json({ message: 'Sản phẩm đã được lấy thành công', data: result })
   } catch (error: any) {
     next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message))
   }
@@ -160,7 +160,7 @@ const deleteItem = async (
     await services.cosmeticService.deleteById(id)
     res
       .status(StatusCodes.OK)
-      .json({ message: 'Cosmetic deleted successfully' })
+      .json({ message: 'Sản phẩm đã được xóa thành công' })
   } catch (error: any) {
     next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message))
   }
@@ -177,7 +177,7 @@ const uploadSingleImage = async (
     }
 
     res.status(StatusCodes.OK).json({
-      message: 'Image uploaded successfully',
+      message: 'Hình ảnh đã được tải lên thành công',
       data: {
         url: req.file.path,
         publicId: req.file.filename,
@@ -210,7 +210,7 @@ const uploadMultipleImages = async (
     }))
 
     res.status(StatusCodes.OK).json({
-      message: `${req.files.length} images uploaded successfully`,
+      message: `${req.files.length} hình ảnh đã được tải lên thành công`,
       data: uploadedFiles
     })
   } catch (error: any) {

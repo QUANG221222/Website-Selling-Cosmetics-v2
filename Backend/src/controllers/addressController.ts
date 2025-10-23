@@ -46,7 +46,7 @@ const createNew = async (
   try {
     const newAddress = await services.addressService.createNew(req)
     res.status(StatusCodes.CREATED).json({
-      message: 'Address created successfully',
+      message: 'Địa chỉ mới đã được tạo thành công',
       data: newAddress
     })
   } catch (error: any) {
@@ -63,7 +63,7 @@ const getAddresses = async (
     const { userId } = req.session.user!
     const addresses = await services.addressService.getByUserId(userId)
     res.status(StatusCodes.OK).json({
-      message: 'Addresses retrieved successfully',
+      message: 'Các địa chỉ đã được lấy thành công',
       data: addresses
     })
   } catch (error: any) {
@@ -87,7 +87,7 @@ const getAddressById = async (
 
     const address = await services.addressService.getById(addressIndex, userId)
     res.status(StatusCodes.OK).json({
-      message: 'Address retrieved successfully',
+      message: 'Địa chỉ đã được lấy thành công',
       data: address
     })
   } catch (error: any) {
@@ -116,7 +116,7 @@ const updateAddress = async (
     )
 
     res.status(StatusCodes.OK).json({
-      message: 'Address updated successfully',
+      message: 'Địa chỉ đã được cập nhật thành công',
       data: updatedAddress
     })
   } catch (error: any) {
@@ -141,7 +141,7 @@ const deleteAddress = async (
     await services.addressService.deleteById(addressIndex, userId)
 
     res.status(StatusCodes.OK).json({
-      message: 'Address deleted successfully'
+      message: 'Địa chỉ đã được xóa thành công'
     })
   } catch (error: any) {
     next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message))
@@ -168,7 +168,7 @@ const setDefaultAddress = async (
     )
 
     res.status(StatusCodes.OK).json({
-      message: 'Default address set successfully',
+      message: 'Địa chỉ mặc định đã được thiết lập thành công',
       data: updatedAddress
     })
   } catch (error: any) {
@@ -190,7 +190,7 @@ const getDefaultAddress = async (
     }
 
     res.status(StatusCodes.OK).json({
-      message: 'Default address retrieved successfully',
+      message: 'Địa chỉ mặc định đã được lấy thành công',
       data: defaultAddress
     })
   } catch (error: any) {
