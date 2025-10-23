@@ -55,7 +55,7 @@ const createNew = async (
   try {
     const createUser = await services.userService.createNew(req)
     res.status(StatusCodes.CREATED).json({
-      message: 'User created successfully',
+      message: 'Tài khoản người dùng đã được tạo thành công',
       data: createUser
     })
   } catch (error: any) {
@@ -71,7 +71,7 @@ const verifyEmail = async (
   try {
     const result = await services.userService.verifyEmail(req)
     res.status(StatusCodes.OK).json({
-      message: 'Email verified successfully',
+      message: 'Email đã được xác thực thành công',
       data: result
     })
   } catch (error: any) {
@@ -121,7 +121,7 @@ const logout = (req: Request, res: Response, next: NextFunction): void => {
       })
 
       res.status(StatusCodes.OK).json({
-        message: 'Logout successful'
+        message: 'Đăng xuất thành công'
       })
     })
   } catch (error: any) {
@@ -136,18 +136,18 @@ const getCurrentUser = async (
 ): Promise<void> => {
   try {
     const userId = req.session.user?.userId
-    
+
     if (!userId) {
       res.status(StatusCodes.UNAUTHORIZED).json({
         message: 'Not authenticated'
       })
       return
     }
-    
+
     const user = await services.userService.getById(userId)
-    
+
     res.status(StatusCodes.OK).json({
-      message: 'User retrieved successfully',
+      message: 'Thông tin người dùng đã được lấy thành công',
       data: user
     })
   } catch (error: any) {
@@ -168,5 +168,5 @@ export const userController = {
   verifyEmail,
   login,
   logout,
-  getCurrentUser,
+  getCurrentUser
 }

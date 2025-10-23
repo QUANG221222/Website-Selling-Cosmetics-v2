@@ -44,7 +44,7 @@ const createNew = async (
   try {
     const newCart = await services.cartService.createNew(req)
     res.status(StatusCodes.CREATED).json({
-      message: 'Cart created successfully',
+      message: 'Giỏ hàng mới đã được tạo thành công',
       data: newCart
     })
   } catch (error: any) {
@@ -63,7 +63,7 @@ const getCart = async (
     const { userId } = req.session.user!
     const cart = await services.cartService.getByUserId(userId)
     res.status(StatusCodes.OK).json({
-      message: 'Cart retrieved successfully',
+      message: 'Giỏ hàng đã được lấy thành công',
       data: cart
     })
   } catch (error: any) {
@@ -88,7 +88,7 @@ const addToCart = async (
     )
 
     res.status(StatusCodes.OK).json({
-      message: 'Item added to cart successfully',
+      message: 'Sản phẩm đã được thêm vào giỏ hàng thành công',
       data: updatedCart
     })
   } catch (error: any) {
@@ -112,7 +112,7 @@ const removeFromCart = async (
     )
 
     res.status(StatusCodes.OK).json({
-      message: 'Item removed from cart successfully',
+      message: 'Sản phẩm đã được xóa khỏi giỏ hàng thành công',
       data: updatedCart
     })
   } catch (error: any) {
@@ -137,7 +137,7 @@ const updateQuantity = async (
     )
 
     res.status(StatusCodes.OK).json({
-      message: 'Cart quantity updated successfully',
+      message: 'Số lượng sản phẩm trong giỏ hàng đã được cập nhật thành công',
       data: updatedCart
     })
   } catch (error: any) {
@@ -156,7 +156,7 @@ const clearCart = async (
     await services.cartService.clearCart(userId)
 
     res.status(StatusCodes.OK).json({
-      message: 'Cart cleared successfully'
+      message: 'Giỏ hàng đã được làm sạch thành công'
     })
   } catch (error: any) {
     if (error instanceof ApiError) return next(error)
