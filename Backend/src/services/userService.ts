@@ -55,12 +55,12 @@ const createNew = async (req: Request): Promise<IUserResponse> => {
     // Send a welcome email to the new user
     const verificationLink = `${WEBSITE_DOMAIN}/users/account/verification?email=${getNewUser.email}&token=${getNewUser.verifyToken}`
     const customSubject =
-      'Skinsoothe: Please verify your email before using our services!'
+      'Beautify: Please verify your email before using our services!'
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; background: #f9f9f9; padding: 32px 0;">
       <div style="max-width: 480px; margin: auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); padding: 32px;">
         <h2 style="color: #2d8cf0; margin-bottom: 16px;">Verify Your Email</h2>
-        <p style="font-size: 16px; color: #333;">Thank you for registering with <b>Skinsoothe</b>!</p>
+        <p style="font-size: 16px; color: #333;">Thank you for registering with <b>Beautify</b>!</p>
         <p style="font-size: 15px; color: #444;">Please click the button below to verify your email address:</p>
         <a href="${verificationLink}" style="display: flex;
         justify-content: center; align-items: center; margin: 24px 0; padding: 12px 28px; background: #2d8cf0; color: #fff; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 16px;">Verify Email</a>

@@ -165,6 +165,17 @@ const update = async (id: string, data: Partial<IUser>): Promise<any> => {
   }
 }
 
+const getTotalUsers = async (): Promise<number> => {
+  try {
+    const count = await GET_DB()
+      .collection(COLLECTION_NAME)
+      .countDocuments({ _destroy: false })
+    return count
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
 // ===== EXPORTS =====
 export type { IUser, ICreateUserData }
 
@@ -173,5 +184,6 @@ export const userModel = {
   createNew,
   findOneById,
   update,
-  findOneByUsername
+  findOneByUsername,
+  getTotalUsers
 }

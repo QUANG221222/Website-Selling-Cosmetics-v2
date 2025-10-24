@@ -4,6 +4,7 @@ import { cosmeticService } from './cosmeticService'
 import { cartService } from './cartService'
 import { addressService } from './addressService'
 import { orderService } from './orderService'
+import { dashboardService } from './dashboardService'
 
 export type { IUserResponse } from './userService'
 export type { IAdminResponse } from './adminService'
@@ -18,5 +19,6 @@ export const services = {
   cosmeticService,
   cartService,
   addressService,
-  orderService
+  orderService,
+  dashboardService
 }
