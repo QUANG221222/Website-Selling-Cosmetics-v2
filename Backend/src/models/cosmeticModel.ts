@@ -168,6 +168,17 @@ const updateById = async (
   }
 }
 
+const getTotalCosmetics = async (): Promise<number> => {
+  try {
+    const count = await GET_DB()
+      .collection(COLLECTION_NAME)
+      .countDocuments({ _destroy: false })
+    return count
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
 // ===== EXPORTS =====
 export type { ICosmetic, ICosmeticCreateData, ICosmeticUpdateData }
 export const cosmeticModel = {
@@ -176,5 +187,6 @@ export const cosmeticModel = {
   findOneBySlug,
   findAll,
   deleteById,
-  updateById
+  updateById,
+  getTotalCosmetics
 }

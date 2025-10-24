@@ -44,7 +44,7 @@ interface ICreateOrderData {
   receiverName: string
   receiverPhone: string
   receiverAddress: string
-  orderNotes?: string;
+  orderNotes?: string
   items: {
     cosmeticId: string
     quantity: number
@@ -226,6 +226,136 @@ const deleteById = async (id: string): Promise<void> => {
   }
 }
 
+const getTotalOrders = async (): Promise<number> => {
+  try {
+    const count = await GET_DB().collection(COLLECTION_NAME).countDocuments()
+    return count
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
+const getTotalOrdersByMonth = async (
+  year: number,
+  month: number
+): Promise<number> => {
+  try {
+    const startDate = new Date(year, month - 1, 1).getTime()
+    const endDate = new Date(year, month, 1).getTime()
+    const count = await GET_DB()
+      .collection(COLLECTION_NAME)
+      .countDocuments({
+        createdAt: { $gte: startDate, $lt: endDate }
+      })
+    return count
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
+const getTotalOrdersSuccess = async (): Promise<number> => {
+  try {
+    const count = await GET_DB()
+      .collection(COLLECTION_NAME)
+      .countDocuments({ status: 'completed' })
+    return count
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
+const getTotalOrdersPending = async (): Promise<number> => {
+  try {
+    const count = await GET_DB()
+      .collection(COLLECTION_NAME)
+      .countDocuments({ status: 'pending' })
+    return count
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
+const getTotalOrdersCancelled = async (): Promise<number> => {
+  try {
+    const count = await GET_DB()
+      .collection(COLLECTION_NAME)
+      .countDocuments({ status: 'cancelled' })
+    return count
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
+const getTotalOrdersProcessing = async (): Promise<number> => {
+  try {
+    const count = await GET_DB()
+      .collection(COLLECTION_NAME)
+      .countDocuments({ status: 'processing' })
+    return count
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
+const getRevenueByYear = async (year: number): Promise<number> => {
+  try {
+    const startDate = new Date(year, 0, 1).getTime()
+    console.log('start date', startDate)
+    const endDate = new Date(year + 1, 0, 1).getTime()
+    console.log('end date', endDate)
+    const results = await GET_DB()
+      .collection(COLLECTION_NAME)
+      .aggregate([
+        {
+          $match: {
+            status: 'completed',
+            createdAt: { $gte: startDate, $lt: endDate }
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            totalRevenue: { $sum: '$totalAmount' }
+          }
+        }
+      ])
+      .toArray()
+    return (results[0]?.totalRevenue as number) || 0
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
+const getRevenueByMonth = async (
+  year: number,
+  month: number
+): Promise<number> => {
+  try {
+    const startDate = new Date(year, month - 1, 1).getTime()
+    const endDate = new Date(year, month, 1).getTime()
+    const results = await GET_DB()
+      .collection(COLLECTION_NAME)
+      .aggregate([
+        {
+          $match: {
+            status: 'completed',
+            createdAt: { $gte: startDate, $lt: endDate }
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            totalRevenue: { $sum: '$totalAmount' }
+          }
+        }
+      ])
+      .toArray()
+    return (results[0]?.totalRevenue as number) || 0
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
 // ===== EXPORTS =====
 export type {
   IOrder,
@@ -241,5 +371,13 @@ export const orderModel = {
   findByUserId,
   findAll,
   updateById,
-  deleteById
+  deleteById,
+  getTotalOrders,
+  getTotalOrdersSuccess,
+  getTotalOrdersPending,
+  getTotalOrdersCancelled,
+  getTotalOrdersProcessing,
+  getRevenueByYear,
+  getRevenueByMonth,
+  getTotalOrdersByMonth
 }

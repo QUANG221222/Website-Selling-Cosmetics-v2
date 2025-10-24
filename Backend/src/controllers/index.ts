@@ -4,6 +4,7 @@ import { cosmeticController } from './cosmeticController'
 import { cartController } from './cartController'
 import { addressController } from './addressController'
 import { orderController } from './orderController'
+import { dashboardController } from './dashboardController'
 
 export type {
   CreateUserRequest,
@@ -38,6 +39,12 @@ export type {
   GetOrderResponse,
   GetOrdersResponse
 } from './orderController'
+export type {
+  GetTotalProductsResponse,
+  GetTotalUsersResponse,
+  GetTotalOrdersResponse,
+  GetRevenueResponse
+} from './dashboardController'
 
 export const controllers = {
   userController,
@@ -45,5 +52,6 @@ export const controllers = {
   cosmeticController,
   cartController,
   addressController,
-  orderController
+  orderController,
+  dashboardController
 }
