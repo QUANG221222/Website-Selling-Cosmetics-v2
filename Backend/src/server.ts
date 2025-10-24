@@ -7,15 +7,23 @@ import { CONNECT_DB } from '~/configs/mongodb'
 import { APIs_V1 } from '~/routes/v1/index'
 import cors from 'cors'
 import { corsOptions } from '~/configs/cors'
+import { limiter } from './configs/limiter'
 
 const StartServer = () => {
   const app = express()
+
+  if (env.BUILD_MODE === 'production') {
+    app.set('trust proxy', 1) // trust first proxy
+  }
 
   // Config CORS
   app.use(cors(corsOptions))
 
   // Enable req.body json data
   app.use(express.json())
+
+  // Config Rate Limiter
+  app.use(limiter)
 
   // Enable session
   app.use(session(sessionConfig))
