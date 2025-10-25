@@ -19,7 +19,7 @@ const axiosInstance: AxiosInstance = axios.create({
 axiosInstance.interceptors.response.use(
   (response) => {
     return response;
-  },    
+  },
   (error: AxiosError) => {
     console.log(
       "❌ Axios interceptor - ERROR:",
@@ -39,15 +39,14 @@ axiosInstance.interceptors.response.use(
 
       // Check current path - don't redirect if already on public pages
       const publicPaths = ["/", "/product", "/users/login", "/users/register"];
-      const currentPath = typeof window !== "undefined" ? window.location.pathname : "";
+      const currentPath =
+        typeof window !== "undefined" ? window.location.pathname : "";
       const isPublicPage = publicPaths.some(
         (path) => currentPath === path || currentPath.startsWith("/product/")
       );
 
       // Only show toast and redirect if user is trying to access protected resources
       if (!isPublicPage) {
-        toast.error("Session expired. Please log in again!");
-
         // Clear user data in Redux store
         if (axiosReduxStore) {
           axiosReduxStore.dispatch({ type: "user/logoutUserApi/fulfilled" });
@@ -59,6 +58,8 @@ axiosInstance.interceptors.response.use(
           sessionStorage.clear();
           window.location.href = "/users/login";
         }
+
+        toast.error("Phiên đã hết hạn. Vui lòng đăng nhập lại!");
       } else {
         // Just clear the session silently on public pages
         if (axiosReduxStore) {
@@ -71,7 +72,7 @@ axiosInstance.interceptors.response.use(
 
     // Handle 429 Too Many Requests
     if (error.response?.status === 429) {
-      toast.error("Too many requests. Please try again later.");
+      toast.error("Quá nhiều yêu cầu. Vui lòng thử lại sau.");
       return Promise.reject(error);
     }
 
