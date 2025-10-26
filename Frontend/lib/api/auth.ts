@@ -44,6 +44,15 @@ export const authApi = {
     getCurrentUser: async (): Promise<ApiResponse<User>> => {
         const response = await axiosInstance.get('/users/me');
         return response.data;
+    },
+    //Fetch all users
+    getAllUsers: async (): Promise<ApiResponse<User[]>> => {
+        const response = await axiosInstance.get('/users');
+        return response.data;
+    },
+    deleteUser: async (userId: string) : Promise<ApiResponse<null>> => {
+        const response = await axiosInstance.delete(`/users/${userId}`);
+        return response.data;
     }
     
 }

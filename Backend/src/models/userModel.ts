@@ -140,6 +140,19 @@ const findOneById = async (id: string): Promise<IUser | null> => {
   }
 }
 
+const deleteUser = async (id: string): Promise<void> => {
+    try {
+        await GET_DB()
+            .collection(COLLECTION_NAME)
+            .updateOne(
+                { _id: new ObjectId(id) },
+                { $set: { _destroy: true } }
+            );
+    } catch (error: any) {
+        throw new Error(error);
+    }
+}
+
 const update = async (id: string, data: Partial<IUser>): Promise<any> => {
   try {
     // Remove invalid fields from the update data
@@ -176,6 +189,19 @@ const getTotalUsers = async (): Promise<number> => {
   }
 }
 
+const findAll = async (): Promise<IUser[]> => {
+    try {
+        const results = await GET_DB()
+            .collection(COLLECTION_NAME)
+            .find({ _destroy: false })
+            .toArray();
+        return results as IUser[];
+    } catch (error: any) {
+        throw new Error(error);
+    }
+}
+
+
 // ===== EXPORTS =====
 export type { IUser, ICreateUserData }
 
@@ -184,6 +210,8 @@ export const userModel = {
   createNew,
   findOneById,
   update,
+  deleteUser,
   findOneByUsername,
-  getTotalUsers
+  getTotalUsers,
+  findAll
 }

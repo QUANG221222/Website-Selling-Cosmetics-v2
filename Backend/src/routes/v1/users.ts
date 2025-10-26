@@ -24,5 +24,13 @@ Router.route('/logout').post(controllers.userController.logout)
 Router.route('/me').get(
     controllers.userController.getCurrentUser
 )
+Router.route('/').get(    
+    controllers.userController.getAllUsers
+)
+
+Router.route('/:id').delete(
+    validations.userValidation.validateUserId,
+    controllers.userController.deleteUser
+)
 
 export const userRouter = Router

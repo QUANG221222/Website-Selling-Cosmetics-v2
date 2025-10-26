@@ -74,8 +74,25 @@ const login = async (req: Request, _res: Response, next: NextFunction) => {
   }
 }
 
+const validateUserId = async (
+    req: Request,
+    _res: Response,
+    next: NextFunction
+) => {
+    const correctCondition = Joi.object({
+        id: Joi.string().hex().length(24).required()
+    })
+    try {
+        await correctCondition.validateAsync(req.params, { abortEarly: false })
+        next()
+    } catch (error: any) {
+        next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, error.message))
+    }
+}
+
 export const userValidation = {
   createNew,
   verifyEmail,
-  login
+  login,
+  validateUserId
 }

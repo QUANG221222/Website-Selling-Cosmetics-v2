@@ -41,11 +41,11 @@ const SignIn = () => {
       <div className="max-w-md mx-auto">
         <Card className="border-border">
           <CardHeader className="text-center mt-1">
-            <CardTitle className="font-inter text-foreground">
+            <CardTitle className="font-inter text-foreground pt-3">
               Đăng nhập
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-6 pb-3">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
               <InputField
                 name="email"
