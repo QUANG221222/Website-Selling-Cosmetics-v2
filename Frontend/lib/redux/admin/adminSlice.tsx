@@ -25,7 +25,6 @@ export const loginAdminApi = createAsyncThunk(
   async (data: AdminLoginData, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post('admin/login', data)
-      toast.success('Admin login successful!')
       return response.data
     } catch (error: any) {
       const message = error?.response?.data?.message || error.message || 'Login failed'

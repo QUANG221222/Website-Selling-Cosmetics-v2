@@ -444,7 +444,7 @@ const UserAccount = () => {
 
               {/* Order Total */}
               <div className="flex justify-end">
-                <div className="text-right">
+                <div className="text-right">    
                   <div className="text-lg font-medium">
                     Tổng cộng: {formatCurrency(selectedOrder.totalAmount)}
                   </div>

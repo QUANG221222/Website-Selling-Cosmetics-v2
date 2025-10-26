@@ -140,6 +140,18 @@ const login = async (req: Request): Promise<IUserResponse> => {
   }
 }
 
+const deleteUser = async (userId: string) : Promise<void> => {
+    try {
+        const user = await models.userModel.findOneById(userId);
+        if (!user) {
+            throw new ApiError(StatusCodes.NOT_FOUND, 'User not found');
+        }
+        await models.userModel.deleteUser(userId);
+    } catch (error) {
+        throw error;
+    }   
+}
+
 const getById = async (userId: string): Promise<IUserResponse | null> => {
   try {
     const user = await models.userModel.findOneById(userId)
@@ -149,6 +161,15 @@ const getById = async (userId: string): Promise<IUserResponse | null> => {
     throw error
   }
 }
+
+const getAllUsers = async (): Promise<IUserResponse[]> => {
+    try {
+        const users = await models.userModel.findAll();
+        return users.map(user => pickUser(user));
+    } catch (error) {
+        throw error;    
+    }
+}
 // ===== EXPORTS =====
 export type { IUserResponse }
 
@@ -156,5 +177,7 @@ export const userService = {
   createNew,
   verifyEmail,
   login,
-  getById
+  getById,
+  getAllUsers,
+  deleteUser
 }

@@ -213,7 +213,7 @@ const AdminRegister = () => {
             </Button>
           </form>
 
-          <div className="mt-6 text-center text-sm">
+          <div className="mt-3 text-center text-sm pb-3">
             <p className="text-muted-foreground">
               Bạn đã có tài khoản quản trị viên?{" "}
               <Link

@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -11,18 +11,27 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Search, UserPlus, Edit, Trash2, Filter } from "lucide-react";
-import { mockUsers } from "@/data/mockData";
 import { User } from "@/lib/types/index";
+import { AppDispatch } from "@/lib/redux/store";
+import { useDispatch, useSelector } from "react-redux";
+import { deleteUser, fetchALlUsers, selectAllUsers } from "@/lib/redux/user/userSlice";
 
 const UsersManagement = () => {
 
-  const [users, setUsers] = useState<User[]>(mockUsers);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [roleFilter, setRoleFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+    const dispatch = useDispatch<AppDispatch>();
+    const users = useSelector(selectAllUsers);
+
+    const [selectedUser, setSelectedUser] = useState<User | null>(null);
+    const [selectedUsers, setSelectedUsers] = useState<User[] | null>(null);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [roleFilter, setRoleFilter] = useState("all");
+    const [statusFilter, setStatusFilter] = useState("all");
+    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+    const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+
+    useEffect(() => {
+        dispatch(fetchALlUsers());
+    }, [dispatch]);
 
 
   // Filter users
@@ -40,7 +49,7 @@ const UsersManagement = () => {
 
   const handleCreateUser = () => {
     const newUser: User = {
-        _id: `c${Date.now()}`,
+        _id: "",
         email: "",
         username: "",
         fullName: "",
@@ -61,18 +70,15 @@ const UsersManagement = () => {
     setIsEditDialogOpen(true);
   };
 
-  const handleUpdateUser = () => {
-    if (selectedUser) {
-      setUsers(users.map(user => 
-        user._id === selectedUser._id ? selectedUser : user
-      ));
+  const handleUpdateUser = (user: User) => {
       setIsEditDialogOpen(false);
       setSelectedUser(null);
-    }
   };
 
-  const handleDeleteUser = (userId: string) => {
-    setUsers(users.filter(user => user._id !== userId));
+  const handleDeleteUser = async (userId: string) => {
+    if (confirm("Are you sure you want to delete this user?")) {
+      await dispatch(deleteUser(userId));
+    }
   };
 
     const handleSaveUser = () => {
@@ -249,12 +255,12 @@ const UsersManagement = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredUsers.map((user) => (
+                {filteredUsers?.map((user) => (
                   <TableRow key={user._id}>
                     <TableCell className="font-medium">
                       <div className="flex items-center space-x-3">
                         <Avatar>
-                          <AvatarImage src={user.avatar} alt={user.fullName} />
+                          <AvatarImage src={user?.avatar} alt={user.fullName} />
                           <AvatarFallback>
                             {user.fullName.split(' ').map(n => n[0]).join('').toUpperCase()}
                           </AvatarFallback>
@@ -357,7 +363,7 @@ const UsersManagement = () => {
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="phone" className="text-right">
-                  Số điện thoại
+                  Sdt 
                 </Label>
                 <Input
                   id="phone"

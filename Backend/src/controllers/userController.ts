@@ -155,6 +155,38 @@ const getCurrentUser = async (
   }
 }
 
+const getAllUsers = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      const users = await services.userService.getAllUsers()
+        res.status(StatusCodes.OK).json({
+            message: 'Users retrieved successfully',
+            data: users
+        })
+    } catch (error: any) {
+      next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message))
+    }
+}
+
+const deleteUser = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+    ): Promise<void> => {
+    try {
+        const userId = req.params.id;
+        await services.userService.deleteUser(userId);
+        res.status(StatusCodes.OK).json({
+            message: 'User deleted successfully'
+        });
+    } catch (error: any) {
+        next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message));
+    }
+}
+
 export type {
   CreateUserRequest,
   CreateUserResponse,
@@ -168,5 +200,7 @@ export const userController = {
   verifyEmail,
   login,
   logout,
-  getCurrentUser
+  getCurrentUser,
+  getAllUsers,
+  deleteUser
 }
