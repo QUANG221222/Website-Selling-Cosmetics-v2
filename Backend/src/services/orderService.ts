@@ -3,6 +3,7 @@ import { models, ICreateOrderData, IUpdateOrderData } from '~/models'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
 import { pickOrder } from '~/utils/fomatter'
+import { calculatePagination, PaginatedResponse } from '~/utils/pagination'
 
 // ===== INTERFACES =====
 interface IOrderResponse {
@@ -254,6 +255,64 @@ const deleteById = async (id: string): Promise<void> => {
   }
 }
 
+const getAllWithPagination = async (
+  page: number = 1,
+  limit: number = 7
+): Promise<PaginatedResponse<IOrderResponse>> => {
+  try {
+    const { orders, total } = await models.orderModel.findAllWithPagination(
+      page,
+      limit
+    )
+
+    const paginationInfo = calculatePagination(total, page, limit)
+
+    return {
+      data: orders.map((item) => pickOrder(item)),
+      pagination: {
+        currentPage: paginationInfo.currentPage,
+        totalPages: paginationInfo.totalPages,
+        totalItems: paginationInfo.totalItems,
+        itemsPerPage: limit,
+        hasNextPage: paginationInfo.hasNextPage,
+        hasPrevPage: paginationInfo.hasPrevPage
+      }
+    }
+  } catch (error: any) {
+    throw new Error(error.message)
+  }
+}
+
+const getByUserIdWithPagination = async (
+  userId: string,
+  page: number = 1,
+  limit: number = 7
+): Promise<PaginatedResponse<IOrderResponse>> => {
+  try {
+    const { orders, total } = await models.orderModel.findByUserIdWithPagination(
+      userId,
+      page,
+      limit
+    )
+
+    const paginationInfo = calculatePagination(total, page, limit)
+
+    return {
+      data: orders.map((item) => pickOrder(item)),
+      pagination: {
+        currentPage: paginationInfo.currentPage,
+        totalPages: paginationInfo.totalPages,
+        totalItems: paginationInfo.totalItems,
+        itemsPerPage: limit,
+        hasNextPage: paginationInfo.hasNextPage,
+        hasPrevPage: paginationInfo.hasPrevPage
+      }
+    }
+  } catch (error: any) {
+    throw new Error(error.message)
+  }
+}
+
 // ===== EXPORTS =====
 export type { IOrderResponse }
 
@@ -263,5 +322,7 @@ export const orderService = {
   getById,
   getAll,
   updateById,
-  deleteById
+  deleteById,
+  getAllWithPagination,
+  getByUserIdWithPagination
 }
