@@ -12,7 +12,7 @@ interface IOrderResponse {
   receiverName: string
   receiverPhone: string
   receiverAddress: string
-  orderNotes?: string;
+  orderNotes?: string
   items: Array<{
     cosmeticId: string
     quantity: number
@@ -174,8 +174,19 @@ const updateById = async (
     if (!existingOrder) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Order not found')
     }
-
-    if (updateData.status && updateData.status === 'completed') {
+    // If status is masked as pending, subtract cosmetic quantities
+    if (updateData.status && existingOrder.status === 'pending') {
+      for (const item of existingOrder.items) {
+        const cosmetic = await models.cosmeticModel.findOneById(
+          item.cosmeticId.toString()
+        )
+        if (cosmetic) {
+          await models.cosmeticModel.updateById(item.cosmeticId.toString(), {
+            quantity: cosmetic.quantity - item.quantity
+          })
+        }
+      }
+    } else if (updateData.status && updateData.status === 'completed') {
       // If order is marked as completed, set payment status to 'paid' and paidAt to current date
       updateData.payment = {
         status: 'paid',

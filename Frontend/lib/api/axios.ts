@@ -1,4 +1,6 @@
 import axios, { AxiosError, AxiosInstance } from "axios";
+import { logoutUserApi } from "../redux/user/userSlice";
+import { logoutAdminApi } from "../redux/admin/adminSlice";
 import { toast } from "sonner";
 
 //Inject store to import redux store in non-component
@@ -49,31 +51,43 @@ axiosInstance.interceptors.response.use(
       if (!isPublicPage) {
         // Clear user data in Redux store
         if (axiosReduxStore) {
-          axiosReduxStore.dispatch({ type: "user/logoutUserApi/fulfilled" });
+          const state =
+            typeof axiosReduxStore.getState === "function"
+              ? axiosReduxStore.getState()
+              : {};
+          const role =
+            state?.user?.currentUser?.role ||
+            state?.auth?.user?.role ||
+            state?.admin?.currentAdmin?.role ||
+            null;
+          const isAdmin = role === "admin" || !!state?.admin?.isLoggedIn;
+
+          toast.error("Bạn chưa đăng nhập hoặc phiên đã hết hạn để tiếp tục!");
+          try {
+            if (isAdmin) {
+              axiosReduxStore.dispatch(logoutAdminApi());
+            } else {
+              axiosReduxStore.dispatch(logoutUserApi());
+            }
+          } catch (e) {
+            axiosReduxStore.dispatch(logoutUserApi());
+          }
         }
 
         // Redirect to login
         if (typeof window !== "undefined") {
           localStorage.removeItem("persist:root");
           sessionStorage.clear();
-          window.location.href = "/users/login";
-        }
-
-        toast.error("Phiên đã hết hạn. Vui lòng đăng nhập lại!");
-      } else {
-        // Just clear the session silently on public pages
-        if (axiosReduxStore) {
-          axiosReduxStore.dispatch({ type: "user/logoutUserApi/fulfilled" });
+          setTimeout(() => {
+            window.location.href = "/users/login";
+          }, 2000);
         }
       }
-
-      return Promise.reject(error);
     }
 
     // Handle 429 Too Many Requests
     if (error.response?.status === 429) {
       toast.error("Quá nhiều yêu cầu. Vui lòng thử lại sau.");
-      return Promise.reject(error);
     }
 
     // Handle other errors (400, 403, 404, 500, etc.)
