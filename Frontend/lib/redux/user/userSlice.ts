@@ -87,6 +87,32 @@ export const logoutUserApi = createAsyncThunk(
   }
 );
 
+export const createNewUser = createAsyncThunk(
+    "user/createNewUser",
+    async (data: { 
+            username: string; 
+            email: string; 
+            password: string; 
+            fullName: string; 
+            role: string 
+        }, 
+            { rejectWithValue }) => {
+        try {
+            const response = await axiosInstance.post("users", data);
+            const userData = response.data.data || response.data;
+            toast.success("User created successfully!");
+            return userData;
+        } catch (error: any) {
+            console.error("❌ Create user error:", error);
+            const message =
+                error?.response?.data?.message || error.message || "Create user failed";
+            toast.error(message);
+            return rejectWithValue(message);
+        }
+    }
+);
+
+
 // Thêm thunk để fetch current user từ session
 export const fetchCurrentUser = createAsyncThunk(
   "user/fetchCurrentUser",
@@ -210,6 +236,18 @@ export const userSlice = createSlice({
         state.users.items = Array.isArray(action.payload) ? action.payload : (action.payload?.items ?? []);
     })
     .addCase(fetchALlUsers.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+    })
+        // Create new user
+    .addCase(createNewUser.pending, (state) => {
+        state.loading = true;
+    })
+    .addCase(createNewUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.users.items.push(action.payload);
+    })
+    .addCase(createNewUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
     })
