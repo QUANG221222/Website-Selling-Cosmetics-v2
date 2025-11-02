@@ -14,7 +14,17 @@ import { Search, UserPlus, Edit, Trash2, Filter } from "lucide-react";
 import { User } from "@/lib/types/index";
 import { AppDispatch } from "@/lib/redux/store";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteUser, fetchALlUsers, selectAllUsers } from "@/lib/redux/user/userSlice";
+import { deleteUser, selectAllUsers, selectUserPagination, getAllUsersWithPagination, fetchALlUsers } from "@/lib/redux/user/userSlice";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+
 
 const UsersManagement = () => {
 
@@ -22,17 +32,36 @@ const UsersManagement = () => {
     const users = useSelector(selectAllUsers);
 
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
-    const [selectedUsers, setSelectedUsers] = useState<User[] | null>(null);
+
     const [searchTerm, setSearchTerm] = useState("");
     const [roleFilter, setRoleFilter] = useState("all");
     const [statusFilter, setStatusFilter] = useState("all");
+
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const pagination = useSelector(selectUserPagination);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
+
+   // Fetch users with pagination
+    useEffect(() => {
+        dispatch(getAllUsersWithPagination({ 
+            page: currentPage, 
+            limit: pageSize,
+            sortBy: 'createdAt',
+            sortOrder: 'desc'
+        }));
+    }, [dispatch, currentPage, pageSize]);
+    console.log("pagination: ", pagination);
+
+
 
     useEffect(() => {
         dispatch(fetchALlUsers());
-    }, [dispatch]);
-
+        }, [dispatch]);
+        
 
   // Filter users
   const filteredUsers = users.filter(user => {
@@ -46,6 +75,7 @@ const UsersManagement = () => {
     
     return matchesSearch && matchesRole && matchesStatus;
   });
+  console.log("Filtered Users: ", filteredUsers);
 
   const handleCreateUser = () => {
     const newUser: User = {
@@ -81,35 +111,46 @@ const UsersManagement = () => {
     }
   };
 
-    const handleSaveUser = () => {
-    if (selectedUser) {
-      if (isCreateDialogOpen) {
-        setUsers([...users, selectedUser]);
-        setIsCreateDialogOpen(false);
-      } else {
-        setUsers(users.map(user => 
-          user._id === selectedUser._id ? { ...selectedUser, updatedAt: new Date() } : user
-        ));
-        setIsEditDialogOpen(false);
-      }
-      setSelectedUser(null);
-    }
+    const handleSaveUser = async() => {
+        if (selectedUser) {
+            setIsSubmitting(true);
+        if (isCreateDialogOpen) {
+            // setUsers([...users, selectedUser]);
+            setIsCreateDialogOpen(false);
+        } else {
+            // setUsers(users.map(user => 
+            //   user._id === selectedUser._id ? { ...selectedUser, updatedAt: new Date() } : user
+            // ));
+
+            setIsEditDialogOpen(false);
+        }
+        setSelectedUser(null);
+        }
   };
+  
   const toggleUserStatus = (userId: string) => {
-    setUsers(users.map(user => 
-      user._id === userId ? { ...user, isActive: !user.isActive } : user
-    ));
+    // setUsers(users.map(user => 
+    //   user._id === userId ? { ...user, isActive: !user.isActive } : user
+    // ));
   };
 
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('vi-VN');
+  };
+ const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
+  const handlePageSizeChange = (newSize: number) => {
+    setPageSize(newSize);
+    setCurrentPage(1); // Reset về trang 1 khi thay đổi page size
   };
 
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Quản lý tài khoản người dùng</CardTitle>
+          <CardTitle className="pt-2">Quản lý tài khoản người dùng</CardTitle>
           <CardDescription>
             Quản lý thông tin và trạng thái tài khoản của khách hàng
           </CardDescription>
@@ -153,92 +194,6 @@ const UsersManagement = () => {
                 <UserPlus className="h-4 w-4 mr-2" />
                 Thêm người dùng
             </Button>
-
-            {/* <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-                <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                    <DialogTitle>Thêm người dùng</DialogTitle>
-                    <DialogDescription>
-                   Thêm thông tin và trạng thái tài khoản người dùng.
-                    </DialogDescription>
-                </DialogHeader>
-                {selectedUser && (
-                    <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="fullName" className="text-right">
-                        Họ tên
-                        </Label>
-                        <Input
-                        id="fullName"
-                        value={selectedUser.fullName}
-                        onChange={(e) => setSelectedUser({...selectedUser, fullName: e.target.value})}
-                        className="col-span-3"
-                        />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="email" className="text-right">
-                        Email
-                        </Label>
-                        <Input
-                        id="email"
-                        value={selectedUser.email}
-                        onChange={(e) => setSelectedUser({...selectedUser, email: e.target.value})}
-                        className="col-span-3"
-                        />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="phone" className="text-right">
-                        Số điện thoại
-                        </Label>
-                        <Input
-                        id="phone"
-                        value={selectedUser.phone || ''}
-                        onChange={(e) => setSelectedUser({...selectedUser, phone: e.target.value})}
-                        className="col-span-3"
-                        />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="role" className="text-right">
-                        Vai trò
-                        </Label>
-                        <Select 
-                        value={selectedUser.role} 
-                        onValueChange={(value) => setSelectedUser({...selectedUser, role: value})}
-                        >
-                        <SelectTrigger className="col-span-3">
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="customer">Khách hàng</SelectItem>
-                            <SelectItem value="admin">Quản trị viên</SelectItem>
-                        </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="isActive" className="text-right">
-                        Trạng thái
-                        </Label>
-                        <div className="col-span-3 flex items-center space-x-2">
-                        <Switch
-                            id="isActive"
-                            checked={selectedUser.isActive}
-                            onCheckedChange={(checked) => setSelectedUser({...selectedUser, isActive: checked})}
-                        />
-                        <Label htmlFor="isActive">
-                            {selectedUser.isActive ? 'Hoạt động' : 'Tạm khóa'}
-                        </Label>
-                        </div>
-                    </div>
-                    </div>
-                )}
-          <DialogFooter>
-            <Button type="submit" onClick={handleUpdateUser}>
-              Tạo mới
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-            </Dialog> */}
-
           </div>
 
           {/* Users Table */}
@@ -314,10 +269,97 @@ const UsersManagement = () => {
             </Table>
           </div>
 
-          <div className="flex items-center justify-between space-x-2 py-4">
-            <div className="text-sm text-muted-foreground">
-              Hiển thị {filteredUsers.length} / {users.length} người dùng
+            {/* Pagination Controls */}
+          <div className="flex items-center justify-between space-y-4 md:space-y-0">
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-muted-foreground">
+                Hiển thị {filteredUsers.length} / {pagination.totalCount} người dùng
+              </span>
+              <Select
+                value={pageSize.toString()}
+                onValueChange={(val) => handlePageSizeChange(parseInt(val))}
+              >
+                <SelectTrigger className="w-[100px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="20">20</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
+
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (currentPage > 1) handlePageChange(currentPage - 1);
+                    }}
+                    className={
+                      currentPage === 1 ? "pointer-events-none opacity-50" : ""
+                    }
+                  />
+                </PaginationItem>
+
+                {/* Page Numbers */}
+                {Array.from(
+                  { length: pagination.totalPages },
+                  (_, i) => i + 1
+                ).map((page) => {
+                  // Hiển thị trang gần hiện tại
+                  if (
+                    page === 1 ||
+                    page === pagination.totalPages ||
+                    (page >= currentPage - 1 && page <= currentPage + 1)
+                  ) {
+                    return (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handlePageChange(page);
+                          }}
+                          isActive={page === currentPage}
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    );
+                  } else if (
+                    page === currentPage - 2 ||
+                    page === currentPage + 2
+                  ) {
+                    return (
+                      <PaginationItem key={page}>
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                    );
+                  }
+                  return null;
+                })}
+
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (currentPage < pagination.totalPages)
+                        handlePageChange(currentPage + 1);
+                    }}
+                    className={
+                      currentPage === pagination.totalPages
+                        ? "pointer-events-none opacity-50"
+                        : ""
+                    }
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
           </div>
         </CardContent>
       </Card>

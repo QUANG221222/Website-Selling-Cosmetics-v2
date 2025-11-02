@@ -1,6 +1,7 @@
 import { ApiResponse, Cosmetic } from "@/lib/types/index";
 import axiosInstance from "@/lib/api/axios";
 import { toast } from "sonner";
+import { PaginatedResponse, PaginationParams } from "./order";
 
 export interface CreateCosmeticData {
   nameCosmetic: string
@@ -169,6 +170,24 @@ export const cosmeticApi = {
       return response.data
     } catch (error: any) {
       toast.error('Failed to upload images')
+      throw error
+    }
+  },
+  getPagination: async (
+    params: PaginationParams
+  ): Promise<ApiResponse<PaginatedResponse<Cosmetic>>> => {
+    try {
+      const response = await axiosInstance.get('/cosmetics/pagination/list', {
+        params: {
+            page: params.page,
+            limit: params.limit,
+            sortBy: params.sortBy || 'createdAt',
+            sortOrder: params.sortOrder || 'desc'
+        }
+        });
+      return response.data
+    } catch (error: any) {
+      toast.error('Failed to fetch cosmetics')
       throw error
     }
   }

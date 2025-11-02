@@ -21,12 +21,12 @@ import { useRouter } from "next/navigation";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Image from "next/image";
 import { useMemo } from "react";
+import { CreateOrderData } from "@/lib/api/order";
 
 const Checkout = () => {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const cartItems = useSelector(selectCartItems);
-  const totalPrice = useSelector(selectCartTotalPrice);
   const createLoading = useSelector(selectCreateOrderLoading);
 
   const {
@@ -34,7 +34,7 @@ const Checkout = () => {
     handleSubmit,
     control,
     formState: { errors, isSubmitting },
-  } = useForm<CheckoutFormData>({
+  } = useForm<CreateOrderData>({
     defaultValues: {
       receiverName: "",
       receiverPhone: "",
@@ -44,7 +44,7 @@ const Checkout = () => {
     },
   });
 
-  const onSubmit = async (data: CheckoutFormData) => {
+  const onSubmit = async (data: CreateOrderData) => {
     try {
       console.log("Checkout Data:", data);
 
@@ -54,16 +54,19 @@ const Checkout = () => {
         receiverAddress: data.receiverAddress,
         orderNotes: data.orderNotes,
         paymentMethod: data.paymentMethod,
-        items: cartItems.map((item) => ({
-          cosmeticId: item.cosmetic._id,
-          quantity: item.quantity,
-          price: item.cosmetic.discountPrice,
-        })),
+        items: cartItems
+          .filter((item) => item.cosmetic?._id && item.cosmetic?.discountPrice !== undefined)
+          .map((item) => ({
+            cosmeticId: item.cosmetic!._id,
+            quantity: item.quantity,
+            price: item.cosmetic!.discountPrice,
+          })),
         // totalAmount: total,
       };
 
       // Dispatch create order action
       await dispatch(createOrder(orderData)).unwrap();
+
 
       // Redirect to order success page
       router.push("/");
@@ -87,9 +90,9 @@ const Checkout = () => {
     <div className="container mx-auto px-4 py-8">
       {/* Back Button */}
 
-      <Link href="/cart" className="mb-6 font-poppins">
+       <Link href="/cart" className="mb-6 font-poppins flex items-center text-white bg-brand-deep-pink px-4 py-2 rounded-md hover:underline w-fit cursor-pointer">
         <ArrowLeft className="h-4 w-4 mr-2" />
-        Quay lại giỏ hàng
+        Quay lại
       </Link>
 
       <h1 className="font-inter text-foreground mb-8">Thanh Toán Đơn Hàng</h1>
@@ -101,12 +104,12 @@ const Checkout = () => {
             {/* Customer Information */}
             <Card className="border-border">
               <CardHeader>
-                <CardTitle className="font-inter text-foreground flex items-center">
+                <CardTitle className="font-inter text-foreground flex items-center pt-3">
                   <Truck className="h-5 w-5 mr-2" />
                   Thông Tin Giao Hàng
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pb-3">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <InputFieldCheckout
@@ -173,12 +176,12 @@ const Checkout = () => {
             {/* Payment Method */}
             <Card className="border-border">
               <CardHeader>
-                <CardTitle className="font-inter text-foreground flex items-center">
+                <CardTitle className="font-inter text-foreground flex items-center pt-3">
                   <CreditCard className="h-5 w-5 mr-2" />
                   Phương Thức Thanh Toán
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pb-3">
                 <Controller
                   name="paymentMethod"
                   control={control}
@@ -231,7 +234,7 @@ const Checkout = () => {
             <Button
               type="submit"
               disabled={isSubmitting || createLoading || cartItems.length === 0}
-              className="w-full bg-brand-deep-pink hover:bg-brand-deep-pink/90 text-white font-poppins py-3"
+              className="w-full bg-brand-deep-pink hover:bg-brand-deep-pink/90 text-white font-poppins py-3 cursor-pointer"
               size="lg"
             >
               {isSubmitting || createLoading ? (
@@ -250,15 +253,15 @@ const Checkout = () => {
         <div className="lg:col-span-1">
           <Card className="border-border sticky top-24">
             <CardHeader>
-              <CardTitle className="font-inter text-foreground">
+              <CardTitle className="font-inter text-foreground pt-3">
                 Đơn Hàng Của Bạn
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 pb-3">
               {/* Order Items */}
               <div className="space-y-4">
                 {cartItems.map((item) => (
-                  <div key={item.cosmetic._id} className="flex space-x-3">
+                  <div key={item.cosmetic?._id} className="flex space-x-3">
                     <div className="w-16 h-16 overflow-hidden rounded-lg border border-border">
                       <Image
                         width={64}
@@ -278,7 +281,7 @@ const Checkout = () => {
                         </span>
                         <span className="font-poppins font-medium text-brand-deep-pink">
                           {formatPrice(
-                            item.cosmetic.discountPrice * item.quantity
+                            (item.cosmetic?.discountPrice || 0) * item.quantity
                           )}
                         </span>
                       </div>

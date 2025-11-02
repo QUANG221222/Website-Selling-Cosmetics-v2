@@ -13,12 +13,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/lib/redux/store";
+import { AppDispatch } from "@/lib/redux/store";
 import {
   loginAdminApi,
   selectAdminLoading,
 } from "@/lib/redux/admin/adminSlice";
 import { Shield, Loader2 } from "lucide-react";
+import FooterLink from "@/components/forms/FooterLink";
 
 interface AdminLoginForm {
   email: string;
@@ -48,9 +49,9 @@ const AdminLogin = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4">
       <Card className="w-full max-w-md shadow-2xl">
-        <CardHeader className="space-y-3 text-center">
+        <CardHeader className="space-y-3 text-center pt-3">
           <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-            <Shield className="h-8 w-8 text-primary" />
+            <Shield className="h-8 w-8 text-pink-500" />
           </div>
           <CardTitle className="text-2xl font-bold">Admin Portal</CardTitle>
           <CardDescription>
@@ -101,7 +102,7 @@ const AdminLogin = () => {
               )}
             </div>
 
-            <Button type="submit" disabled={loading} className="w-full">
+            <Button type="submit" disabled={loading} className="w-full bg-brand-deep-pink text-white cursor-pointer">
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -113,11 +114,11 @@ const AdminLogin = () => {
             </Button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-muted-foreground">
-            <p>
-              Cần quyền truy cập quản trị? Liên hệ với quản trị viên hệ thống
-            </p>
-          </div>
+          <FooterLink
+            text="Bạn chưa có tài khoản?"
+            linkText="Đăng ký"
+            href="/admin/register"
+            />
         </CardContent>
       </Card>
     </div>

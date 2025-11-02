@@ -1,5 +1,6 @@
 import express from 'express'
 import { controllers } from '~/controllers/index'
+import { middlewares } from '~/middlewares'
 import { validations } from '~/validations/index'
 
 const Router = express.Router()
@@ -21,6 +22,11 @@ Router.route('/login').post(
 
 Router.route('/logout').post(controllers.userController.logout)
 // Thêm route mới
+Router.route('/').post(
+  validations.userValidation.createNew,
+  controllers.userController.createNew
+)
+
 Router.route('/me').get(
     controllers.userController.getCurrentUser
 )
@@ -31,6 +37,9 @@ Router.route('/').get(
 Router.route('/:id').delete(
     validations.userValidation.validateUserId,
     controllers.userController.deleteUser
+)
+Router.route('/pagination/list').get(
+    controllers.userController.getAllUsersWithPagination
 )
 
 export const userRouter = Router

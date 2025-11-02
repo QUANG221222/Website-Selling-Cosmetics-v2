@@ -44,6 +44,18 @@ interface LoginResponse {
   message: string
   data: any
 }
+interface GetUsersWithPaginationResponse {
+  message: string
+  data: any[]
+  pagination: {
+    currentPage: number
+    totalPages: number
+    totalItems: number
+    itemsPerPage: number
+    hasNextPage: boolean
+    hasPrevPage: boolean
+  }
+}
 
 // ===== CONTROLLERS =====
 
@@ -187,13 +199,38 @@ const deleteUser = async (
     }
 }
 
+const getAllUsersWithPagination = async (
+  req: Request,
+  res: Response<GetUsersWithPaginationResponse>,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const page = parseInt(req.query.page as string) || 1
+    const limit = parseInt(req.query.limit as string) || 7
+
+    if (page < 1) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Trang phải lớn hơn 0')
+    }
+
+    const result = await services.userService.getAllUsersWithPagination(page, limit)
+    res.status(StatusCodes.OK).json({
+      message: 'Danh sách người dùng đã được lấy thành công',
+      data: result.data,
+      pagination: result.pagination
+    })
+  } catch (error: any) {
+    next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message))
+  }
+}
+
 export type {
   CreateUserRequest,
   CreateUserResponse,
   VerifyEmailRequest,
   VerifyEmailResponse,
   LoginRequest,
-  LoginResponse
+  LoginResponse,
+  GetUsersWithPaginationResponse
 }
 export const userController = {
   createNew,
@@ -202,5 +239,6 @@ export const userController = {
   logout,
   getCurrentUser,
   getAllUsers,
-  deleteUser
+  deleteUser,
+  getAllUsersWithPagination
 }

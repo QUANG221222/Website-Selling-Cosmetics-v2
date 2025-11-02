@@ -200,7 +200,33 @@ const findAll = async (): Promise<IUser[]> => {
         throw new Error(error);
     }
 }
+const findAllWithPagination = async (
+  page: number = 1,
+  limit: number = 10
+): Promise<{ users: IUser[]; total: number }> => {
+  try {
 
+    const skip = (page - 1) * limit
+    const users = await GET_DB()
+      .collection(COLLECTION_NAME)
+      .find({ _destroy: false })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .toArray()
+
+    const total = await GET_DB()
+      .collection(COLLECTION_NAME)
+      .countDocuments({ _destroy: false })
+
+    return {
+      users: users as IUser[],
+      total
+    }
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
 
 // ===== EXPORTS =====
 export type { IUser, ICreateUserData }
@@ -213,5 +239,6 @@ export const userModel = {
   deleteUser,
   findOneByUsername,
   getTotalUsers,
-  findAll
+  findAll,
+  findAllWithPagination
 }

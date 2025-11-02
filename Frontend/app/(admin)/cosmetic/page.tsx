@@ -12,10 +12,19 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Search, Plus, Edit, Trash2, Star, Package, AlertTriangle, Loader2, Upload } from "lucide-react";
 import { Cosmetic } from "@/lib/types/index";
-import { createCosmetic, deleteCosmetic, fetchAllCosmetics, selectAllCosmetics, selectCosmeticLoading, updateCosmetic } from "@/lib/redux/cosmetic/cosmeticSlice";
-import { AppDispatch, RootState } from "@/lib/redux/store";
+import { createCosmetic, deleteCosmetic, fetchAllCosmetics, getPagination, selectAllCosmetics, selectCosmeticLoading, selectCosmeticPagination, updateCosmetic } from "@/lib/redux/cosmetic/cosmeticSlice";
+import { AppDispatch } from "@/lib/redux/store";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 const ProductsManagement = () => {
 
@@ -23,22 +32,35 @@ const ProductsManagement = () => {
     const cosmetics = useSelector(selectAllCosmetics);
     const loading = useSelector(selectCosmeticLoading);
 
+    const [selectedProduct, setSelectedProduct] = useState<Cosmetic | null>(null);
+    
     const [searchTerm, setSearchTerm] = useState("");
     const [categoryFilter, setCategoryFilter] = useState("all");
     const [stockFilter, setStockFilter] = useState("all");
-    const [selectedProduct, setSelectedProduct] = useState<Cosmetic | null>(null);
+
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string>("");
+
     const [isSubmitting, setIsSubmitting] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-   // Fetch cosmetics on mount
-    useEffect(() => {
-        dispatch(fetchAllCosmetics());
-    }, [dispatch]);
+    const pagination = useSelector(selectCosmeticPagination);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
 
+
+    useEffect(() => {
+        dispatch(getPagination({
+            page: currentPage,
+            limit: pageSize,
+            sortBy: 'createdAt',
+            sortOrder: 'desc'
+        }));
+    }, [currentPage, pageSize, dispatch]);
+    console.log("pagination: ", pagination);
   // Filter products
     const filteredProducts = cosmetics.filter(product => {
         const matchesSearch = product.nameCosmetic.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -83,6 +105,14 @@ const ProductsManagement = () => {
         setImagePreview(product.image || "");
         setImageFile(null);
         setIsEditDialogOpen(true);
+    };
+    const handlePageChange = (newPage: number) => {
+        setCurrentPage(newPage);
+    };
+
+    const handlePageSizeChange = (newSize: number) => {
+        setPageSize(newSize);
+        setCurrentPage(1); // Reset về trang 1 khi thay đổi page size
     };
 
     const handleAddProduct = () => {
@@ -195,6 +225,7 @@ const ProductsManagement = () => {
         }
 
     };
+    
     const closeDialog = () => {
         setIsEditDialogOpen(false);
         setIsAddDialogOpen(false);
@@ -251,7 +282,7 @@ const ProductsManagement = () => {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Quản lý sản phẩm</CardTitle>
+          <CardTitle className="pt-2">Quản lý sản phẩm</CardTitle>
           <CardDescription>
             Quản lý thông tin sản phẩm, giá cả và tồn kho
           </CardDescription>
@@ -389,10 +420,97 @@ const ProductsManagement = () => {
             </Table>
           </div>
 
-          <div className="flex items-center justify-between space-x-2 py-4">
-            <div className="text-sm text-muted-foreground">
-              Hiển thị {filteredProducts.length} / {cosmetics.length} sản phẩm
+           {/* Pagination Controls */}
+          <div className="flex items-center justify-between space-y-4 md:space-y-0">
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-muted-foreground">
+                Hiển thị {filteredProducts.length} / {pagination.totalCount} sản phẩm
+              </span>
+              <Select
+                value={pageSize.toString()}
+                onValueChange={(val) => handlePageSizeChange(parseInt(val))}
+              >
+                <SelectTrigger className="w-[100px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="20">20</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
+
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (currentPage > 1) handlePageChange(currentPage - 1);
+                    }}
+                    className={
+                      currentPage === 1 ? "pointer-events-none opacity-50" : ""
+                    }
+                  />
+                </PaginationItem>
+
+                {/* Page Numbers */}
+                {Array.from(
+                  { length: pagination.totalPages },
+                  (_, i) => i + 1
+                ).map((page) => {
+                  // Hiển thị trang gần hiện tại
+                  if (
+                    page === 1 ||
+                    page === pagination.totalPages ||
+                    (page >= currentPage - 1 && page <= currentPage + 1)
+                  ) {
+                    return (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handlePageChange(page);
+                          }}
+                          isActive={page === currentPage}
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    );
+                  } else if (
+                    page === currentPage - 2 ||
+                    page === currentPage + 2
+                  ) {
+                    return (
+                      <PaginationItem key={page}>
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                    );
+                  }
+                  return null;
+                })}
+
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (currentPage < pagination.totalPages)
+                        handlePageChange(currentPage + 1);
+                    }}
+                    className={
+                      currentPage === pagination.totalPages
+                        ? "pointer-events-none opacity-50"
+                        : ""
+                    }
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
           </div>
         </CardContent>
       </Card>

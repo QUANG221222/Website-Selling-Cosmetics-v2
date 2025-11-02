@@ -4,6 +4,7 @@ import { models, ICosmeticCreateData, ICosmeticUpdateData } from '~/models'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
 import { cloudinary } from '~/configs/cloudinary'
+import { calculatePagination, PaginatedResponse } from '~/utils/pagination'
 
 // ===== INTERFACES & TYPES =====
 interface ICosmeticResponse {
@@ -131,6 +132,33 @@ const updateItem = async (
   }
 }
 
+const getAllCosmeticsWithPagination = async (
+  page: number = 1,
+  limit: number = 10
+): Promise<PaginatedResponse<ICosmeticResponse>> => {
+  try {
+    const { cosmetics, total } = await models.cosmeticModel.findAllWithPagination(
+      page,
+      limit
+    )   
+    const paginationInfo = calculatePagination(total, page, limit)
+    
+    return {
+      data: cosmetics.map((item) => pickCosmetic(item)),
+            pagination: {
+              currentPage: paginationInfo.currentPage,
+              totalPages: paginationInfo.totalPages,
+              totalItems: paginationInfo.totalItems,
+              itemsPerPage: limit,
+              hasNextPage: paginationInfo.hasNextPage,
+              hasPrevPage: paginationInfo.hasPrevPage
+            }
+          }
+  } catch (error: any) {
+    throw new Error(error.message)
+    }
+}
+
 // ===== EXPORTS =====
 export type { ICosmeticResponse }
 
@@ -140,5 +168,6 @@ export const cosmeticService = {
   getById,
   getBySlug,
   deleteById,
-  updateItem
+  updateItem,
+  getAllCosmeticsWithPagination
 }

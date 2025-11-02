@@ -13,14 +13,10 @@ const CartBadge = () => {
     const dispatch = useDispatch<AppDispatch>();
     const router = useRouter();
     const cartItemCount = useSelector(selectCartTotalItems);
-    const currentUser = useSelector(selectCurrentUser);
 
     useEffect(() => {
-        // Only fetch cart if user is logged in
-        if (currentUser) {
-            dispatch(fetchCart());
-        }
-    }), [dispatch, currentUser];
+        dispatch(fetchCart());
+    }), [dispatch];
 
     const handleCartClick = () => {
         router.push('/cart')

@@ -356,6 +356,63 @@ const getRevenueByMonth = async (
   }
 }
 
+const findAllWithPagination = async (
+  page: number = 1,
+  limit: number = 10
+): Promise<{ orders: IOrder[]; total: number }> => {
+  try {
+    
+    const skip = (page - 1) * limit
+    const orders = await GET_DB()
+      .collection(COLLECTION_NAME)
+      .find({ _destroy: false })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .toArray()
+
+    const total = await GET_DB()
+      .collection(COLLECTION_NAME)
+      .countDocuments({ _destroy: false })
+
+    return {
+      orders: orders as IOrder[],
+      total
+    }
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
+const findByUserIdWithPagination = async (
+  userId: string,
+  page: number = 1,
+  limit: number = 10
+): Promise<{ orders: IOrder[]; total: number }> => {
+  try {
+    const skip = (page - 1) * limit
+    const orders = await GET_DB()
+      .collection(COLLECTION_NAME)
+      .find({ userId: new ObjectId(userId), _destroy: false })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .toArray()
+
+    const total = await GET_DB()
+      .collection(COLLECTION_NAME)
+      .countDocuments({ userId: new ObjectId(userId), _destroy: false })
+
+    return {
+      orders: orders as IOrder[],
+      total
+    }
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
+
 // ===== EXPORTS =====
 export type {
   IOrder,
@@ -379,5 +436,7 @@ export const orderModel = {
   getTotalOrdersProcessing,
   getRevenueByYear,
   getRevenueByMonth,
-  getTotalOrdersByMonth
+  getTotalOrdersByMonth,
+  findAllWithPagination,
+  findByUserIdWithPagination
 }

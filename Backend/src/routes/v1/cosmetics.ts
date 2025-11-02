@@ -41,4 +41,8 @@ Router.route('/multiple').post(
   controllers.cosmeticController.uploadMultipleImages
 )
 
+Router.route('/pagination/list').get(
+  controllers.cosmeticController.getCosmeticWithPagination
+)
+
 export const cosmeticRouter = Router

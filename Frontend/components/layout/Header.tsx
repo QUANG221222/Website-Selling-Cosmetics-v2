@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import React from 'react'
 import NavItems from '@/components/layout/NavItems';
 import SearchBar from '@/components/layout/SearchBar';
@@ -14,22 +13,14 @@ import {
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import CartBadge from '@/components/cart/CartBadge';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch } from '@/lib/redux/store';
-import { fetchCurrentUser, selectCurrentUser } from '@/lib/redux/user/userSlice';
+import { useSelector } from 'react-redux';
+import { selectCurrentUser } from '@/lib/redux/user/userSlice';
  import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 const Header = () => {
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const dispatch = useDispatch<AppDispatch>();
     const currentUser = useSelector(selectCurrentUser);
-
-    useEffect(() => {
-        if (!currentUser) {
-        dispatch(fetchCurrentUser());
-        }
-    }, [dispatch, currentUser]);
 
   return (
     <header className="bg-white border-b border-border sticky top-0 z-50 shadow-sm">
@@ -60,7 +51,7 @@ const Header = () => {
     
                         {/* Cart */}
                         <Link href="/cart">
-                                <CartBadge/>
+                            <CartBadge/>
                         </Link>
     
                         {/* User Account */}

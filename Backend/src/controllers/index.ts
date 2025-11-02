@@ -12,7 +12,8 @@ export type {
   VerifyEmailRequest,
   VerifyEmailResponse,
   LoginRequest,
-  LoginResponse
+  LoginResponse,
+  GetUsersWithPaginationResponse
 } from './userController'
 export type { CreateAdminRequest, CreateAdminResponse } from './adminController'
 export type {

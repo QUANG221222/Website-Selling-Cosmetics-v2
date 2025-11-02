@@ -46,5 +46,16 @@ Router.route('/user/:id').delete(
   validations.orderValidation.validateOrderId,
   controllers.orderController.deleteOrderWhenOrderIsProcessing
 )
+// Get all orders with pagination (admin)
+Router.route('/pagination/list').get(
+  middlewares.authHandlingMiddleware.isAdmin,
+  controllers.orderController.getAllOrdersWithPagination
+)
+
+// Get user orders with pagination
+Router.route('/pagination/my-orders').get(
+  middlewares.authHandlingMiddleware.isAuthorized,
+  controllers.orderController.getUserOrdersWithPagination
+)
 
 export const orderRouter = Router

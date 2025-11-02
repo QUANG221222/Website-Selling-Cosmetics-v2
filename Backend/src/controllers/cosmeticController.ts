@@ -58,7 +58,18 @@ interface GetCosmeticBySlugResponse {
   message: string
   data: any
 }
-
+interface GetCosmeticsWithPaginationResponse {
+  message: string
+  data: any[]
+  pagination: {
+    currentPage: number
+    totalPages: number
+    totalItems: number
+    itemsPerPage: number
+    hasNextPage: boolean
+    hasPrevPage: boolean
+  }
+}
 const createNew = async (
   req: Request<{}, {}, CreateCosmeticRequest, {}>,
   res: Response<CreateCosmeticResponse>,
@@ -217,6 +228,28 @@ const uploadMultipleImages = async (
     next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message))
   }
 }
+const getCosmeticWithPagination = async (
+    req: Request,
+    res: Response<GetCosmeticsWithPaginationResponse>,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      const page = parseInt(req.query.page as string) || 1
+      const limit = parseInt(req.query.limit as string) || 10
+
+      if (page < 1) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, 'Trang phải lớn hơn 0')
+      }
+        const result = await services.cosmeticService.getAllCosmeticsWithPagination(page, limit)
+        res.status(StatusCodes.OK).json({
+          message: 'Danh sách mỹ phẩm đã được lấy thành công',
+          data: result.data,
+          pagination: result.pagination
+        })
+    } catch (error: any) {
+      next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message))
+    }
+}
 // ===== EXPORTS =====
 
 export type {
@@ -226,7 +259,8 @@ export type {
   GetAllCosmeticsResponse,
   GetCosmeticBySlugResponse,
   UpdateCosmeticRequest,
-  UpdateCosmeticResponse
+  UpdateCosmeticResponse,
+GetCosmeticsWithPaginationResponse
 }
 export const cosmeticController = {
   createNew,
@@ -236,5 +270,6 @@ export const cosmeticController = {
   getById,
   getBySlug,
   deleteItem,
-  updateItem
+  updateItem,
+  getCosmeticWithPagination
 }
