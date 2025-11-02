@@ -15,6 +15,25 @@ export interface CreateOrderData {
   paymentMethod: "COD" | "BANK";
 //   totalAmount: number;
 }
+export interface PaginationParams {
+  page: number;
+  limit: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface PaginatedResponse<T> {
+  message: string;
+  data: T[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    itemsPerPage: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
+}
 
 export interface UpdateOrderData {
   status?: "pending" | "processing" | "completed" | "cancelled";
@@ -44,7 +63,11 @@ export const orderApi = {
     const response = await axiosInstance.get(`/orders/${orderId}`);
     return response.data;
   },
-
+  
+  getAllOrders: async (): Promise<ApiResponse<Order[]>> => {
+    const response = await axiosInstance.get("/orders/admin");
+    return response.data;
+  },
   // Update order
   updateOrder: async (
     orderId: string,
@@ -65,6 +88,20 @@ export const orderApi = {
   // Delete order (admin only)
   deleteOrder: async (orderId: string): Promise<ApiResponse<void>> => {
     const response = await axiosInstance.delete(`/orders/${orderId}`);
+    return response.data;
+  },
+  // Get all orders with pagination (admin)
+  getAllOrdersWithPagination: async (
+    params: PaginationParams
+  ): Promise<PaginatedResponse<Order>> => {
+    const response = await axiosInstance.get("/orders/pagination/list", {
+      params: {
+        page: params.page,
+        limit: params.limit,
+        sortBy: params.sortBy || 'createdAt',
+        sortOrder: params.sortOrder || 'desc'
+      }
+    });
     return response.data;
   },
 };

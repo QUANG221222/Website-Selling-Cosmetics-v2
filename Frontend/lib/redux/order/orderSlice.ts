@@ -6,7 +6,15 @@ import { toast } from "sonner";
 
 // ===== STATE INTERFACE =====
 interface OrderState {
-  orders: Order[];
+  orders: {
+    items: Order[]
+    totalCount: number       // Tổng số users
+    currentPage: number      // Trang hiện tại
+    pageSize: number         // Số items/trang
+    filters: {}              // Bộ lọc (role, status, etc.)
+    sortBy: 'createdAt'      // Sắp xếp theo
+    sortOrder: 'desc'
+  }
   currentOrder: Order | null;
   loading: boolean;
   error: string | null;
@@ -14,7 +22,15 @@ interface OrderState {
 }
 
 const initialState: OrderState = {
-  orders: [],
+  orders: {
+    items: [],
+    totalCount: 0,
+    currentPage: 1,
+    pageSize: 20,
+    filters: {},
+    sortBy: 'createdAt',
+    sortOrder: 'desc'
+  },
   currentOrder: null,
   loading: false,
   error: null,
@@ -70,7 +86,20 @@ export const fetchOrderById = createAsyncThunk(
     }
   }
 );
-
+// Fetch All orders (admin)
+export const fetchAllOrders = createAsyncThunk(
+    "orders/fetchAllOrders",
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await orderApi.getAllOrders();
+            return response.data;
+        } catch (error: any) {
+            const message =
+                error?.response?.data?.message || "Không thể tải danh sách đơn hàng";
+            return rejectWithValue(message);
+        }
+    }
+);
 // Update order
 export const updateOrder = createAsyncThunk(
   "order/updateOrder",
@@ -124,7 +153,28 @@ export const deleteOrder = createAsyncThunk(
     }
   }
 );
-
+// Fetch all orders with pagination
+export const fetchAllOrdersWithPagination = createAsyncThunk(
+  "order/fetchAllOrdersWithPagination",
+  async (
+    params: {
+      page: number;
+      limit: number;
+      sortBy?: string;
+      sortOrder?: 'asc' | 'desc';
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await orderApi.getAllOrdersWithPagination(params);
+      return response;
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.message || "Không thể tải danh sách đơn hàng";
+      return rejectWithValue(message);
+    }
+  }
+);
 // ===== SLICE =====
 export const orderSlice = createSlice({
   name: "order",
@@ -135,6 +185,12 @@ export const orderSlice = createSlice({
     },
     clearCurrentOrder: (state) => {
       state.currentOrder = null;
+    },
+    setPaginationPage: (state, action) => {
+      state.orders.currentPage = action.payload;
+    },
+    setPaginationLimit: (state, action) => {
+      state.orders.pageSize = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -147,7 +203,7 @@ export const orderSlice = createSlice({
       .addCase(createOrder.fulfilled, (state, action) => {
         state.createLoading = false;
         state.currentOrder = action.payload;
-        state.orders.unshift(action.payload);
+        state.orders.items.unshift(action.payload);
       })
       .addCase(createOrder.rejected, (state, action) => {
         state.createLoading = false;
@@ -161,7 +217,7 @@ export const orderSlice = createSlice({
       })
       .addCase(fetchUserOrders.fulfilled, (state, action) => {
         state.loading = false;
-        state.orders = action.payload;
+        state.orders.items = action.payload;
       })
       .addCase(fetchUserOrders.rejected, (state, action) => {
         state.loading = false;
@@ -181,6 +237,19 @@ export const orderSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+        // Fetch all orders (admin)
+      .addCase(fetchAllOrders.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAllOrders.fulfilled, (state, action) => {
+        state.loading = false;
+        state.orders.items = action.payload;
+      })
+      .addCase(fetchAllOrders.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+    })
 
       // Update order
       .addCase(updateOrder.pending, (state) => {
@@ -189,11 +258,11 @@ export const orderSlice = createSlice({
       })
       .addCase(updateOrder.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.orders.findIndex(
+        const index = state.orders.items.findIndex(
           (order) => order._id === action.payload._id
         );
         if (index !== -1) {
-          state.orders[index] = action.payload;
+          state.orders.items[index] = action.payload;
         }
         if (state.currentOrder?._id === action.payload._id) {
           state.currentOrder = action.payload;
@@ -211,11 +280,11 @@ export const orderSlice = createSlice({
       })
       .addCase(cancelOrder.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.orders.findIndex(
+        const index = state.orders.items.findIndex(
           (order) => order._id === action.payload._id
         );
         if (index !== -1) {
-          state.orders[index] = action.payload;
+          state.orders.items[index] = action.payload;
         }
         if (state.currentOrder?._id === action.payload._id) {
           state.currentOrder = action.payload;
@@ -233,7 +302,7 @@ export const orderSlice = createSlice({
       })
       .addCase(deleteOrder.fulfilled, (state, action) => {
         state.loading = false;
-        state.orders = state.orders.filter(
+        state.orders.items = state.orders.items.filter(
           (order) => order._id !== action.payload
         );
         if (state.currentOrder?._id === action.payload) {
@@ -243,12 +312,28 @@ export const orderSlice = createSlice({
       .addCase(deleteOrder.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+      .addCase(fetchAllOrdersWithPagination.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAllOrdersWithPagination.fulfilled, (state, action) => {
+        state.loading = false;
+        state.orders.items = action.payload.data ?? [];
+        state.orders.totalCount = action.payload.pagination?.totalItems ?? 0;
+        state.orders.currentPage = action.payload.pagination?.currentPage ?? 1;
+        state.orders.pageSize = action.payload.pagination?.itemsPerPage ?? 20;
+      })
+      .addCase(fetchAllOrdersWithPagination.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        state.orders.items = []; // Set mảng rỗng khi error
       });
   },
 });
 
 // ===== ACTIONS =====
-export const { clearError, clearCurrentOrder } = orderSlice.actions;
+export const { clearError, clearCurrentOrder, setPaginationPage, setPaginationLimit } = orderSlice.actions;
 
 // ===== BASE SELECTORS =====
 const selectOrderState = (state: { order: OrderState }) => state.order;
@@ -256,7 +341,7 @@ const selectOrderState = (state: { order: OrderState }) => state.order;
 // ===== MEMOIZED SELECTORS =====
 export const selectOrders = createSelector(
   [selectOrderState],
-  (orderState) => orderState.orders
+  (orderState) => orderState.orders.items ?? []
 );
 
 export const selectCurrentOrder = createSelector(
@@ -284,7 +369,6 @@ export const selectOrdersByStatus = (status: string) =>
   createSelector([selectOrders], (orders) =>
     orders.filter((order) => order.status === status)
   );
-
 // Select pending orders
 export const selectPendingOrders = createSelector([selectOrders], (orders) =>
   orders.filter((order) => order.status === "pending")
@@ -293,6 +377,17 @@ export const selectPendingOrders = createSelector([selectOrders], (orders) =>
 // Select completed orders
 export const selectCompletedOrders = createSelector([selectOrders], (orders) =>
   orders.filter((order) => order.status === "completed")
+);
+
+
+export const selectOrderPagination = createSelector(
+  [selectOrderState],
+  (orderState) => ({
+    currentPage: orderState.orders.currentPage,
+    pageSize: orderState.orders.pageSize,
+    totalCount: orderState.orders.totalCount,
+    totalPages: Math.ceil(orderState.orders.totalCount / orderState.orders.pageSize),
+  })
 );
 
 // ===== REDUCER =====

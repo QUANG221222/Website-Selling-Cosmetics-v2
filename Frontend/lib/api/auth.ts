@@ -1,6 +1,7 @@
 import axiosInstance from "@/lib/api/axios"
 import { ApiResponse, User } from "../types"
 import { toast } from "sonner"
+import { PaginatedResponse, PaginationParams } from "./order"
 
 export interface LoginCredentials {
   email: string
@@ -19,6 +20,25 @@ interface LoginResponse {
     id: string
     email: string
   }
+}
+// Interface cho pagination params của users
+export interface UserPaginationParams {
+  page: number;
+  pageSize: number; // Đổi từ limit sang pageSize để đồng nhất
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+  search?: string;
+  role?: string;
+  status?: string;
+}
+
+// Interface cho pagination response
+export interface UserPaginatedResponse {
+  items: User[];
+  totalCount: number;
+  currentPage: number;
+  pageSize: number;
+  totalPages: number;
 }
 
 
@@ -40,6 +60,11 @@ export const authApi = {
         const response = await axiosInstance.post('/users/register', data);
         return response.data;
     },  
+    createUser: async (data: { username: string; email: string; password: string; fullName: string; role: string }) : Promise<ApiResponse<User>> => {
+        const response = await axiosInstance.post('/users', data);
+        toast.success('User created successfully!')
+        return response.data;
+    },
     // Fetch current user
     getCurrentUser: async (): Promise<ApiResponse<User>> => {
         const response = await axiosInstance.get('/users/me');
@@ -53,9 +78,22 @@ export const authApi = {
     deleteUser: async (userId: string) : Promise<ApiResponse<null>> => {
         const response = await axiosInstance.delete(`/users/${userId}`);
         return response.data;
+    },
+    // Get users with pagination
+    getAllUsersWithPagination: async (
+       params: PaginationParams
+    ): Promise<PaginatedResponse<User>> => {
+        const response = await axiosInstance.get("/users/pagination/list", {
+        params: {
+            page: params.page,
+            limit: params.limit,
+            sortBy: params.sortBy || 'createdAt',
+            sortOrder: params.sortOrder || 'desc'
+        }
+        });
+        return response.data;
+    },
     }
-    
-}
 
 export const verifyEmail = async (data: { email: string; token: string }) => {
   const response = await axiosInstance.put("users/verify", data)

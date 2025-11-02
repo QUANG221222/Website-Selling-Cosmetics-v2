@@ -1,4 +1,4 @@
-import { pickUser } from '~/utils/fomatter'
+import { pickOrder, pickUser } from '~/utils/fomatter'
 import { Request } from 'express'
 import { StatusCodes } from 'http-status-codes'
 import { models, ICreateUserData } from '~/models'
@@ -7,6 +7,7 @@ import bcrypt from 'bcryptjs'
 import { v7 as uuidv7 } from 'uuid'
 import { BrevoProvider } from '~/providers/BrevoProvider'
 import { WEBSITE_DOMAIN } from '~/utils/constants'
+import { calculatePagination, PaginatedResponse } from '~/utils/pagination'
 
 // ===== INTERFACES =====
 interface IUserResponse {
@@ -170,6 +171,34 @@ const getAllUsers = async (): Promise<IUserResponse[]> => {
         throw error;    
     }
 }
+
+const getAllUsersWithPagination = async (
+  page: number = 1,
+  limit: number = 10
+): Promise<PaginatedResponse<IUserResponse>> => {
+  try {
+    const { users, total } = await models.userModel.findAllWithPagination(
+      page,
+      limit
+    )
+
+    const paginationInfo = calculatePagination(total, page, limit)
+
+    return {
+      data: users.map((user) => pickUser(user)),
+      pagination: {
+        currentPage: paginationInfo.currentPage,
+        totalPages: paginationInfo.totalPages,
+        totalItems: paginationInfo.totalItems,
+        itemsPerPage: limit,
+        hasNextPage: paginationInfo.hasNextPage,
+        hasPrevPage: paginationInfo.hasPrevPage
+      }
+    }
+  } catch (error: any) {
+    throw new Error(error.message)
+  }
+}
 // ===== EXPORTS =====
 export type { IUserResponse }
 
@@ -179,5 +208,6 @@ export const userService = {
   login,
   getById,
   getAllUsers,
-  deleteUser
+  deleteUser,
+  getAllUsersWithPagination
 }

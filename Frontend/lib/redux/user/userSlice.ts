@@ -3,6 +3,7 @@ import axiosInstance from "@/lib/api/axios";
 import { toast } from "sonner";
 import { RootState } from "../store";
 import { User } from "@/lib/types";
+import { UserPaginationParams, UserPaginatedResponse, authApi } from "@/lib/api/auth";
 // Add proper types
 interface LoginData {
   email: string;
@@ -17,20 +18,19 @@ interface LoginData {
 // }
 interface UserState {
   users: {
-    items: User[]; // Mảng users
-    totalCount: 0; // Tổng số users
-    currentPage: 1; // Trang hiện tại
-    pageSize: 20; // Số items/trang
-    filters: {}; // Bộ lọc (role, status, etc.)
-    sortBy: "createdAt"; // Sắp xếp theo
-    sortOrder: "desc"; // Thứ tự sắp xếp
+    items: User[];
+    totalCount: number;
+    currentPage: number;
+    pageSize: number;
+    filters: Record<string, any>;
+    sortBy: string;
+    sortOrder: "asc" | "desc";
   };
-  loading: boolean; // Trạng thái loading
-  error: string | null; // Lỗi nếu có
-  selectedUser: User | null; // User đang được chọn
+  loading: boolean;
+  error: string | null;
+  selectedUser: User | null;
 }
 
-// Declare initial state in userSlice
 const initialState: UserState = {
   users: {
     items: [],
@@ -77,7 +77,7 @@ export const logoutUserApi = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       await axiosInstance.post("users/logout");
-      toast.success("Đăng xuất thành công!");
+      //   toast.success("Đăng xuất thành công!");
     } catch (error: any) {
       const message =
         error?.response?.data?.message || error.message || "Đăng xuất thất bại";
@@ -87,30 +87,31 @@ export const logoutUserApi = createAsyncThunk(
 );
 
 export const createNewUser = createAsyncThunk(
-    "user/createNewUser",
-    async (data: { 
-            username: string; 
-            email: string; 
-            password: string; 
-            fullName: string; 
-            role: string 
-        }, 
-            { rejectWithValue }) => {
-        try {
-            const response = await axiosInstance.post("users", data);
-            const userData = response.data.data || response.data;
-            toast.success("User created successfully!");
-            return userData;
-        } catch (error: any) {
-            console.error("❌ Create user error:", error);
-            const message =
-                error?.response?.data?.message || error.message || "Create user failed";
-            toast.error(message);
-            return rejectWithValue(message);
-        }
+  "user/createNewUser",
+  async (
+    data: {
+      username: string;
+      email: string;
+      password: string;
+      fullName: string;
+      role: string;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await axiosInstance.post("users", data);
+      const userData = response.data.data || response.data;
+      toast.success("User created successfully!");
+      return userData;
+    } catch (error: any) {
+      console.error("❌ Create user error:", error);
+      const message =
+        error?.response?.data?.message || error.message || "Create user failed";
+      toast.error(message);
+      return rejectWithValue(message);
     }
+  }
 );
-
 
 // Thêm thunk để fetch current user từ session
 export const fetchCurrentUser = createAsyncThunk(
@@ -169,6 +170,28 @@ export const deleteUser = createAsyncThunk(
   }
 );
 
+export const getAllUsersWithPagination = createAsyncThunk(
+  "user/getAllUsersWithPagination",
+   async (
+      params: {
+        page: number;
+        limit: number;
+        sortBy?: string;
+        sortOrder?: 'asc' | 'desc';
+      },
+      { rejectWithValue }
+    ) => {
+      try {
+        const response = await authApi.getAllUsersWithPagination(params);
+        return response;
+      } catch (error: any) {
+        const message =
+          error?.response?.data?.message || "Không thể tải danh sách đơn hàng";
+        return rejectWithValue(message);
+      }
+    }
+  );
+
 export const userSlice = createSlice({
   name: "user",
   initialState,
@@ -179,6 +202,11 @@ export const userSlice = createSlice({
     // Thêm action để set user manually nếu cần
     setCurrentUser: (state, action) => {
       state.selectedUser = action.payload;
+    }, setPaginationPage: (state, action) => {
+      state.users.currentPage = action.payload;
+    },
+    setPaginationLimit: (state, action) => {
+      state.users.pageSize = action.payload;
     },
   },
   // Extra reducers: handle asynchronous actions
@@ -240,21 +268,18 @@ export const userSlice = createSlice({
       .addCase(fetchALlUsers.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-    })
-        // Create new user
-    .addCase(createNewUser.pending, (state) => {
+      })
+      // Create new user
+      .addCase(createNewUser.pending, (state) => {
         state.loading = true;
-    })
-    .addCase(createNewUser.fulfilled, (state, action) => {
+      })
+      .addCase(createNewUser.fulfilled, (state, action) => {
         state.loading = false;
         state.users.items.push(action.payload);
-    })
-    .addCase(createNewUser.rejected, (state, action) => {
+      })
+      .addCase(createNewUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-    })
-    // Delete user
-    .addCase(deleteUser.pending, (state) => {
       })
       // Delete user
       .addCase(deleteUser.pending, (state) => {
@@ -269,18 +294,45 @@ export const userSlice = createSlice({
       .addCase(deleteUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+      .addCase(getAllUsersWithPagination.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getAllUsersWithPagination.fulfilled, (state, action) => {
+        state.loading = false;
+         state.users.items = action.payload.data ?? [];
+        state.users.totalCount = action.payload.pagination?.totalItems ?? 0;
+        state.users.currentPage = action.payload.pagination?.currentPage ?? 1;
+        state.users.pageSize = action.payload.pagination?.itemsPerPage ?? 20;
+      })
+      .addCase(getAllUsersWithPagination.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
   },
 });
 
 // Actions
-export const { clearError, setCurrentUser } = userSlice.actions;
+export const { clearError, setCurrentUser, setPaginationPage, setPaginationLimit } = userSlice.actions;
 
 // Selectors
 export const selectCurrentUser = (state: RootState) => state.user?.selectedUser;
 export const selectUserLoading = (state: RootState) => state.user?.loading;
 export const selectUserError = (state: RootState) => state.user?.error;
-export const selectAllUsers = (state: RootState) =>
-  state.user?.users.items ?? [];
+export const selectAllUsers = (state: RootState) => state.user?.users.items ?? [];
+export const selectUserPagination = (state: { user: UserState }) => {
+   const currentPage = state.user?.users.currentPage || 1;
+   const pageSize = state.user?.users.pageSize || 20;
+   const totalCount = state.user?.users.totalCount || 0;
+   const totalPages = Math.ceil(totalCount / pageSize);
+
+   return {
+     currentPage,
+     pageSize,
+     totalCount,
+     totalPages
+   };
+};
+
 // Reducer
 export const userReducer = userSlice.reducer;

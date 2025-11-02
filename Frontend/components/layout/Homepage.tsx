@@ -1,44 +1,52 @@
-"use client"
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { fetchAllCosmetics, selectAllCosmetics } from '@/lib/redux/cosmetic/cosmeticSlice';
-import { AppDispatch } from '@/lib/redux/store';
-import Image from 'next/image';
-import { useDispatch, useSelector } from 'react-redux';
-import ProductCard from '../product/ProductCard';
-import { Cosmetic } from '@/lib/types';
-import { useEffect } from 'react';
-import { addToCart } from '@/lib/redux/cart/cartSlice';
-import { useRouter } from 'next/navigation';
+"use client";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+
+import Image from "next/image";
+import { useRouter } from "next/dist/client/components/navigation";
+import { useSelector } from "react-redux";
+import { Suspense, useEffect } from "react";
+import {
+  fetchAllCosmetics,
+  selectAllCosmetics,
+} from "@/lib/redux/cosmetic/cosmeticSlice";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/lib/redux/store";
+import { Cosmetic } from "@/lib/types";
+import ProductCardList from "../product/ProductCardList";
+import { addToCart } from "@/lib/redux/cart/cartSlice";
+import SkeletonProductCardList from "../product/SkeletonProductCardList";
+
 const HomePage = () => {
+  const router = useRouter();
+  const cosmetics = useSelector(selectAllCosmetics);
+  const dispatch = useDispatch<AppDispatch>();
 
-    const router = useRouter();
-    const cosmetics = useSelector(selectAllCosmetics)
-    const dispatch = useDispatch<AppDispatch>(); 
-
-     // Fetch products on mount
-      useEffect(() => {
-        dispatch(fetchAllCosmetics());
-      }, [dispatch]);
-
-    // Handle add to cart
-        const handleAddToCart = (cosmeitc: Cosmetic, quantity : number = 1, variant?: string) => {
-            dispatch(addToCart({
-                cosmeticId: cosmeitc._id, 
-                quantity,
-                variant
-             }));
-        };
-        
-        // Handle view product detail
-        const handleViewProduct = (cosmetic: Cosmetic) => {
-        // Navigate to product detail page
-            router.push(`/product/${cosmetic._id}`);
-        };
-        const handleDirect = () => {
-            router.push('/product');
-        }
-
+  useEffect(() => {
+    dispatch(fetchAllCosmetics());
+  }, [dispatch]);
+  // Handle view product detail
+  const handleViewProduct = (cosmetic: Cosmetic) => {
+    // Navigate to product detail page
+    router.push(`/product/${cosmetic._id}`);
+  };
+  // Handle add to cart
+  const handleAddToCart = (
+    cosmetic: Cosmetic,
+    quantity: number = 1,
+    variant?: string
+  ) => {
+    dispatch(
+      addToCart({
+        cosmeticId: cosmetic._id,
+        quantity,
+        variant,
+      })
+    );
+  };
+  const handleDirect = () => {
+    router.push("/product");
+  };
   return (
     <div className="space-y-16">
       {/* Hero Banner */}
@@ -49,11 +57,11 @@ const HomePage = () => {
             alt="Beauty Model"
             width={1440}
             height={1000}
-            className='w-full h-full object-cover object-center'
+            className="w-full h-full object-cover object-center"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/70 to-transparent"></div>
         </div>
-        
+
         <div className="relative z-10 container mx-auto px-4">
           <div className="max-w-2xl space-y-6">
             <h1 className="text-5xl font-playfair text-brand-deep-pink">
@@ -63,9 +71,9 @@ const HomePage = () => {
               Mỹ phẩm an toàn, chất lượng từ thiên nhiên
             </p>
             <Button
-                onClick={handleDirect}
-                className="bg-brand-deep-pink hover:bg-brand-deep-pink/90 text-white font-poppins px-8 py-3 cursor-pointer"
-                size="lg"
+              onClick={handleDirect}
+              className="bg-brand-deep-pink hover:bg-brand-deep-pink/90 text-white font-poppins px-8 py-3 cursor-pointer"
+              size="lg"
             >
               Mua Sắm Ngay
             </Button>
@@ -83,18 +91,17 @@ const HomePage = () => {
             Khám phá những sản phẩm đang dẫn đầu xu hướng làm đẹp.
           </p>
         </div>
-        
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {cosmetics.map((cosmetic) => (
-            <ProductCard
-              key={cosmetic._id}
-              cosmetic={cosmetic}
+          <Suspense fallback={<SkeletonProductCardList />}>
+            <ProductCardList
+              cosmetics={cosmetics}
               onAddToCart={handleAddToCart}
               onViewDetail={handleViewProduct}
             />
-          ))}
+          </Suspense>
         </div>
-        
+
         <div className="text-center">
           <Button
             variant="outline"
@@ -111,11 +118,10 @@ const HomePage = () => {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
-              <h2 className="font-inter text-foreground">
-                Về Chúng Tôi
-              </h2>
+              <h2 className="font-inter text-foreground">Về Chúng Tôi</h2>
               <p className="text-muted-foreground font-inter text-lg leading-relaxed">
-                Chúng tôi mang đến những sản phẩm mỹ phẩm an toàn, chất lượng, giúp bạn tự tin tỏa sáng.
+                Chúng tôi mang đến những sản phẩm mỹ phẩm an toàn, chất lượng,
+                giúp bạn tự tin tỏa sáng.
               </p>
               <div className="space-y-4">
                 <div className="flex items-start space-x-3">
@@ -144,7 +150,7 @@ const HomePage = () => {
                 Tìm Hiểu Thêm
               </Button>
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4">
               <Card className="overflow-hidden">
                 <CardContent className="p-0">
@@ -165,7 +171,7 @@ const HomePage = () => {
                     width={500}
                     height={48}
                     className="w-full h-48 object-cover"
-                  /> 
+                  />
                 </CardContent>
               </Card>
             </div>
@@ -185,11 +191,12 @@ const HomePage = () => {
                 Thiên Nhiên An Toàn
               </h3>
               <p className="text-muted-foreground font-inter">
-                Tất cả sản phẩm đều được chiết xuất từ thiên nhiên, không chứa chất độc hại.
+                Tất cả sản phẩm đều được chiết xuất từ thiên nhiên, không chứa
+                chất độc hại.
               </p>
             </CardContent>
           </Card>
-          
+
           <Card className="text-center p-6 border-border">
             <CardContent className="space-y-4">
               <div className="w-16 h-16 bg-brand-gold rounded-full flex items-center justify-center mx-auto">
@@ -199,11 +206,12 @@ const HomePage = () => {
                 Chất Lượng Đảm Bảo
               </h3>
               <p className="text-muted-foreground font-inter">
-                Sản phẩm được kiểm nghiệm chặt chẽ và có chứng nhận chất lượng quốc tế.
+                Sản phẩm được kiểm nghiệm chặt chẽ và có chứng nhận chất lượng
+                quốc tế.
               </p>
             </CardContent>
           </Card>
-          
+
           <Card className="text-center p-6 border-border">
             <CardContent className="space-y-4">
               <div className="w-16 h-16 bg-brand-pink rounded-full flex items-center justify-center mx-auto">
@@ -221,5 +229,5 @@ const HomePage = () => {
       </section>
     </div>
   );
-}
+};
 export default HomePage;

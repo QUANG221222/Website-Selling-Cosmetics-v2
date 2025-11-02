@@ -48,6 +48,19 @@ interface GetOrdersResponse {
   data: any[]
 }
 
+interface GetOrdersWithPaginationResponse {
+  message: string
+  data: any[]
+  pagination: {
+    currentPage: number
+    totalPages: number
+    totalItems: number
+    itemsPerPage: number
+    hasNextPage: boolean
+    hasPrevPage: boolean
+  }
+}
+
 const createNew = async (
   req: Request<{}, {}, CreateOrderRequest, {}>,
   res: Response<CreateOrderResponse>,
@@ -172,6 +185,59 @@ const deleteOrderWhenOrderIsProcessing = async (
   }
 }
 
+const getAllOrdersWithPagination = async (
+  req: Request,
+  res: Response<GetOrdersWithPaginationResponse>,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const page = parseInt(req.query.page as string) || 1
+    const limit = parseInt(req.query.limit as string) || 7
+
+    if (page < 1) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Trang phải lớn hơn 0')
+    }
+
+    const result = await services.orderService.getAllWithPagination(page, limit)
+    res.status(StatusCodes.OK).json({
+      message: 'Đơn hàng đã được lấy thành công',
+      data: result.data,
+      pagination: result.pagination
+    })
+  } catch (error: any) {
+    next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message))
+  }
+}
+
+const getUserOrdersWithPagination = async (
+  req: Request,
+  res: Response<GetOrdersWithPaginationResponse>,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { userId } = req.session.user!
+    const page = parseInt(req.query.page as string) || 1
+    const limit = parseInt(req.query.limit as string) || 7
+
+    if (page < 1) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Trang phải lớn hơn 0')
+    }
+
+    const result = await services.orderService.getByUserIdWithPagination(
+      userId,
+      page,
+      limit
+    )
+    res.status(StatusCodes.OK).json({
+      message: 'Đơn hàng đã được lấy thành công',
+      data: result.data,
+      pagination: result.pagination
+    })
+  } catch (error: any) {
+    next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message))
+  }
+}
+
 // ===== EXPORTS =====
 export type {
   CreateOrderRequest,
@@ -179,7 +245,9 @@ export type {
   UpdateOrderRequest,
   UpdateOrderResponse,
   GetOrderResponse,
-  GetOrdersResponse
+  GetOrdersResponse,
+  GetOrdersWithPaginationResponse 
+
 }
 
 export const orderController = {
@@ -189,5 +257,7 @@ export const orderController = {
   getAllOrders,
   updateOrder,
   deleteOrder,
-  deleteOrderWhenOrderIsProcessing
+  deleteOrderWhenOrderIsProcessing,
+  getAllOrdersWithPagination,
+  getUserOrdersWithPagination
 }

@@ -264,6 +264,9 @@ const cosmeticDetail = () => {
               >
                 <Plus className="h-4 w-4" />
               </Button>
+              <span className="text-muted-foreground font-inter">
+                Có sẵn: {cosmetic?.quantity} sản phẩm
+              </span>
               {quantity >= cosmetic?.quantity! && (
                 <span className="text-sm text-red-500 ml-2">
                   Đã đạt giới hạn trong kho

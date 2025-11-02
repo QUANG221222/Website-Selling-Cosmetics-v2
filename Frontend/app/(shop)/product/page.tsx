@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,24 +10,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import ProductCard from "@/components/product/ProductCard";
 import { Search, Filter, X } from "lucide-react";
 import { Cosmetic } from "@/lib/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "@/lib/redux/store";
-import { fetchAllCosmetics, selectAllCosmetics, selectCosmeticLoading } from "@/lib/redux/cosmetic/cosmeticSlice";
+import {
+  fetchAllCosmetics,
+  selectAllCosmetics,
+  selectCosmeticLoading,
+} from "@/lib/redux/cosmetic/cosmeticSlice";
 import { addToCart } from "@/lib/redux/cart/cartSlice";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
+import SkeletonProductCardList from "@/components/product/SkeletonProductCardList";
+import ProductCardList from "@/components/product/ProductCardList";
 
 const ProductPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const cosmetics = useSelector(selectAllCosmetics);
   const loading = useSelector(selectCosmeticLoading);
-   const { requireUserAuth, isUserLoggedIn } = useAuth();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -42,32 +45,37 @@ const ProductPage = () => {
     dispatch(fetchAllCosmetics());
   }, [dispatch]);
 
-
   const [sortBy, setSortBy] = useState("name");
   const [showFilters, setShowFilters] = useState(false);
-
   // Get unique categories and brands
- // Get unique categories and brands
-  const categories = Array.from(new Set(cosmetics?.map(p => p.classify) || []));
-  const brands = Array.from(new Set(cosmetics?.map(p => p.brand).filter(Boolean) || []));
+  const categories = Array.from(
+    new Set(cosmetics?.map((p) => p.classify) || [])
+  );
+  const brands = Array.from(
+    new Set(cosmetics?.map((p) => p.brand).filter(Boolean) || [])
+  );
 
-    // Handle add to cart
-    const handleAddToCart = (cosmetic: Cosmetic, quantity : number = 1, variant?: string) => {
-        requireUserAuth(() => {
-        dispatch(addToCart({
-            cosmeticId: cosmetic._id, 
-            quantity,
-            variant
-        }));
-        toast.success('Đã thêm sản phẩm vào giỏ hàng!');
-        }, 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!');
-    };
-    
-    // Handle view product detail
-    const handleViewProduct = (cosmetic: Cosmetic) => {
+  // Handle add to cart
+  const handleAddToCart = (
+    cosmetic: Cosmetic,
+    quantity: number = 1,
+    variant?: string
+  ) => {
+      dispatch(
+        addToCart({
+          cosmeticId: cosmetic._id,
+          quantity,
+          variant,
+        })
+      );
+      toast.success("Đã thêm sản phẩm vào giỏ hàng!");
+  };
+
+  // Handle view product detail
+  const handleViewProduct = (cosmetic: Cosmetic) => {
     // Navigate to product detail page
-        router.push(`/product/${cosmetic._id}`);
-    };
+    router.push(`/product/${cosmetic._id}`);
+  };
 
   const filteredProducts = cosmetics.filter((cosmetic) => {
     // Search filter
@@ -331,14 +339,13 @@ const ProductPage = () => {
           {/* Products Grid */}
           {sortedProducts.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {sortedProducts.map((cosmetic) => (
-                <ProductCard
-                  key={cosmetic._id}
-                  cosmetic={cosmetic}
-                  onAddToCart={handleAddToCart}
-                  onViewDetail={handleViewProduct}
+            <Suspense fallback={<SkeletonProductCardList />}>
+                <ProductCardList
+                cosmetics={sortedProducts}
+                onAddToCart={handleAddToCart}
+                onViewDetail={handleViewProduct}
                 />
-              ))}
+          </Suspense>
             </div>
           ) : (
             <div className="text-center py-12">

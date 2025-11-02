@@ -257,7 +257,7 @@ const deleteById = async (id: string): Promise<void> => {
 
 const getAllWithPagination = async (
   page: number = 1,
-  limit: number = 7
+  limit: number = 10
 ): Promise<PaginatedResponse<IOrderResponse>> => {
   try {
     const { orders, total } = await models.orderModel.findAllWithPagination(

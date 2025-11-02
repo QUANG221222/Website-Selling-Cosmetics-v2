@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { AppDispatch } from "@/lib/redux/store";
@@ -35,6 +35,9 @@ const ShoppingCart = () => {
   const cartItems = useSelector(selectCartItems);
   const totalPrice = useSelector(selectCartTotalPrice);
 
+  // ✅ Track if cart has been fetched to prevent multiple calls
+  const hasFetchedCart = useRef(false);
+
   // Helper function to safely get cosmetic ID
   const getCosmeticId = (item: any) =>
     item.cosmetic?._id || item.cosmeticId || "";
@@ -51,8 +54,6 @@ const ShoppingCart = () => {
 
   // Fetch current user and cart on mount
   useEffect(() => {
-    // Try to fetch current user from session first
-    dispatch(fetchCurrentUser());
     // Fetch cart data
     dispatch(fetchCart());
   }, [dispatch]);

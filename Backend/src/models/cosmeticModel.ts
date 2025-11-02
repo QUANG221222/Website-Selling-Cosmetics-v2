@@ -179,6 +179,31 @@ const getTotalCosmetics = async (): Promise<number> => {
   }
 }
 
+const findAllWithPagination = async (
+    page: number = 1,
+    limit: number = 10
+    ): Promise<{ cosmetics: ICosmetic[]; total: number }> => {
+    try {
+        const skip = (page - 1) * limit;
+        const cosmetics = await GET_DB()    
+            .collection(COLLECTION_NAME)
+            .find({ _destroy: false })
+            .skip(skip)
+            .limit(limit)
+            .toArray();
+        const total = await GET_DB()
+            .collection(COLLECTION_NAME)
+            .countDocuments({ _destroy: false });
+
+        return { 
+            cosmetics: cosmetics as ICosmetic[],
+            total 
+        };
+    } catch (error: any) {
+        throw new Error(error);
+    }
+};
+
 // ===== EXPORTS =====
 export type { ICosmetic, ICosmeticCreateData, ICosmeticUpdateData }
 export const cosmeticModel = {
@@ -188,5 +213,6 @@ export const cosmeticModel = {
   findAll,
   deleteById,
   updateById,
-  getTotalCosmetics
+  getTotalCosmetics,
+  findAllWithPagination
 }

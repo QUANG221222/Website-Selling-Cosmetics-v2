@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { inter } from "@/app/fonts";
 import "./globals.css";
 import { Toaster } from '@/components/ui/sonner'
-import ReduxProvider from "./ReduxProvider";
+import ReduxProvider from "@/app/provider/ReduxProvider";
+import QueryClientProvider from "@/app/provider/QueryClientProvider";
 export const metadata: Metadata = {
   title: 'Beautify - Mỹ Phẩm Tự Nhiên',
   description: 'Cửa hàng mỹ phẩm an toàn, chất lượng từ thiên nhiên.',
@@ -16,11 +17,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.className}antialiased`}
+        className={`${inter.className} antialiased`}
       >
-        <ReduxProvider>
-          {children}
-        </ReduxProvider>
+        <QueryClientProvider>
+          <ReduxProvider>
+            {children}
+          </ReduxProvider>
+        </QueryClientProvider>
         <Toaster position="top-right" richColors expand={true}/>
       </body>
     </html>

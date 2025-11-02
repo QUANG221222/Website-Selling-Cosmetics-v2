@@ -40,7 +40,7 @@ export const logoutAdminApi = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       await axiosInstance.post("admin/logout");
-      toast.success("Đăng xuất thành công!");
+    //   toast.success("Đăng xuất thành công!");
     } catch (error: any) {
       const message =
         error?.response?.data?.message || error.message || "Đăng xuất thất bại";
