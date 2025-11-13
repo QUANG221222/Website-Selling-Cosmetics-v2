@@ -141,16 +141,13 @@ const findOneById = async (id: string): Promise<IUser | null> => {
 }
 
 const deleteUser = async (id: string): Promise<void> => {
-    try {
-        await GET_DB()
-            .collection(COLLECTION_NAME)
-            .updateOne(
-                { _id: new ObjectId(id) },
-                { $set: { _destroy: true } }
-            );
-    } catch (error: any) {
-        throw new Error(error);
-    }
+  try {
+    await GET_DB()
+      .collection(COLLECTION_NAME)
+      .updateOne({ _id: new ObjectId(id) }, { $set: { _destroy: true } })
+  } catch (error: any) {
+    throw new Error(error)
+  }
 }
 
 const update = async (id: string, data: Partial<IUser>): Promise<any> => {
@@ -190,22 +187,21 @@ const getTotalUsers = async (): Promise<number> => {
 }
 
 const findAll = async (): Promise<IUser[]> => {
-    try {
-        const results = await GET_DB()
-            .collection(COLLECTION_NAME)
-            .find({ _destroy: false })
-            .toArray();
-        return results as IUser[];
-    } catch (error: any) {
-        throw new Error(error);
-    }
+  try {
+    const results = await GET_DB()
+      .collection(COLLECTION_NAME)
+      .find({ _destroy: false })
+      .toArray()
+    return results as IUser[]
+  } catch (error: any) {
+    throw new Error(error)
+  }
 }
 const findAllWithPagination = async (
   page: number = 1,
   limit: number = 10
 ): Promise<{ users: IUser[]; total: number }> => {
   try {
-
     const skip = (page - 1) * limit
     const users = await GET_DB()
       .collection(COLLECTION_NAME)
