@@ -1,6 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { persistReducer, persistStore } from "redux-persist";
-import storageSession from "redux-persist/lib/storage/session";
+import storage from "redux-persist/lib/storage";
 import { combineReducers } from "@reduxjs/toolkit";
 import { userReducer } from "./user/userSlice";
 import { cosmeticReducer } from "./cosmetic/cosmeticSlice";
@@ -11,7 +11,7 @@ import { injectStore } from "../api/axios";
 
 const rootPersistConfig = {
   key: "root", // The key for the root reducer
-  storage: storageSession, // Use session storage for persisting user data
+  storage: storage, 
   whitelist: ["user", "admin"], // user data can store in redux when press f5
 };
 

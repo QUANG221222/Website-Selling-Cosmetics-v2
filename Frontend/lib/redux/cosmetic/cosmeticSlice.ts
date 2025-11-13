@@ -256,20 +256,24 @@ export const selectCosmeticLoading = (state: { cosmetic: CosmeticState }) => sta
 export const selectCosmeticError = (state: { cosmetic: CosmeticState }) => state.cosmetic.error
 
 // Input selectors
-const selectCurrentPage = (state: CosmeticState) => state.cosmetics.currentPage
-const selectPageSize = (state: CosmeticState) => state.cosmetics.pageSize
-const selectTotalCount = (state: CosmeticState) => state.cosmetics.totalCount
+const selectCurrentPage = (state: RootState) => state.cosmetic.cosmetics.currentPage
+const selectPageSize = (state: RootState) => state.cosmetic.cosmetics.pageSize
+const selectTotalCount = (state: RootState) => state.cosmetic.cosmetics.totalCount
 
 // ✅ Memoized selector
 export const selectCosmeticPagination = createSelector(
   [selectCurrentPage, selectPageSize, selectTotalCount],
-  (currentPage, pageSize, totalCount) => ({
-    currentPage,
-    pageSize,
-    totalCount,
-    totalPages: Math.ceil(totalCount / pageSize)
-  })
-)
+  (currentPage, pageSize, totalCount) => {
+    const totalPages = totalCount > 0 ? Math.ceil(totalCount / pageSize) : 1;
+    
+    return {
+      currentPage,
+      pageSize,
+      totalCount,
+      totalPages
+    };
+  }
+);
 
 // export const selectCosmeticPagination = (state: { cosmetic: CosmeticState }) => {
 //     const currentPage = state.cosmetic?.cosmetics.currentPage || 1;
