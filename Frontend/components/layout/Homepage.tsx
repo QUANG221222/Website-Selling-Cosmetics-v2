@@ -1,7 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-
 import Image from "next/image";
 import { useRouter } from "next/dist/client/components/navigation";
 import { useSelector } from "react-redux";
