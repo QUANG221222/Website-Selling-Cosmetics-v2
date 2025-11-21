@@ -13,8 +13,9 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, CartesianGrid } from "recharts";
 import { dashboardApi } from "@/lib/api/dashboard";
+import { getRandomValues } from "crypto";
 
 const changeMonth = (month: number): string => {
   const months = [
@@ -60,7 +61,7 @@ export default function RevenueChart() {
   };
 
   return (
-    <Card className="col-span-full">
+    <Card className="col-span-12 lg:col-span-6 xl:col-span-4">
       <CardHeader>
         <CardTitle className="pt-2">Doanh thu theo tháng</CardTitle>
         <CardDescription>
@@ -78,20 +79,32 @@ export default function RevenueChart() {
           }}
           className="h-[300px] min-h-[300px] pb-3"
         >
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={revenueData}>
-              <XAxis dataKey="month" />
-              <YAxis tickFormatter={(value) => `${value / 1000000}M`} />
-              <ChartTooltip
-                content={<ChartTooltipContent />}
-                formatter={(value: number) => [
-                  formatCurrency(value),
-                  "Doanh thu",
-                ]}
-              />
-              <Bar dataKey="revenue" fill="var(--color-chart-1)" radius={6} />
+            <BarChart
+                data={revenueData}
+                // margin={{ top: 5 }}
+            >
+                <CartesianGrid  />
+                <XAxis 
+                    dataKey="month"
+                    tickLine={false}
+                    tickMargin={20}
+                    axisLine={false}
+                    tickFormatter={(value) => value.slice(0,3)}
+                />
+                <ChartTooltip
+                    content={<ChartTooltipContent />}
+                    formatter={(value: number) => [
+                    formatCurrency(value),
+                    
+                    ]}
+                />
+                <Bar 
+                    dataKey="revenue" 
+                    fill="var(--color-chart-1)" 
+                    radius={6} 
+                />
             </BarChart>
-          </ResponsiveContainer>
+
         </ChartContainer>
       </CardContent>
     </Card>

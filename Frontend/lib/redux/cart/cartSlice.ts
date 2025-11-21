@@ -170,7 +170,23 @@ export const cartSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
-  },
+    toggleItemSelection: (state, action: PayloadAction<string>) => {
+        const cosmeticId = action.payload;
+        const item = state.cart?.items.find(i => i.cosmetic?._id === cosmeticId);
+        if(item) {
+            item.isSelected = !item.isSelected;
+        }
+    },
+    fetchCartItemSelected: (state) => {
+        if(state.cart) {
+            const selectedItems = state.cart.items.filter(item => item.isSelected);
+            state.cart.items = selectedItems;
+            // Recalculate totalAmount and totalItems
+            state.cart.totalItems = selectedItems.length;
+            state.cart.totalAmount = selectedItems.reduce((total, item) => total + item.subtotal, 0);
+        }
+    },
+},
   extraReducers: (builder) => {
     builder
       // Fetch cart
@@ -280,7 +296,7 @@ export const cartSlice = createSlice({
 });
 
 // ===== ACTIONS =====
-export const { clearError } = cartSlice.actions;
+export const { clearError, toggleItemSelection, fetchCartItemSelected } = cartSlice.actions;
 
 // ===== BASE SELECTORS =====
 const selectCartState = (state: { cart: CartState }) => state.cart;
@@ -296,6 +312,11 @@ export const selectCartItems = createSelector(
   (cart) => cart?.items || []
 );
 
+export const selectCartItemsSelected = createSelector(
+  [selectCart],
+  (cart) => cart?.items.filter(item => item.isSelected) || []
+);
+
 export const selectCartTotalItems = createSelector(
   [selectCart],
   (cart) => cart?.totalItems || 0
@@ -304,6 +325,12 @@ export const selectCartTotalItems = createSelector(
 export const selectCartTotalPrice = createSelector(
   [selectCart],
   (cart) => cart?.totalAmount || 0
+);
+
+export const selectCartSelectedTotalPrice = createSelector(
+  [selectCartItemsSelected],
+  (selectedItems) => 
+    selectedItems.reduce((total, item) => total + item.subtotal, 0)
 );
 
 export const selectCartLoading = createSelector(

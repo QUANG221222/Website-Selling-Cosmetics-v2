@@ -6,7 +6,9 @@ import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, CreditCard, Truck } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import {
+    fetchCartItemSelected,
   selectCartItems,
+  selectCartItemsSelected,
   selectCartTotalPrice,
 } from "@/lib/redux/cart/cartSlice";
 import {
@@ -20,13 +22,16 @@ import { AppDispatch } from "@/lib/redux/store";
 import { useRouter } from "next/navigation";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Image from "next/image";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { CreateOrderData } from "@/lib/api/order";
+import { toast } from "sonner";
 
 const Checkout = () => {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
-  const cartItems = useSelector(selectCartItems);
+
+  const selectedCartItems = useSelector(selectCartItemsSelected);
+  const selectedTotalPrice = useSelector(selectCartTotalPrice);
   const createLoading = useSelector(selectCreateOrderLoading);
 
   const {
@@ -44,6 +49,13 @@ const Checkout = () => {
     },
   });
 
+   useEffect(() => {
+    if (selectedCartItems.length === 0) {
+      toast.error("Vui lòng chọn sản phẩm để thanh toán!");
+      router.push("/cart");
+    }
+  }, [selectedCartItems, router]);
+
   const onSubmit = async (data: CreateOrderData) => {
     try {
       console.log("Checkout Data:", data);
@@ -54,7 +66,7 @@ const Checkout = () => {
         receiverAddress: data.receiverAddress,
         orderNotes: data.orderNotes,
         paymentMethod: data.paymentMethod,
-        items: cartItems
+        items: selectedCartItems
           .filter((item) => item.cosmetic?._id && item.cosmetic?.discountPrice !== undefined)
           .map((item) => ({
             cosmeticId: item.cosmetic!._id,
@@ -66,12 +78,13 @@ const Checkout = () => {
 
       // Dispatch create order action
       await dispatch(createOrder(orderData)).unwrap();
-
-
+      
+      toast.success("Đặt hàng thành công!");
       // Redirect to order success page
       router.push("/");
     } catch (error: any) {
       console.error("Order creation error:", error);
+      toast.error(error?.message || "Đặt hàng thất bại!");
     }
   };
 
@@ -79,13 +92,25 @@ const Checkout = () => {
     return new Intl.NumberFormat("vi-VN").format(price) + " VNĐ";
   };
 
-  const subtotal = useMemo(
-    () => cartItems.reduce((total, item) => total + item.subtotal, 0),
-    [cartItems]
+  const shipping = useMemo(
+    () => (selectedTotalPrice > 500000 ? 0 : selectedTotalPrice > 0 ? 30000 : 0),
+    [selectedTotalPrice]
   );
-  const shipping = useMemo(() => (subtotal > 500000 ? 0 : 30000), [subtotal]);
-  const total = useMemo(() => subtotal + shipping, [subtotal, shipping]);
-
+  
+  const total = useMemo(
+    () => selectedTotalPrice + shipping,
+    [selectedTotalPrice, shipping]
+  );
+  // Nếu không có sản phẩm, hiển thị loading hoặc redirect
+  if (selectedCartItems.length === 0) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <p className="text-muted-foreground">Đang chuyển hướng...</p>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Back Button */}
@@ -233,7 +258,7 @@ const Checkout = () => {
             {/* Submit Button */}
             <Button
               type="submit"
-              disabled={isSubmitting || createLoading || cartItems.length === 0}
+              disabled={isSubmitting || createLoading || selectedCartItems.length === 0}
               className="w-full bg-brand-deep-pink hover:bg-brand-deep-pink/90 text-white font-poppins py-3 cursor-pointer"
               size="lg"
             >
@@ -260,7 +285,7 @@ const Checkout = () => {
             <CardContent className="space-y-4 pb-3">
               {/* Order Items */}
               <div className="space-y-4">
-                {cartItems.map((item) => (
+                {selectedCartItems.map((item) => (
                   <div key={item.cosmetic?._id} className="flex space-x-3">
                     <div className="w-16 h-16 overflow-hidden rounded-lg border border-border">
                       <Image
@@ -299,7 +324,7 @@ const Checkout = () => {
                     Tạm tính:
                   </span>
                   <span className="font-poppins font-medium">
-                    {formatPrice(subtotal)}
+                    {formatPrice(selectedTotalPrice)}
                   </span>
                 </div>
                 <div className="flex justify-between">

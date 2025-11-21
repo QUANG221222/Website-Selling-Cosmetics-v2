@@ -11,13 +11,10 @@ import {
 } from "@/components/ui/table";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { AppDispatch } from "@/lib/redux/store";
-import {
-  fetchCurrentUser,
-} from "@/lib/redux/user/userSlice";
 import {
   clearCart,
   decrementQuantity,
@@ -26,30 +23,31 @@ import {
   selectCartItems,
   selectCartTotalPrice,
   fetchCart,
+  selectCartItemsSelected,
+  selectCartSelectedTotalPrice,
+  toggleItemSelection,
 } from "@/lib/redux/cart/cartSlice";
+import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "sonner";
 
 const ShoppingCart = () => {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
-
   const cartItems = useSelector(selectCartItems);
-  const totalPrice = useSelector(selectCartTotalPrice);
-
-  // ✅ Track if cart has been fetched to prevent multiple calls
-  const hasFetchedCart = useRef(false);
+  const selectedCartItems = useSelector(selectCartItemsSelected);
+  const selectedTotalPrice = useSelector(selectCartSelectedTotalPrice);
 
   // Helper function to safely get cosmetic ID
   const getCosmeticId = (item: any) =>
     item.cosmetic?._id || item.cosmeticId || "";
 
-  // Memoize calculated values
   const shipping = useMemo(
-    () => (totalPrice > 500000 ? 0 : 30000),
-    [totalPrice]
+    () => (selectedTotalPrice > 500000 ? 0 : 30000),
+    [selectedTotalPrice]
   );
   const finalTotal = useMemo(
-    () => totalPrice + shipping,
-    [totalPrice, shipping]
+    () => selectedTotalPrice + shipping,
+    [selectedTotalPrice, shipping]
   );
 
   // Fetch current user and cart on mount
@@ -58,6 +56,30 @@ const ShoppingCart = () => {
     dispatch(fetchCart());
   }, [dispatch]);
 
+   const handleToggleItem = (itemId: string) => {
+    dispatch(toggleItemSelection(itemId));
+  };
+
+  const handleToggleAll = () => {
+    const allSelected = cartItems.every(item => 
+      selectedCartItems.some(selected => 
+        getCosmeticId(selected) === getCosmeticId(item)
+      )
+    );
+
+    cartItems.forEach(item => {
+      const itemId = getCosmeticId(item);
+      const isCurrentlySelected = selectedCartItems.some(
+        selected => getCosmeticId(selected) === itemId
+      );
+      
+      if (allSelected && isCurrentlySelected) {
+        dispatch(toggleItemSelection(itemId));
+      } else if (!allSelected && !isCurrentlySelected) {
+        dispatch(toggleItemSelection(itemId));
+      }
+    });
+  };
 
   // Show empty cart state
   if (!cartItems || cartItems.length === 0) {
@@ -85,11 +107,19 @@ const ShoppingCart = () => {
       dispatch(removeFromCart(itemId));
     }
   };
+  
   const handleContinueShopping = () => {
     router.push("/product");
   };
 
   const handleCheckout = () => {
+    if (selectedCartItems.length === 0) {
+      toast.error("Vui lòng chọn ít nhất 1 sản phẩm!");
+      return;
+    }
+
+    // Lưu vào sessionStorage để sử dụng ở trang checkout
+    sessionStorage.setItem("checkoutItems", JSON.stringify(selectedCartItems));
     router.push("/checkout");
   };
 
@@ -98,6 +128,13 @@ const ShoppingCart = () => {
       dispatch(clearCart());
     }
   };
+
+  const isItemSelected = (itemId: string) => {
+    return selectedCartItems.some(item => getCosmeticId(item) === itemId);
+  };
+
+  const allItemsSelected = cartItems.length > 0 && 
+    cartItems.every(item => isItemSelected(getCosmeticId(item)));
 
   if (cartItems.length === 0) {
     return (
@@ -150,13 +187,20 @@ const ShoppingCart = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Cart Items */}
         <div className="lg:col-span-2">
-          <Card className="border-border">
-            <CardContent className="p-6">
+          <Card className="border-border ">
+            <CardContent className="p-6 ">
               {/* Desktop Table */}
               <div className="hidden md:block">
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead className="font-inter w-[50px]">
+                        <Checkbox
+                          checked={allItemsSelected}
+                          onCheckedChange={handleToggleAll}
+                          className="mx-auto"
+                        />
+                      </TableHead>
                       <TableHead className="font-inter">Sản phẩm</TableHead>
                       <TableHead className="font-inter">Giá</TableHead>
                       <TableHead className="font-inter">Số lượng</TableHead>
@@ -165,11 +209,125 @@ const ShoppingCart = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {cartItems.map((item) => (
-                      <TableRow key={getCosmeticId(item)}>
-                        <TableCell>
-                          <div className="flex items-center space-x-4">
-                            <div className="w-16 h-16 overflow-hidden rounded-lg border border-border relative">
+                    {cartItems.map((item) => {
+                        const itemId = getCosmeticId(item);
+                        return (
+                    
+                        <TableRow key={itemId}>
+                            <TableCell className="text-center align-middle">
+                            <Checkbox
+                                checked={isItemSelected(itemId)}
+                                onCheckedChange={() => handleToggleItem(itemId)}
+                                className="mx-auto"
+                            />
+                          </TableCell>
+                            <TableCell>
+                              <div className="flex items-center space-x-4">
+                                <div className="w-16 h-16 overflow-hidden rounded-lg border border-border relative">
+                                  {item.cosmetic?.image ? (
+                                    <Image
+                                      src={item.cosmetic.image}
+                                      alt={item.cosmetic.nameCosmetic}
+                                      fill
+                                      className="object-cover"
+                                    />
+                                  ) : (
+                                    <div className="w-full h-full bg-muted flex items-center justify-center">
+                                      <span className="text-xs">No image</span>
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="space-y-1">
+                                  <h4 className="font-inter font-medium text-foreground">
+                                    {item.cosmetic?.nameCosmetic}
+                                  </h4>
+                                  {item.cosmetic?.brand && (
+                                    <p className="text-sm text-muted-foreground font-inter">
+                                      {item.cosmetic?.brand}
+                                    </p>
+                                  )}
+                                  {/* {item.variant && (
+                                    <p className="text-sm text-muted-foreground">
+                                      Biến thể: {item.variant}
+                                    </p>78
+                                  )} */}
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <span className="font-poppins font-medium">
+                                {formatPrice(item.cosmetic?.discountPrice || 0)}
+                              </span>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center space-x-2">
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={() =>
+                                    dispatch(decrementQuantity(getCosmeticId(item)))
+                                  }
+                                  className="h-8 w-8"
+                                >
+                                  <Minus className="h-3 w-3" />
+                                </Button>
+                                <span className="font-poppins font-medium w-8 text-center">
+                                  {item.quantity}
+                                </span>
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={() =>
+                                    dispatch(incrementQuantity(getCosmeticId(item)))
+                                  }
+                                  className="h-8 w-8"
+                                >
+                                  <Plus className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <span className="font-poppins font-medium text-brand-deep-pink">
+                                {formatPrice(
+                                  (item.cosmetic?.discountPrice || 0) *
+                                    item.quantity
+                                )}
+                              </span>
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() =>
+                                  handleRemoveItem(getCosmeticId(item))
+                                }
+                                className="text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </TableCell>
+                   
+                        </TableRow>
+                    )})}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Mobile Cards */}
+            <div className="md:hidden space-y-4">
+                {cartItems.map((item) => {
+                  const itemId = getCosmeticId(item);
+                  return (
+                    <Card key={itemId} className="border-border">
+                      <CardContent className="p-4">
+                        <div className="flex items-start space-x-3">
+                          <Checkbox
+                            checked={isItemSelected(itemId)}
+                            onCheckedChange={() => handleToggleItem(itemId)}
+                            className="mt-1"
+                          />
+                          <div className="flex space-x-4 flex-1">
+                            <div className="w-20 h-20 overflow-hidden rounded-lg border border-border relative">
                               {item.cosmetic?.image ? (
                                 <Image
                                   src={item.cosmetic.image}
@@ -183,172 +341,68 @@ const ShoppingCart = () => {
                                 </div>
                               )}
                             </div>
-                            <div className="space-y-1">
-                              <h4 className="font-inter font-medium text-foreground">
-                                {item.cosmetic?.nameCosmetic}
-                              </h4>
-                              {item.cosmetic?.brand && (
-                                <p className="text-sm text-muted-foreground font-inter">
-                                  {item.cosmetic?.brand}
-                                </p>
-                              )}
-                              {/* {item.variant && (
-                                <p className="text-sm text-muted-foreground">
-                                  Biến thể: {item.variant}
-                                </p>78
-                              )} */}
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <span className="font-poppins font-medium">
-                            {formatPrice(item.cosmetic?.discountPrice || 0)}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center space-x-2">
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              onClick={() =>
-                                dispatch(decrementQuantity(getCosmeticId(item)))
-                              }
-                              className="h-8 w-8"
-                            >
-                              <Minus className="h-3 w-3" />
-                            </Button>
-                            <span className="font-poppins font-medium w-8 text-center">
-                              {item.quantity}
-                            </span>
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              onClick={() =>
-                                dispatch(incrementQuantity(getCosmeticId(item)))
-                              }
-                              className="h-8 w-8"
-                            >
-                              <Plus className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <span className="font-poppins font-medium text-brand-deep-pink">
-                            {formatPrice(
-                              (item.cosmetic?.discountPrice || 0) *
-                                item.quantity
-                            )}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() =>
-                              handleRemoveItem(getCosmeticId(item))
-                            }
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
+                            <div className="flex-1 space-y-2">
+                              <div className="flex justify-between items-start">
+                                <div className="space-y-1">
+                                  <h4 className="font-inter font-medium text-foreground">
+                                    {item.cosmetic?.nameCosmetic}
+                                  </h4>
+                                  {item.cosmetic?.brand && (
+                                    <p className="text-sm text-muted-foreground font-inter">
+                                      {item.cosmetic.brand}
+                                    </p>
+                                  )}
+                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleRemoveItem(itemId)}
+                                  className="text-destructive hover:text-destructive"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
 
-              {/* Mobile Cards */}
-              <div className="md:hidden space-y-4">
-                {cartItems.map((item) => (
-                  <Card key={getCosmeticId(item)} className="border-border">
-                    <CardContent className="p-4">
-                      <div className="flex space-x-4">
-                        <div className="w-20 h-20 overflow-hidden rounded-lg border border-border relative">
-                          {item.cosmetic?.image ? (
-                            <Image
-                              src={item.cosmetic.image}
-                              alt={item.cosmetic.nameCosmetic}
-                              fill
-                              className="object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-muted flex items-center justify-center">
-                              <span className="text-xs">No image</span>
+                              <div className="flex justify-between items-center">
+                                <div className="flex items-center space-x-2">
+                                  <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() =>
+                                      dispatch(decrementQuantity(itemId))
+                                    }
+                                    className="h-8 w-8"
+                                  >
+                                    <Minus className="h-3 w-3" />
+                                  </Button>
+                                  <span className="font-poppins font-medium w-8 text-center">
+                                    {item.quantity}
+                                  </span>
+                                  <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() =>
+                                      dispatch(incrementQuantity(itemId))
+                                    }
+                                    className="h-8 w-8"
+                                  >
+                                    <Plus className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                                <span className="font-poppins font-medium text-brand-deep-pink">
+                                  {formatPrice(
+                                    (item.cosmetic?.discountPrice || 0) *
+                                      item.quantity
+                                  )}
+                                </span>
+                              </div>
                             </div>
-                          )}
-                        </div>
-                        <div className="flex-1 space-y-2">
-                          <div className="flex justify-between items-start">
-                            <div className="space-y-1">
-                              <h4 className="font-inter font-medium text-foreground">
-                                {item.cosmetic?.nameCosmetic}
-                              </h4>
-                              {item.cosmetic?.brand && (
-                                <p className="text-sm text-muted-foreground font-inter">
-                                  {item.cosmetic.brand}
-                                </p>
-                              )}
-                              {/* {item.variant && (
-                                <p className="text-xs text-muted-foreground">
-                                  Biến thể: {item.variant}
-                                </p>
-                              )} */}
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() =>
-                                handleRemoveItem(getCosmeticId(item))
-                              }
-                              className="text-destructive hover:text-destructive"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-
-                          <div className="flex justify-between items-center">
-                            <div className="flex items-center space-x-2">
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                onClick={() =>
-                                  dispatch(
-                                    decrementQuantity(getCosmeticId(item))
-                                  )
-                                }
-                                className="h-8 w-8"
-                              >
-                                <Minus className="h-3 w-3" />
-                              </Button>
-                              <span className="font-poppins font-medium w-8 text-center">
-                                {item.quantity}
-                              </span>
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                onClick={() =>
-                                  dispatch(
-                                    incrementQuantity(getCosmeticId(item))
-                                  )
-                                }
-                                className="h-8 w-8"
-                              >
-                                <Plus className="h-3 w-3" />
-                              </Button>
-                            </div>
-                            <span className="font-poppins font-medium text-brand-deep-pink">
-                              {formatPrice(
-                                (item.cosmetic?.discountPrice || 0) *
-                                  item.quantity
-                              )}
-                            </span>
                           </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
@@ -368,7 +422,7 @@ const ShoppingCart = () => {
                     Tạm tính:
                   </span>
                   <span className="font-poppins font-medium">
-                    {formatPrice(totalPrice)}
+                    {formatPrice(selectedTotalPrice)}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -383,14 +437,14 @@ const ShoppingCart = () => {
                     )}
                   </span>
                 </div>
-                {shipping === 0 && (
+                {selectedTotalPrice > 0 && shipping === 0 && (
                   <p className="text-green-600 font-inter text-sm">
                     🎉 Bạn được miễn phí vận chuyển!
                   </p>
                 )}
-                {shipping > 0 && (
+                {selectedTotalPrice > 0 && shipping > 0 && (
                   <p className="text-muted-foreground font-inter text-sm">
-                    Mua thêm {formatPrice(500000 - totalPrice)} để được miễn phí
+                    Mua thêm {formatPrice(500000 - selectedTotalPrice)} để được miễn phí
                     vận chuyển
                   </p>
                 )}
@@ -406,6 +460,7 @@ const ShoppingCart = () => {
                   </span>
                 </div>
               </div>
+
 
               <div className="space-y-3 pt-4">
                 <Button

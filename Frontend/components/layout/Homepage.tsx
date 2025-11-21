@@ -15,11 +15,14 @@ import { Cosmetic } from "@/lib/types";
 import ProductCardList from "../product/ProductCardList";
 import { addToCart } from "@/lib/redux/cart/cartSlice";
 import SkeletonProductCardList from "../product/SkeletonProductCardList";
+import { toast } from "sonner";
+import { selectCurrentUser } from "@/lib/redux/user/userSlice";
 
 const HomePage = () => {
   const router = useRouter();
   const cosmetics = useSelector(selectAllCosmetics);
   const dispatch = useDispatch<AppDispatch>();
+  const user = useSelector(selectCurrentUser);
 
   useEffect(() => {
     dispatch(fetchAllCosmetics());
@@ -35,6 +38,13 @@ const HomePage = () => {
     quantity: number = 1,
     variant?: string
   ) => {
+    if(user == null) {
+        setTimeout(() => {
+            router.push('users/login')
+            toast.error("Please login to add to cart!")
+        }, 500);
+        return;
+    }
     dispatch(
       addToCart({
         cosmeticId: cosmetic._id,
@@ -42,6 +52,7 @@ const HomePage = () => {
         variant,
       })
     );
+    toast.success("Add to cart success!")
   };
   const handleDirect = () => {
     router.push("/product");

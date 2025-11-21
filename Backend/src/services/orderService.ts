@@ -119,13 +119,31 @@ const createNew = async (req: Request): Promise<IOrderResponse> => {
       })
     }
 
-    // Clear user's cart
+    // Remove only ordered items from cart instead of clearing entire cart
     const userCart = await models.cartModel.findOneByUserId(userId)
-    if (userCart) {
+    if (userCart && userCart.items && userCart.items.length > 0) {
+      // Get IDs of ordered items
+      const orderedCosmeticIds = items.map((item: any) => item.cosmeticId)
+      
+      // Filter out ordered items from cart
+      const remainingItems = userCart.items.filter(
+        (cartItem: any) => !orderedCosmeticIds.includes(cartItem.cosmeticId.toString())
+      )
+      
+      // Recalculate cart totals
+      let newTotalAmount = 0
+      let newTotalItems = 0
+      
+      for (const cartItem of remainingItems) {
+        newTotalAmount += cartItem.subtotal
+        newTotalItems += cartItem.quantity
+      }
+      
+      // Update cart with remaining items
       await models.cartModel.updateById(userCart._id!.toString(), {
-        items: [],
-        totalAmount: 0,
-        totalItems: 0
+        items: remainingItems,
+        totalAmount: newTotalAmount,
+        totalItems: newTotalItems
       })
     }
 

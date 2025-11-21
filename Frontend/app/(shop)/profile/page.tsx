@@ -42,7 +42,7 @@ const UserAccount = () => {
     if(!orders || orders.length === 0) {
         dispatch(fetchUserOrders());
     }
-  }, [dispatch, orders]);
+  }, [dispatch]);
 
     const handleViewDetails = (order: Order) => {
       setSelectedOrder(order);
