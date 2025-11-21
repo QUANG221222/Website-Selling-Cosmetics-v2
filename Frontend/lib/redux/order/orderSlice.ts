@@ -45,7 +45,6 @@ export const createOrder = createAsyncThunk(
   async (data: CreateOrderData, { rejectWithValue }) => {
     try {
       const response = await orderApi.createOrder(data);
-      toast.success("Đơn hàng đã được tạo thành công!");
       return response.data;
     } catch (error: any) {
       const message =

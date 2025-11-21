@@ -52,6 +52,8 @@ export default function OrdersChart() {
     },
   });
 
+  const maxOrders = Math.max(...ordersData.map((d) => d.orders));
+
   return (
     <Card>
       <CardHeader>
@@ -71,10 +73,8 @@ export default function OrdersChart() {
           }}
           className="h-[300px] pb-3"
         >
-          <ResponsiveContainer width="100%" height="100%">
             <LineChart data={ordersData}>
               <XAxis dataKey="month" />
-              <YAxis />
               <ChartTooltip
                 content={<ChartTooltipContent />}
                 formatter={(value: number) => [value, "Đơn hàng"]}
@@ -87,7 +87,6 @@ export default function OrdersChart() {
                 dot={{ fill: "var(--color-chart-2)", strokeWidth: 2, r: 4 }}
               />
             </LineChart>
-          </ResponsiveContainer>
         </ChartContainer>
       </CardContent>
     </Card>

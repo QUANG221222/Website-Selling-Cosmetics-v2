@@ -45,6 +45,7 @@ export interface CartItem {
   quantity: number;
   price?: number;
   subtotal: number;
+  isSelected?: boolean;
 }
 
 export interface Cart {
