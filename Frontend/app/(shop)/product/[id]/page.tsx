@@ -167,15 +167,15 @@ const cosmeticDetail = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         {/* cosmetic Images */}
-        <div className="space-y-4">
-          <div className="aspect-square overflow-hidden rounded-lg border border-border relative w-full h-126 md:h-124 lg:h-122 cursor-pointer">
+       <div className="space-y-4">
+          <div className="aspect-square overflow-hidden rounded-lg border border-border relative w-full h-[400px] md:h-[450px] lg:h-[500px] cursor-pointer">
             <Image
               src={cosmetic?.image || ""}
               alt={cosmetic?.nameCosmetic || "cosmetic Image"}
-                fill
-                priority
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+              fill
+              priority
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              className="object-contain w-full h-full hover:scale-105 transition-transform duration-300"
             />
           </div>
         </div>

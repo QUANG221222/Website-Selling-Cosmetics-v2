@@ -29,6 +29,8 @@ const Dashboard = () => {
       <Suspense fallback={<SkeletonOrdersChart />}>
         <OrdersChart />
       </Suspense>
+
+      
     </div>
   );
 };

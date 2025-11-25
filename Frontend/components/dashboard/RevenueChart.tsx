@@ -13,9 +13,8 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, CartesianGrid } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, CartesianGrid, LabelList } from "recharts";
 import { dashboardApi } from "@/lib/api/dashboard";
-import { getRandomValues } from "crypto";
 
 const changeMonth = (month: number): string => {
   const months = [
@@ -77,34 +76,46 @@ export default function RevenueChart() {
               color: "hsl(var(--chart-1))",
             },
           }}
-          className="h-[300px] min-h-[300px] pb-3"
+          className="h-[350px] w-[80%] pb-3"
         >
             <BarChart
+            accessibilityLayer
                 data={revenueData}
-                // margin={{ top: 5 }}
+                  margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
             >
                 <CartesianGrid  />
                 <XAxis 
                     dataKey="month"
                     tickLine={false}
-                    tickMargin={20}
+                    tickMargin={10}
                     axisLine={false}
-                    tickFormatter={(value) => value.slice(0,3)}
                 />
+
                 <ChartTooltip
                     content={<ChartTooltipContent />}
                     formatter={(value: number) => [
                     formatCurrency(value),
-                    
+                         " Doanh thu"
                     ]}
                 />
                 <Bar 
                     dataKey="revenue" 
                     fill="var(--color-chart-1)" 
                     radius={6} 
-                />
+                >
+                    <LabelList
+                        dataKey="revenue"
+                        position="top"
+                        offset={12}
+                        className="fill-foreground"
+                        fontSize={12}
+                         formatter={(value: number) => {
+                          // Chỉ hiển thị nếu có giá trị
+                          return value > 0 ? formatCurrency(value) : "";
+                        }}
+                    />
+                </Bar>
             </BarChart>
-
         </ChartContainer>
       </CardContent>
     </Card>

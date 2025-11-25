@@ -13,7 +13,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from "recharts";
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, CartesianGrid } from "recharts";
 import { dashboardApi } from "@/lib/api/dashboard";
 
 const changeMonth = (month: number): string => {
@@ -52,8 +52,6 @@ export default function OrdersChart() {
     },
   });
 
-  const maxOrders = Math.max(...ordersData.map((d) => d.orders));
-
   return (
     <Card>
       <CardHeader>
@@ -67,26 +65,33 @@ export default function OrdersChart() {
         <ChartContainer
           config={{
             orders: {
-              label: "Đơn hàng",
+              label: " Đơn hàng",
               color: "hsl(var(--chart-2))",
             },
           }}
-          className="h-[300px] pb-3"
+          className="h-[300px] w-[80%] pb-10 "
         >
-            <LineChart data={ordersData}>
-              <XAxis dataKey="month" />
-              <ChartTooltip
-                content={<ChartTooltipContent />}
-                formatter={(value: number) => [value, "Đơn hàng"]}
-              />
-              <Line
-                type="monotone"
-                dataKey="orders"
-                stroke="var(--color-chart-2)"
-                strokeWidth={3}
-                dot={{ fill: "var(--color-chart-2)", strokeWidth: 2, r: 4 }}
-              />
-            </LineChart>
+                <LineChart data={ordersData}>
+                <CartesianGrid  vertical={false} />                
+                  <XAxis 
+                    dataKey="month"  
+                    tickLine={false}
+                    tickMargin={10}
+                    axisLine={false}
+                    // tickFormatter={(value) => value.slice(0, 3)} 
+                />
+                  <ChartTooltip
+                    content={<ChartTooltipContent />}
+                    formatter={(value: number) => [value, " Đơn hàng"]}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="orders"
+                    stroke="var(--color-chart-2)"
+                    strokeWidth={3}
+                    dot={{ fill: "var(--color-chart-2)", strokeWidth: 2, r: 4 }}
+                  />
+                </LineChart>
         </ChartContainer>
       </CardContent>
     </Card>

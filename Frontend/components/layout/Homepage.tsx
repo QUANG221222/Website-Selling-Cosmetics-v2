@@ -41,7 +41,7 @@ const HomePage = () => {
     if(user == null) {
         setTimeout(() => {
             router.push('users/login')
-            toast.error("Please login to add to cart!")
+            toast.error("Hãy đăng nhập để thêm sản phẩm vào giỏ hàng!")
         }, 500);
         return;
     }
@@ -52,7 +52,7 @@ const HomePage = () => {
         variant,
       })
     );
-    toast.success("Add to cart success!")
+    toast.success("Đã thêm sản phẩm vào giỏ hàng!")
   };
   const handleDirect = () => {
     router.push("/product");
@@ -69,7 +69,7 @@ const HomePage = () => {
             height={1000}
             className="w-full h-full object-cover object-center"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/70 to-transparent"></div>
+          {/* <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/70 to-transparent"></div> */}
         </div>
 
         <div className="relative z-10 container mx-auto px-4">
@@ -102,7 +102,7 @@ const HomePage = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
           <Suspense fallback={<SkeletonProductCardList />}>
             <ProductCardList
               cosmetics={cosmetics}

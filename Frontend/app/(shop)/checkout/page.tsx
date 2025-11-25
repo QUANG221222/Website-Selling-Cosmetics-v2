@@ -22,9 +22,11 @@ import { AppDispatch } from "@/lib/redux/store";
 import { useRouter } from "next/navigation";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Image from "next/image";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CreateOrderData } from "@/lib/api/order";
 import { toast } from "sonner";
+import { AddressSelect } from "@/components/address/AddressSelect";
+import { Address } from "@/lib/api/address";
 
 const Checkout = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -34,10 +36,13 @@ const Checkout = () => {
   const selectedTotalPrice = useSelector(selectCartTotalPrice);
   const createLoading = useSelector(selectCreateOrderLoading);
 
+  const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
+
   const {
     register,
     handleSubmit,
     control,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<CreateOrderData>({
     defaultValues: {
@@ -55,6 +60,18 @@ const Checkout = () => {
       router.push("/cart");
     }
   }, [selectedCartItems, router]);
+
+  useEffect(() => {
+    if (selectedAddress) {
+      setValue("receiverName", selectedAddress.name);
+      setValue("receiverPhone", selectedAddress.phone);
+      setValue("receiverAddress", selectedAddress.addressDetail);
+    }
+  }, [selectedAddress, setValue]);
+  
+    const handleAddressChange = (address: Address | null, index: number) => {
+    setSelectedAddress(address);
+  };
 
   const onSubmit = async (data: CreateOrderData) => {
     try {
@@ -135,6 +152,10 @@ const Checkout = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 pb-3">
+                <AddressSelect onAddressChange={handleAddressChange}
+                 />
+                <Separator className="my-4" />
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <InputFieldCheckout
@@ -217,9 +238,9 @@ const Checkout = () => {
                       onValueChange={field.onChange}
                       className="space-y-4"
                     >
-                      <div className="flex items-center space-x-3 p-4 border border-border rounded-lg">
-                        <RadioGroupItem value="COD" id="cod" />
-                        <Label htmlFor="cod" className="flex-1 cursor-pointer">
+                      <div className="flex items-center space-x-3 p-4 border border-border rounded-lg cursor-pointer">
+                        <RadioGroupItem value="COD" id="cod" className="cursor-pointer" />
+                        <Label htmlFor="cod" className="flex-1">
                           <div className="space-y-1">
                             <p className="font-inter font-medium text-foreground">
                               Thanh toán khi nhận hàng (COD)
@@ -231,9 +252,9 @@ const Checkout = () => {
                         </Label>
                       </div>
 
-                      <div className="flex items-center space-x-3 p-4 border border-border rounded-lg">
-                        <RadioGroupItem value="BANK" id="bank" />
-                        <Label htmlFor="bank" className="flex-1 cursor-pointer">
+                      <div className="flex items-center space-x-3 p-4 border border-border rounded-lg cursor-pointer">
+                        <RadioGroupItem value="BANK" id="bank" className="cursor-pointer"/>
+                        <Label htmlFor="bank" className="flex-1">
                           <div className="space-y-1">
                             <p className="font-inter font-medium text-foreground">
                               Chuyển khoản ngân hàng

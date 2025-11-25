@@ -25,11 +25,14 @@ import { addToCart } from "@/lib/redux/cart/cartSlice";
 import { useRouter } from "next/navigation";
 import SkeletonProductCardList from "@/components/product/SkeletonProductCardList";
 import ProductCardList from "@/components/product/ProductCardList";
+import { selectCurrentUser } from "@/lib/redux/user/userSlice";
 
 const ProductPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const cosmetics = useSelector(selectAllCosmetics);
+  const user = useSelector(selectCurrentUser);
+  
   const loading = useSelector(selectCosmeticLoading);
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -61,6 +64,13 @@ const ProductPage = () => {
     quantity: number = 1,
     variant?: string
   ) => {
+    if(user == null) {
+        setTimeout(() => {
+            router.push('users/login')
+            toast.error("Hãy đăng nhập để thêm sản phẩm vào giỏ hàng!")
+        }, 500);
+        return;
+    }
       dispatch(
         addToCart({
           cosmeticId: cosmetic._id,

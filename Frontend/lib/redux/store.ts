@@ -7,6 +7,7 @@ import { cosmeticReducer } from "./cosmetic/cosmeticSlice";
 import { adminReducer } from "./admin/adminSlice";
 import { cartReducer } from "./cart/cartSlice";
 import { orderReducer } from "./order/orderSlice";
+import { addressReducer } from "./address/addressSlice";
 import { injectStore } from "../api/axios";
 
 const rootPersistConfig = {
@@ -22,6 +23,7 @@ const reducers = combineReducers({
   cosmetic: cosmeticReducer,
   cart: cartReducer,
   order: orderReducer,
+  address: addressReducer,
 });
 
 // Process persist Reducer
