@@ -1,61 +1,44 @@
 import { NextRequest, NextResponse } from "next/server";
 
+const ROUTES = {
+    ADMIN: ["/dashboard", "/account", "/order", "/cosmetic", "/setting"],
+    USER_PROTECTED: ["/checkout", "/profile"],
+    AUTH: ["/users/login", "/users/register", "/admin/login"],
+    PUBLIC: ["/", "/product", "/cart"], // Cart is public
+}
 export function middleware(request: NextRequest) {
-  const path = request.nextUrl.pathname;
+    const path = request.nextUrl.pathname;
+    const sessionCookie = request.cookies.get("connect.sid");
+    const isLoggedIn = !!sessionCookie;
 
-  //Define protected routes
-  const isAdminRoute =
-    path.startsWith("/dashboard") ||
-    path.startsWith("/account") ||
-    path.startsWith("/order") ||
-    path.startsWith("/cosmetic") ||
-    path.startsWith("/setting");
+    const isAdminRoute = ROUTES.ADMIN.some(route => path.startsWith(route));
+    const isUserRoute = ROUTES.USER_PROTECTED.some(route => path.startsWith(route));
+    const isAuthRoute = ROUTES.AUTH.some(route => path.startsWith(route));
 
-  const isUserRoute =
-    path.startsWith("/checkout") || path.startsWith("/profile");
+    if((isAdminRoute || isUserRoute) && !isLoggedIn) {
+        const loginUrl = isAdminRoute ? '/admin/login' : '/users/login';
+        const response = NextResponse.redirect(new URL(loginUrl, request.url));
 
-  const isAuthRoute =
-    path.startsWith("/users/login") ||
-    path.startsWith("/users/register") ||
-    path.startsWith("/admin/login") ||path.startsWith("/cart");
+        response.headers.set("X-Middleware-Redirect", "true");
+        return response;
+    }
 
-  //Get sessions cookie
-  const sessionCookie = request.cookies.get("connect.sid");
+    if(isAuthRoute && isLoggedIn) {
+        return NextResponse.redirect(new URL("/", request.url));
+    }
 
-  //Check if user is logged in by checking session cookie
-  const isLoggedIn = !!sessionCookie;
-
-  //Redirect logic
-  if (isAdminRoute && !isLoggedIn) {
-    // Redirect to admin login if trying to access admin routes without login
-    return NextResponse.redirect(new URL("/admin/login", request.url));
-  }
-
-  if (isUserRoute && !isLoggedIn) {
-    // Redirect to user login if trying to access user routes without login
-    return NextResponse.redirect(new URL("/users/login", request.url));
-  }
-
-  if (isAuthRoute && isLoggedIn) {
-    // Redirect to home if already logged in and trying to access auth pages
-    return NextResponse.redirect(new URL("/", request.url));
-  }
-
-  return NextResponse.next();
+    return NextResponse.next();
 }
 
 export const config = {
   matcher: [
-    // Admin routes
     "/dashboard/:path*",
     "/account/:path*",
     "/order/:path*",
     "/cosmetic/:path*",
     "/setting/:path*",
-    // Protected routes (only checkout needs login)
     "/checkout/:path*",
     "/profile/:path*",
-    // Auth routes
     "/users/login",
     "/users/register",
     "/admin/login",
