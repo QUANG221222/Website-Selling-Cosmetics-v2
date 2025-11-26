@@ -389,12 +389,16 @@ MIT License - xem file [LICENSE](Backend/LICENSE) để biết thêm chi tiết.
 
 ## 👥 Contributors
 
-- Your Name - Initial work
+- Nguyễn Nhật Quang - Backend Developer
+- Nguyễn Minh Thuận - Frontend Developer
 
 ## 📞 Contact
-
-- Email: your.email@example.com
-- GitHub: [@yourusername](https://github.com/yourusername)
+Nguyễn Nhật Quang:
+- Email: nguyennhatquang.2509@gmail.com
+- GitHub: [QUANG221222](https://github.com/QUANG221222)
+Nguyễn Minh Thuận:
+- Email: thuannm9997@ut.edu.vn
+- GitHub: [MinhThuan1807](https://github.com/MinhThuan1807)
 
 ## 🙏 Acknowledgments
 
