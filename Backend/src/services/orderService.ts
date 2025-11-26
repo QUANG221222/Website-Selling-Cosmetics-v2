@@ -107,7 +107,7 @@ const createNew = async (req: Request): Promise<IOrderResponse> => {
     if (!newOrder) {
       throw new ApiError(
         StatusCodes.INTERNAL_SERVER_ERROR,
-        'Failed to retrieve newly created order'
+        'Lỗi khi tạo đơn hàng mới'
       )
     }
 
@@ -166,7 +166,10 @@ const getById = async (id: string): Promise<IOrderResponse> => {
   try {
     const order = await models.orderModel.findOneById(id)
     if (!order) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Order not found')
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        'Không tìm thấy đơn hàng'
+      )
     }
     return pickOrder(order)
   } catch (error: any) {
@@ -190,7 +193,10 @@ const updateById = async (
   try {
     const existingOrder = await models.orderModel.findOneById(id)
     if (!existingOrder) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Order not found')
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        'Không tìm thấy đơn hàng'
+      )
     }
     // If status is masked as pending, subtract cosmetic quantities
     if (updateData.status && existingOrder.status === 'pending') {
@@ -240,7 +246,10 @@ const deleteById = async (id: string): Promise<void> => {
   try {
     const existingOrder = await models.orderModel.findOneById(id)
     if (!existingOrder) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Order not found')
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        'Không tìm thấy đơn hàng'
+      )
     }
     await models.orderModel.deleteById(id)
     // Set order status to 'cancelled' if not already

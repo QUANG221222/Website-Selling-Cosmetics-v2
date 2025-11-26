@@ -168,35 +168,35 @@ const getCurrentUser = async (
 }
 
 const getAllUsers = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
-    try {
-      const users = await services.userService.getAllUsers()
-        res.status(StatusCodes.OK).json({
-            message: 'Users retrieved successfully',
-            data: users
-        })
-    } catch (error: any) {
-      next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message))
-    }
+  _req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const users = await services.userService.getAllUsers()
+    res.status(StatusCodes.OK).json({
+      message: 'Users retrieved successfully',
+      data: users
+    })
+  } catch (error: any) {
+    next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message))
+  }
 }
 
 const deleteUser = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-    ): Promise<void> => {
-    try {
-        const userId = req.params.id;
-        await services.userService.deleteUser(userId);
-        res.status(StatusCodes.OK).json({
-            message: 'User deleted successfully'
-        });
-    } catch (error: any) {
-        next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message));
-    }
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const userId = req.params.id
+    await services.userService.deleteUser(userId)
+    res.status(StatusCodes.OK).json({
+      message: 'User deleted successfully'
+    })
+  } catch (error: any) {
+    next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message))
+  }
 }
 
 const getAllUsersWithPagination = async (
@@ -212,7 +212,10 @@ const getAllUsersWithPagination = async (
       throw new ApiError(StatusCodes.BAD_REQUEST, 'Trang phải lớn hơn 0')
     }
 
-    const result = await services.userService.getAllUsersWithPagination(page, limit)
+    const result = await services.userService.getAllUsersWithPagination(
+      page,
+      limit
+    )
     res.status(StatusCodes.OK).json({
       message: 'Danh sách người dùng đã được lấy thành công',
       data: result.data,
