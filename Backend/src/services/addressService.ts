@@ -39,7 +39,7 @@ const createNew = async (req: Request): Promise<IAddressResponse> => {
     // Check if user exists
     const user = await models.userModel.findOneById(userId)
     if (!user) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'User not found')
+      throw new ApiError(StatusCodes.NOT_FOUND, 'User không tồn tại')
     }
 
     // Check if user already has addresses
@@ -94,16 +94,16 @@ const getById = async (
   userId: string
 ): Promise<IAddressItemResponse> => {
   try {
-    const addressDoc = await models.addressModel.findByUserId(userId)
-    if (!addressDoc) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Address document not found')
+    const address = await models.addressModel.findByUserId(userId)
+    if (!address) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Địa chỉ không tồn tại')
     }
 
-    if (addressIndex < 0 || addressIndex >= addressDoc.addresses.length) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Address not found')
+    if (addressIndex < 0 || addressIndex >= address.addresses.length) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Địa chỉ không tồn tại')
     }
 
-    return addressDoc.addresses[addressIndex]
+    return address.addresses[addressIndex]
   } catch (error: any) {
     throw new Error(error.message)
   }
@@ -115,13 +115,13 @@ const updateById = async (
   updateData: IAddressItemUpdateData
 ): Promise<IAddressItemResponse> => {
   try {
-    const addressDoc = await models.addressModel.findByUserId(userId)
-    if (!addressDoc) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Address document not found')
+    const address = await models.addressModel.findByUserId(userId)
+    if (!address) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Địa chỉ không tồn tại')
     }
 
-    if (addressIndex < 0 || addressIndex >= addressDoc.addresses.length) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Address not found')
+    if (addressIndex < 0 || addressIndex >= address.addresses.length) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Địa chỉ không tồn tại')
     }
 
     // If setting this address as default, unset all other defaults first
@@ -131,15 +131,15 @@ const updateById = async (
 
     // Check if we're trying to unset the only default address
     if (updateData.isDefault === false) {
-      const currentAddress = addressDoc.addresses[addressIndex]
-      const otherDefaultExists = addressDoc.addresses.some(
+      const currentAddress = address.addresses[addressIndex]
+      const otherDefaultExists = address.addresses.some(
         (addr: any, index: number) => index !== addressIndex && addr.isDefault
       )
 
       if (currentAddress.isDefault && !otherDefaultExists) {
         throw new ApiError(
           StatusCodes.BAD_REQUEST,
-          'At least one address must be set as default'
+          'Phải có ít nhất một địa chỉ được đặt làm mặc định'
         )
       }
     }
@@ -160,13 +160,13 @@ const deleteById = async (
   userId: string
 ): Promise<void> => {
   try {
-    const addressDoc = await models.addressModel.findByUserId(userId)
-    if (!addressDoc) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Address document not found')
+    const address = await models.addressModel.findByUserId(userId)
+    if (!address) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Địa chỉ không tồn tại')
     }
 
-    if (addressIndex < 0 || addressIndex >= addressDoc.addresses.length) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Address not found')
+    if (addressIndex < 0 || addressIndex >= address.addresses.length) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Địa chỉ không tồn tại')
     }
 
     await models.addressModel.removeAddressItem(userId, addressIndex)
@@ -180,13 +180,13 @@ const setDefault = async (
   userId: string
 ): Promise<IAddressItemResponse> => {
   try {
-    const addressDoc = await models.addressModel.findByUserId(userId)
-    if (!addressDoc) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Address document not found')
+    const address = await models.addressModel.findByUserId(userId)
+    if (!address) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Địa chỉ không tồn tại')
     }
 
-    if (addressIndex < 0 || addressIndex >= addressDoc.addresses.length) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Address not found')
+    if (addressIndex < 0 || addressIndex >= address.addresses.length) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Địa chỉ không tồn tại')
     }
 
     const updatedDoc = await models.addressModel.setDefaultAddress(

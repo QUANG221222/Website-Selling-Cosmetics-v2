@@ -11,22 +11,22 @@ const createAddress = async (
 ) => {
   const correctCondition = Joi.object({
     name: Joi.string().trim().min(2).max(100).required().messages({
-      'string.empty': 'Name is required',
-      'string.min': 'Name must be at least 2 characters',
-      'string.max': 'Name must be at most 100 characters'
+      'string.empty': 'Tên là bắt buộc',
+      'string.min': 'Tên phải có ít nhất 2 ký tự',
+      'string.max': 'Tên không được vượt quá 100 ký tự'
     }),
     phone: Joi.string()
       .trim()
       .pattern(/^(\+84|84|0)(3[2-9]|5[6|8|9]|7[0|6-9]|8[1-9]|9[0-9])[0-9]{7}$/)
       .required()
       .messages({
-        'string.empty': 'Phone is required',
-        'string.pattern.base': 'Invalid Vietnamese phone number format'
+        'string.empty': 'Số điện thoại là bắt buộc',
+        'string.pattern.base': 'Định dạng số điện thoại Việt Nam không hợp lệ'
       }),
     addressDetail: Joi.string().trim().min(10).max(500).required().messages({
-      'string.empty': 'Address detail is required',
-      'string.min': 'Address detail must be at least 10 characters',
-      'string.max': 'Address detail must be at most 500 characters'
+      'string.empty': 'Chi tiết địa chỉ là bắt buộc',
+      'string.min': 'Chi tiết địa chỉ phải có ít nhất 10 ký tự',
+      'string.max': 'Chi tiết địa chỉ không được vượt quá 500 ký tự'
     }),
     isDefault: Joi.boolean().optional()
   })
@@ -46,23 +46,23 @@ const updateAddress = async (
 ) => {
   const correctCondition = Joi.object({
     name: Joi.string().trim().min(2).max(100).optional().messages({
-      'string.min': 'Name must be at least 2 characters',
-      'string.max': 'Name must be at most 100 characters'
+      'string.min': 'Tên phải có ít nhất 2 ký tự',
+      'string.max': 'Tên không được vượt quá 100 ký tự'
     }),
     phone: Joi.string()
       .trim()
       .pattern(/^(\+84|84|0)(3[2-9]|5[6|8|9]|7[0|6-9]|8[1-9]|9[0-9])[0-9]{7}$/)
       .optional()
       .messages({
-        'string.pattern.base': 'Invalid Vietnamese phone number format'
+        'string.pattern.base': 'Định dạng số điện thoại Việt Nam không hợp lệ'
       }),
     addressDetail: Joi.string().trim().min(10).max(500).optional().messages({
-      'string.min': 'Address detail must be at least 10 characters',
-      'string.max': 'Address detail must be at most 500 characters'
+      'string.min': 'Chi tiết địa chỉ phải có ít nhất 10 ký tự',
+      'string.max': 'Chi tiết địa chỉ không được vượt quá 500 ký tự'
     }),
     isDefault: Joi.boolean().optional(),
     index: Joi.string().required().pattern(/^\d+$/).messages({
-      'string.pattern.base': 'Address index must be a valid number'
+      'string.pattern.base': 'Chỉ số địa chỉ phải là một số hợp lệ'
     })
   })
 
@@ -84,7 +84,7 @@ const validateAddressIndex = async (
 ) => {
   const correctCondition = Joi.object({
     index: Joi.string().required().pattern(/^\d+$/).messages({
-      'string.pattern.base': 'Address index must be a valid number'
+      'string.pattern.base': 'Chỉ số địa chỉ phải là một số hợp lệ'
     })
   })
 

@@ -23,7 +23,7 @@ const StartServer = () => {
   app.use(express.json())
 
   // Config Rate Limiter
-  app.use(limiter)
+  // app.use(limiter)
 
   // Enable session
   app.use(session(sessionConfig))

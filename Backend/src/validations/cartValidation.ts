@@ -11,11 +11,11 @@ const addToCart = async (req: Request, _res: Response, next: NextFunction) => {
       .pattern(OBJECT_ID_RULE)
       .message(OBJECT_ID_RULE_MESSAGE),
     quantity: Joi.number().integer().min(1).max(99).required().messages({
-      'number.base': 'Quantity must be a number',
-      'number.integer': 'Quantity must be an integer',
-      'number.min': 'Quantity must be at least 1',
-      'number.max': 'Quantity must be at most 99',
-      'any.required': 'Quantity is required'
+      'number.base': 'Số lượng phải là một số',
+      'number.integer': 'Số lượng phải là số nguyên',
+      'number.min': 'Số lượng phải ít nhất là 1',
+      'number.max': 'Số lượng không được vượt quá 99',
+      'any.required': 'Số lượng là bắt buộc'
     })
   })
   try {
@@ -37,11 +37,11 @@ const updateQuantity = async (
       .pattern(OBJECT_ID_RULE)
       .message(OBJECT_ID_RULE_MESSAGE),
     quantity: Joi.number().integer().min(0).max(99).required().messages({
-      'number.base': 'Quantity must be a number',
-      'number.integer': 'Quantity must be an integer',
-      'number.min': 'Quantity must be at least 0',
-      'number.max': 'Quantity must be at most 99',
-      'any.required': 'Quantity is required'
+      'number.base': 'Số lượng phải là một số',
+      'number.integer': 'Số lượng phải là số nguyên',
+      'number.min': 'Số lượng phải ít nhất là 0',
+      'number.max': 'Số lượng không được vượt quá 99',
+      'any.required': 'Số lượng là bắt buộc'
     })
   })
   try {

@@ -30,7 +30,7 @@ const createNew = async (data: Request): Promise<any> => {
     const slug: string = slugify(data.body.nameCosmetic)
     const exitCosmetic = await models.cosmeticModel.findOneBySlug(slug)
     if (exitCosmetic) {
-      throw new ApiError(StatusCodes.CONFLICT, 'Cosmetic already exists')
+      throw new ApiError(StatusCodes.CONFLICT, 'Sản phẩm mỹ phẩm đã tồn tại')
     }
     const createNewCosmetic: ICosmeticCreateData = {
       ...data.body,
@@ -45,7 +45,7 @@ const createNew = async (data: Request): Promise<any> => {
     if (!getNewCosmetic) {
       throw new ApiError(
         StatusCodes.INTERNAL_SERVER_ERROR,
-        'Failed to retrieve newly created cosmetic'
+        'Không thể lấy thông tin sản phẩm mỹ phẩm vừa tạo'
       )
     }
 
@@ -68,7 +68,10 @@ const getById = async (id: string): Promise<ICosmeticResponse> => {
   try {
     const cosmetic = await models.cosmeticModel.findOneById(id)
     if (!cosmetic) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Cosmetic not found')
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        'Không tìm thấy sản phẩm mỹ phẩm'
+      )
     }
     return pickCosmetic(cosmetic)
   } catch (error: any) {
@@ -80,7 +83,10 @@ const getBySlug = async (slug: string): Promise<ICosmeticResponse> => {
   try {
     const cosmetic = await models.cosmeticModel.findOneBySlug(slug)
     if (!cosmetic) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Cosmetic not found')
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        'Không tìm thấy sản phẩm mỹ phẩm'
+      )
     }
     return pickCosmetic(cosmetic)
   } catch (error: any) {
@@ -92,7 +98,10 @@ const deleteById = async (id: string): Promise<void> => {
   try {
     const cosmetic = await models.cosmeticModel.findOneById(id)
     if (!cosmetic) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Cosmetic not found')
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        'Không tìm thấy sản phẩm mỹ phẩm'
+      )
     }
     await cloudinary.uploader.destroy(cosmetic.publicId)
     await models.cosmeticModel.deleteById(id)
@@ -108,7 +117,10 @@ const updateItem = async (
   try {
     const cosmetic = await models.cosmeticModel.findOneById(id)
     if (!cosmetic) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Cosmetic not found')
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        'Không tìm thấy sản phẩm mỹ phẩm'
+      )
     }
     if (data.nameCosmetic && data.nameCosmetic !== cosmetic.nameCosmetic) {
       data.slug = slugify(data.nameCosmetic)
@@ -137,26 +149,24 @@ const getAllCosmeticsWithPagination = async (
   limit: number = 10
 ): Promise<PaginatedResponse<ICosmeticResponse>> => {
   try {
-    const { cosmetics, total } = await models.cosmeticModel.findAllWithPagination(
-      page,
-      limit
-    )   
+    const { cosmetics, total } =
+      await models.cosmeticModel.findAllWithPagination(page, limit)
     const paginationInfo = calculatePagination(total, page, limit)
-    
+
     return {
       data: cosmetics.map((item) => pickCosmetic(item)),
-            pagination: {
-              currentPage: paginationInfo.currentPage,
-              totalPages: paginationInfo.totalPages,
-              totalItems: paginationInfo.totalItems,
-              itemsPerPage: limit,
-              hasNextPage: paginationInfo.hasNextPage,
-              hasPrevPage: paginationInfo.hasPrevPage
-            }
-          }
+      pagination: {
+        currentPage: paginationInfo.currentPage,
+        totalPages: paginationInfo.totalPages,
+        totalItems: paginationInfo.totalItems,
+        itemsPerPage: limit,
+        hasNextPage: paginationInfo.hasNextPage,
+        hasPrevPage: paginationInfo.hasPrevPage
+      }
+    }
   } catch (error: any) {
     throw new Error(error.message)
-    }
+  }
 }
 
 // ===== EXPORTS =====

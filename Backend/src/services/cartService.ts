@@ -30,7 +30,7 @@ const createNew = async (req: Request): Promise<ICartResponse> => {
     if (existingCart) {
       throw new ApiError(
         StatusCodes.CONFLICT,
-        'Cart already exists for this user'
+        'Giỏ hàng đã tồn tại cho người dùng này'
       )
     }
 
@@ -49,7 +49,7 @@ const createNew = async (req: Request): Promise<ICartResponse> => {
     if (!getNewCart) {
       throw new ApiError(
         StatusCodes.INTERNAL_SERVER_ERROR,
-        'Failed to retrieve newly created cart'
+        'Không thể lấy giỏ hàng vừa tạo'
       )
     }
 
@@ -110,11 +110,14 @@ const addToCart = async (
     // Get cosmetic details
     const cosmetic = await models.cosmeticModel.findOneById(cosmeticId)
     if (!cosmetic) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Cosmetic not found')
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        'Không tìm thấy sản phẩm mỹ phẩm'
+      )
     }
 
     if (cosmetic.quantity < quantity) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, 'Insufficient stock')
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Không đủ hàng trong kho')
     }
 
     // Get or create cart
@@ -194,7 +197,7 @@ const removeFromCart = async (
   try {
     const cart = await models.cartModel.findOneByUserId(userId)
     if (!cart) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Cart not found')
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy giỏ hàng')
     }
 
     // Remove item from cart
@@ -235,7 +238,7 @@ const updateQuantity = async (
 
     const cart = await models.cartModel.findOneByUserId(userId)
     if (!cart) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Cart not found')
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy giỏ hàng')
     }
 
     const itemIndex = cart.items.findIndex(
@@ -243,13 +246,16 @@ const updateQuantity = async (
     )
 
     if (itemIndex === -1) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Item not found in cart')
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        'Không tìm thấy sản phẩm trong giỏ hàng'
+      )
     }
 
     // Check stock
     const cosmetic = await models.cosmeticModel.findOneById(cosmeticId)
     if (!cosmetic || cosmetic.quantity < quantity) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, 'Insufficient stock')
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Không đủ hàng trong kho')
     }
 
     // Update quantity
@@ -281,7 +287,7 @@ const clearCart = async (userId: string): Promise<void> => {
   try {
     const cart = await models.cartModel.findOneByUserId(userId)
     if (!cart) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Cart not found')
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy giỏ hàng')
     }
 
     const updateData: ICartUpdateData = {

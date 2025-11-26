@@ -11,24 +11,24 @@ const createOrder = async (
 ) => {
   const correctCondition = Joi.object({
     receiverName: Joi.string().trim().min(2).max(50).required().messages({
-      'string.empty': 'Receiver name is required',
-      'string.min': 'Receiver name must be at least 2 characters',
-      'string.max': 'Receiver name must be at most 50 characters'
+      'string.empty': 'Tên người nhận là bắt buộc',
+      'string.min': 'Tên người nhận phải có ít nhất 2 ký tự',
+      'string.max': 'Tên người nhận không được quá 50 ký tự'
     }),
     receiverPhone: Joi.string()
       .trim()
       .pattern(/^[0-9]{10,11}$/)
       .required()
       .messages({
-        'string.pattern.base': 'Invalid phone number format'
+        'string.pattern.base': 'Định dạng số điện thoại không hợp lệ'
       }),
     receiverAddress: Joi.string().trim().min(10).max(200).required().messages({
-      'string.empty': 'Receiver address is required',
-      'string.min': 'Address must be at least 10 characters',
-      'string.max': 'Address must be at most 200 characters'
+      'string.empty': 'Địa chỉ người nhận là bắt buộc',
+      'string.min': 'Địa chỉ phải có ít nhất 10 ký tự',
+      'string.max': 'Địa chỉ không được quá 200 ký tự'
     }),
     orderNotes: Joi.string().trim().max(500).optional().allow('').messages({
-      'string.max': 'Order notes must be at most 500 characters'
+      'string.max': 'Ghi chú đơn hàng không được quá 500 ký tự'
     }),
     items: Joi.array()
       .items(
@@ -65,20 +65,20 @@ const updateOrder = async (
       .pattern(OBJECT_ID_RULE)
       .message(OBJECT_ID_RULE_MESSAGE),
     receiverName: Joi.string().trim().min(2).max(50).optional().messages({
-      'string.min': 'Receiver name must be at least 2 characters',
-      'string.max': 'Receiver name must be at most 50 characters'
+      'string.min': 'Tên người nhận phải có ít nhất 2 ký tự',
+      'string.max': 'Tên người nhận không được quá 50 ký tự'
     }),
     receiverPhone: Joi.string()
       .trim()
       .pattern(/^[0-9]{10,11}$/)
       .optional()
       .messages({
-        'string.pattern.base': 'Invalid phone number format'
+        'string.pattern.base': 'Định dạng số điện thoại không hợp lệ'
       }),
     receiverAddress: Joi.string().trim().min(10).max(200).optional().messages({
-      'string.empty': 'Receiver address is required',
-      'string.min': 'Address must be at least 10 characters',
-      'string.max': 'Address must be at most 200 characters'
+      'string.empty': 'Địa chỉ người nhận là bắt buộc',
+      'string.min': 'Địa chỉ phải có ít nhất 10 ký tự',
+      'string.max': 'Địa chỉ không được quá 200 ký tự'
     }),
     status: Joi.string()
       .valid('pending', 'processing', 'completed', 'cancelled')
