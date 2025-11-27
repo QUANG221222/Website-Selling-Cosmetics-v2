@@ -1,5 +1,5 @@
 import axiosInstance from "@/lib/api/axios"
-import { ApiResponse, User } from "../types"
+import { ApiResponse, Order, User } from "../types"
 import { toast } from "sonner"
 import { PaginatedResponse, PaginationParams } from "./order"
 
@@ -84,7 +84,7 @@ export const authApi = {
        params: PaginationParams
     ): Promise<PaginatedResponse<User>> => {
         const response = await axiosInstance.get("/users/pagination/list", {
-        params: {
+        params: {   
             page: params.page,
             limit: params.limit,
             sortBy: params.sortBy || 'createdAt',
@@ -93,7 +93,7 @@ export const authApi = {
         });
         return response.data;
     },
-    }
+}
 
 export const verifyEmail = async (data: { email: string; token: string }) => {
   const response = await axiosInstance.put("users/verify", data)

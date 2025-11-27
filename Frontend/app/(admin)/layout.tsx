@@ -60,7 +60,7 @@ const layout = ({children} : {children: React.ReactNode}) => {
           <SidebarHeader className="border-b border-sidebar-border p-4">
             <div className="flex items-center gap-2">
               <Package className="h-6 w-6" />
-              <span className="font-semibold">Admin Panel</span>
+              <span className="font-semibold">Beauty Admin</span>
             </div>
           </SidebarHeader>
           
@@ -87,15 +87,15 @@ const layout = ({children} : {children: React.ReactNode}) => {
             <div className="flex items-center gap-3 px-2">
               <Avatar className="h-8 w-8">
                 <AvatarFallback className="bg-primary text-primary-foreground">
-                  {getInitials(currentAdmin?.data?.adminName || 'AD')}
+                  {getInitials(currentAdmin?.username || 'AD')}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">
-                  {currentAdmin?.data?.adminName || 'Admin'}
+                  {currentAdmin?.username || 'Admin'}
                 </p>
                 <p className="text-xs text-muted-foreground truncate">
-                  {currentAdmin?.data?.email || ''}
+                  {currentAdmin?.email || ''}
                 </p>
               </div>
             </div>

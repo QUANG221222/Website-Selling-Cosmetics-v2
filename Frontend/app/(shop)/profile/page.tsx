@@ -11,13 +11,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { User, Package, Settings, LogOut,Loader2, Eye, Truck, CheckCircle, XCircle } from 'lucide-react';
+import { User, Package, Settings, LogOut,Loader2, Eye, Truck, CheckCircle, XCircle, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { logoutUserApi } from '@/lib/redux/user/userSlice';
 import { fetchUserOrders, orderSlice, selectOrders } from '@/lib/redux/order/orderSlice';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Order } from '@/lib/types';
-
+import { orderApi } from '@/lib/api/order';
+import { toast } from 'sonner';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const UserAccount = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -28,7 +39,8 @@ const UserAccount = () => {
     
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
-    
+    const [showCancelDialog, setShowCancelDialog] = useState(false);
+    const [orderToCancel, setOrderToCancel] = useState<string | null>(null);
   
 
   useEffect(() => {
@@ -107,6 +119,24 @@ const UserAccount = () => {
     );
   };
 
+    const handleDeleteOrder = async(_id: string) => {
+        setOrderToCancel(_id);
+        setShowCancelDialog(true);
+    }
+
+    const confirmCancelOrder = async () => {
+        if (!orderToCancel) return;
+        try {
+            await orderApi.cancelOrder(orderToCancel);
+            toast.success("Đã hủy đơn hàng");
+            setShowCancelDialog(false);
+            setOrderToCancel(null)
+
+            dispatch(fetchUserOrders());
+        } catch (err) {
+            toast.error("Hủy đơn hàng thất bại. Vui lòng thử lại.");
+        }
+    }
 
   if (loading) {
     return (
@@ -127,8 +157,25 @@ const UserAccount = () => {
     );
   }
 
+
   return (
     <div className="container mx-auto px-4 py-8">
+        <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận hủy đơn hàng</AlertDialogTitle>
+            <AlertDialogDescription>
+                Bạn có chắc chắn muốn hủy đơn hàng này? Hành động không thể hoàn tác.
+            </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmCancelOrder} className="bg-destructive text-white">
+                Xác nhận hủy
+            </AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+        </AlertDialog>
       <div className="flex items-center justify-between mb-8">
         <h1 className="font-inter text-foreground">
           Tài Khoản Của Bạn
@@ -270,6 +317,17 @@ const UserAccount = () => {
                                 <Eye className="h-4 w-4 mr-2" />
                                 Xem
                               </Button>
+                                {order.status !== 'cancelled' && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="font-poppins text-destructive hover:bg-destructive hover:text-white"
+                                onClick={() => handleDeleteOrder(order._id)}
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Hủy
+                              </Button>
+                            )}
                             </TableCell>
                           </TableRow>
                         ))}

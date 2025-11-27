@@ -9,9 +9,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { AppDispatch } from "@/lib/redux/store";
@@ -21,10 +31,9 @@ import {
   incrementQuantity,
   removeFromCart,
   selectCartItems,
-  selectCartTotalPrice,
-  fetchCart,
   selectCartItemsSelected,
   selectCartSelectedTotalPrice,
+  fetchCart,
   toggleItemSelection,
 } from "@/lib/redux/cart/cartSlice";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -36,6 +45,11 @@ const ShoppingCart = () => {
   const cartItems = useSelector(selectCartItems);
   const selectedCartItems = useSelector(selectCartItemsSelected);
   const selectedTotalPrice = useSelector(selectCartSelectedTotalPrice);
+
+  // Alert Dialog states
+  const [showRemoveDialog, setShowRemoveDialog] = useState(false);
+  const [showClearDialog, setShowClearDialog] = useState(false);
+  const [itemToRemove, setItemToRemove] = useState<string | null>(null);
 
   // Helper function to safely get cosmetic ID
   const getCosmeticId = (item: any) =>
@@ -56,23 +70,23 @@ const ShoppingCart = () => {
     dispatch(fetchCart());
   }, [dispatch]);
 
-   const handleToggleItem = (itemId: string) => {
+  const handleToggleItem = (itemId: string) => {
     dispatch(toggleItemSelection(itemId));
   };
 
   const handleToggleAll = () => {
-    const allSelected = cartItems.every(item => 
-      selectedCartItems.some(selected => 
-        getCosmeticId(selected) === getCosmeticId(item)
+    const allSelected = cartItems.every((item) =>
+      selectedCartItems.some(
+        (selected) => getCosmeticId(selected) === getCosmeticId(item)
       )
     );
 
-    cartItems.forEach(item => {
+    cartItems.forEach((item) => {
       const itemId = getCosmeticId(item);
       const isCurrentlySelected = selectedCartItems.some(
-        selected => getCosmeticId(selected) === itemId
+        (selected) => getCosmeticId(selected) === itemId
       );
-      
+
       if (allSelected && isCurrentlySelected) {
         dispatch(toggleItemSelection(itemId));
       } else if (!allSelected && !isCurrentlySelected) {
@@ -103,11 +117,19 @@ const ShoppingCart = () => {
   };
 
   const handleRemoveItem = (itemId: string) => {
-    if (confirm("Bạn có chắc muốn xóa sản phẩm này?")) {
-      dispatch(removeFromCart(itemId));
+    setItemToRemove(itemId);
+    setShowRemoveDialog(true);
+  };
+
+  const confirmRemoveItem = () => {
+    if (itemToRemove) {
+      dispatch(removeFromCart(itemToRemove));
+      setShowRemoveDialog(false);
+      setItemToRemove(null);
+      toast.success("Đã xóa sản phẩm khỏi giỏ hàng");
     }
   };
-  
+
   const handleContinueShopping = () => {
     router.push("/product");
   };
@@ -124,17 +146,22 @@ const ShoppingCart = () => {
   };
 
   const handleClearCart = () => {
-    if (confirm("Bạn có chắc muốn xóa toàn bộ giỏ hàng?")) {
-      dispatch(clearCart());
-    }
+    setShowClearDialog(true);
+  };
+
+  const confirmClearCart = () => {
+    dispatch(clearCart());
+    setShowClearDialog(false);
+    toast.success("Đã xóa toàn bộ giỏ hàng");
   };
 
   const isItemSelected = (itemId: string) => {
-    return selectedCartItems.some(item => getCosmeticId(item) === itemId);
+    return selectedCartItems.some((item) => getCosmeticId(item) === itemId);
   };
 
-  const allItemsSelected = cartItems.length > 0 && 
-    cartItems.every(item => isItemSelected(getCosmeticId(item)));
+  const allItemsSelected =
+    cartItems.length > 0 &&
+    cartItems.every((item) => isItemSelected(getCosmeticId(item)));
 
   if (cartItems.length === 0) {
     return (
@@ -210,111 +237,109 @@ const ShoppingCart = () => {
                   </TableHeader>
                   <TableBody>
                     {cartItems.map((item) => {
-                        const itemId = getCosmeticId(item);
-                        return (
-                    
+                      const itemId = getCosmeticId(item);
+                      return (
                         <TableRow key={itemId}>
-                            <TableCell className="text-center align-middle">
+                          <TableCell className="text-center align-middle">
                             <Checkbox
-                                checked={isItemSelected(itemId)}
-                                onCheckedChange={() => handleToggleItem(itemId)}
-                                className="mx-auto"
+                              checked={isItemSelected(itemId)}
+                              onCheckedChange={() => handleToggleItem(itemId)}
+                              className="mx-auto"
                             />
                           </TableCell>
-                            <TableCell>
-                              <div className="flex items-center space-x-4">
-                                <div className="w-16 h-16 overflow-hidden rounded-lg border border-border relative">
-                                  {item.cosmetic?.image ? (
-                                    <Image
-                                      src={item.cosmetic.image}
-                                      alt={item.cosmetic.nameCosmetic}
-                                      fill
-                                      className="object-cover"
-                                    />
-                                  ) : (
-                                    <div className="w-full h-full bg-muted flex items-center justify-center">
-                                      <span className="text-xs">No image</span>
-                                    </div>
-                                  )}
-                                </div>
-                                <div className="space-y-1">
-                                  <h4 className="font-inter font-medium text-foreground">
-                                    {item.cosmetic?.nameCosmetic}
-                                  </h4>
-                                  {item.cosmetic?.brand && (
-                                    <p className="text-sm text-muted-foreground font-inter">
-                                      {item.cosmetic?.brand}
-                                    </p>
-                                  )}
-                                  {/* {item.variant && (
-                                    <p className="text-sm text-muted-foreground">
-                                      Biến thể: {item.variant}
-                                    </p>78
-                                  )} */}
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <span className="font-poppins font-medium">
-                                {formatPrice(item.cosmetic?.discountPrice || 0)}
-                              </span>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex items-center space-x-2">
-                                <Button
-                                  variant="outline"
-                                  size="icon"
-                                  onClick={() =>
-                                    dispatch(decrementQuantity(getCosmeticId(item)))
-                                  }
-                                  className="h-8 w-8"
-                                >
-                                  <Minus className="h-3 w-3" />
-                                </Button>
-                                <span className="font-poppins font-medium w-8 text-center">
-                                  {item.quantity}
-                                </span>
-                                <Button
-                                  variant="outline"
-                                  size="icon"
-                                  onClick={() =>
-                                    dispatch(incrementQuantity(getCosmeticId(item)))
-                                  }
-                                  className="h-8 w-8"
-                                >
-                                  <Plus className="h-3 w-3" />
-                                </Button>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <span className="font-poppins font-medium text-brand-deep-pink">
-                                {formatPrice(
-                                  (item.cosmetic?.discountPrice || 0) *
-                                    item.quantity
+                          <TableCell>
+                            <div className="flex items-center space-x-4">
+                              <div className="w-16 h-16 overflow-hidden rounded-lg border border-border relative">
+                                {item.cosmetic?.image ? (
+                                  <Image
+                                    src={item.cosmetic.image}
+                                    alt={item.cosmetic.nameCosmetic}
+                                    fill
+                                    className="object-cover"
+                                  />
+                                ) : (
+                                  <div className="w-full h-full bg-muted flex items-center justify-center">
+                                    <span className="text-xs">No image</span>
+                                  </div>
                                 )}
-                              </span>
-                            </TableCell>
-                            <TableCell>
+                              </div>
+                              <div className="space-y-1">
+                                <h4 className="font-inter font-medium text-foreground">
+                                  {item.cosmetic?.nameCosmetic}
+                                </h4>
+                                {item.cosmetic?.brand && (
+                                  <p className="text-sm text-muted-foreground font-inter">
+                                    {item.cosmetic?.brand}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <span className="font-poppins font-medium">
+                              {formatPrice(item.cosmetic?.discountPrice || 0)}
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center space-x-2">
                               <Button
-                                variant="ghost"
+                                variant="outline"
                                 size="icon"
                                 onClick={() =>
-                                  handleRemoveItem(getCosmeticId(item))
+                                  dispatch(
+                                    decrementQuantity(getCosmeticId(item))
+                                  )
                                 }
-                                className="text-destructive hover:text-destructive"
+                                className="h-8 w-8"
                               >
-                                <Trash2 className="h-4 w-4" />
+                                <Minus className="h-3 w-3" />
                               </Button>
-                            </TableCell>
-                   
+                              <span className="font-poppins font-medium w-8 text-center">
+                                {item.quantity}
+                              </span>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() =>
+                                  dispatch(
+                                    incrementQuantity(getCosmeticId(item))
+                                  )
+                                }
+                                className="h-8 w-8"
+                              >
+                                <Plus className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <span className="font-poppins font-medium text-brand-deep-pink">
+                              {formatPrice(
+                                (item.cosmetic?.discountPrice || 0) *
+                                  item.quantity
+                              )}
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() =>
+                                handleRemoveItem(getCosmeticId(item))
+                              }
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
                         </TableRow>
-                    )})}
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </div>
 
               {/* Mobile Cards */}
-            <div className="md:hidden space-y-4">
+              <div className="md:hidden space-y-4">
                 {cartItems.map((item) => {
                   const itemId = getCosmeticId(item);
                   return (
@@ -324,72 +349,83 @@ const ShoppingCart = () => {
                           <Checkbox
                             checked={isItemSelected(itemId)}
                             onCheckedChange={() => handleToggleItem(itemId)}
-                            className="mt-1"
+                            className="mt-1 flex-shrink-0"
                           />
-                          <div className="flex space-x-4 flex-1">
-                            <div className="w-20 h-20 overflow-hidden rounded-lg border border-border relative">
-                              {item.cosmetic?.image ? (
-                                <Image
-                                  src={item.cosmetic.image}
-                                  alt={item.cosmetic.nameCosmetic}
-                                  fill
-                                  className="object-cover"
-                                />
-                              ) : (
-                                <div className="w-full h-full bg-muted flex items-center justify-center">
-                                  <span className="text-xs">No image</span>
-                                </div>
-                              )}
-                            </div>
-                            <div className="flex-1 space-y-2">
-                              <div className="flex justify-between items-start">
-                                <div className="space-y-1">
-                                  <h4 className="font-inter font-medium text-foreground">
-                                    {item.cosmetic?.nameCosmetic}
-                                  </h4>
-                                  {item.cosmetic?.brand && (
-                                    <p className="text-sm text-muted-foreground font-inter">
-                                      {item.cosmetic.brand}
-                                    </p>
-                                  )}
-                                </div>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => handleRemoveItem(itemId)}
-                                  className="text-destructive hover:text-destructive"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
+                          <div className="flex-1 space-y-3 min-w-0">
+                            {/* Product Info */}
+                            <div className="flex space-x-3">
+                              <div className="w-20 h-20 flex-shrink-0 overflow-hidden rounded-lg border border-border relative">
+                                {item.cosmetic?.image ? (
+                                  <Image
+                                    src={item.cosmetic.image}
+                                    alt={item.cosmetic.nameCosmetic}
+                                    fill
+                                    className="object-cover"
+                                  />
+                                ) : (
+                                  <div className="w-full h-full bg-muted flex items-center justify-center">
+                                    <span className="text-xs">No image</span>
+                                  </div>
+                                )}
                               </div>
-
-                              <div className="flex justify-between items-center">
-                                <div className="flex items-center space-x-2">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex justify-between items-start gap-2">
+                                  <div className="space-y-1 flex-1 min-w-0">
+                                    <h4 className="font-inter font-medium text-foreground text-sm line-clamp-2">
+                                      {item.cosmetic?.nameCosmetic}
+                                    </h4>
+                                    {item.cosmetic?.brand && (
+                                      <p className="text-xs text-muted-foreground font-inter">
+                                        {item.cosmetic.brand}
+                                      </p>
+                                    )}
+                                  </div>
                                   <Button
-                                    variant="outline"
+                                    variant="ghost"
                                     size="icon"
-                                    onClick={() =>
-                                      dispatch(decrementQuantity(itemId))
-                                    }
-                                    className="h-8 w-8"
+                                    onClick={() => handleRemoveItem(itemId)}
+                                    className="text-destructive hover:text-destructive flex-shrink-0 h-8 w-8"
                                   >
-                                    <Minus className="h-3 w-3" />
-                                  </Button>
-                                  <span className="font-poppins font-medium w-8 text-center">
-                                    {item.quantity}
-                                  </span>
-                                  <Button
-                                    variant="outline"
-                                    size="icon"
-                                    onClick={() =>
-                                      dispatch(incrementQuantity(itemId))
-                                    }
-                                    className="h-8 w-8"
-                                  >
-                                    <Plus className="h-3 w-3" />
+                                    <Trash2 className="h-4 w-4" />
                                   </Button>
                                 </div>
-                                <span className="font-poppins font-medium text-brand-deep-pink">
+                              </div>
+                            </div>
+
+                            {/* Quantity Controls */}
+                            <div className="flex items-center space-x-2">
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() =>
+                                  dispatch(decrementQuantity(itemId))
+                                }
+                                className="h-8 w-8 flex-shrink-0"
+                              >
+                                <Minus className="h-3 w-3" />
+                              </Button>
+                              <span className="font-poppins font-medium w-8 text-center flex-shrink-0">
+                                {item.quantity}
+                              </span>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() =>
+                                  dispatch(incrementQuantity(itemId))
+                                }
+                                className="h-8 w-8 flex-shrink-0"
+                              >
+                                <Plus className="h-3 w-3" />
+                              </Button>
+                            </div>
+
+                            {/* Price - Separate Row on Mobile */}
+                            <div className="flex justify-end pt-1 border-t border-border">
+                              <div className="text-right">
+                                <p className="text-xs text-muted-foreground font-inter mb-1">
+                                  Tổng tiền
+                                </p>
+                                <span className="font-poppins font-bold text-brand-deep-pink text-base">
                                   {formatPrice(
                                     (item.cosmetic?.discountPrice || 0) *
                                       item.quantity
@@ -444,8 +480,8 @@ const ShoppingCart = () => {
                 )}
                 {selectedTotalPrice > 0 && shipping > 0 && (
                   <p className="text-muted-foreground font-inter text-sm">
-                    Mua thêm {formatPrice(500000 - selectedTotalPrice)} để được miễn phí
-                    vận chuyển
+                    Mua thêm {formatPrice(500000 - selectedTotalPrice)} để được
+                    miễn phí vận chuyển
                   </p>
                 )}
               </div>
@@ -460,7 +496,6 @@ const ShoppingCart = () => {
                   </span>
                 </div>
               </div>
-
 
               <div className="space-y-3 pt-4">
                 <Button
@@ -482,6 +517,53 @@ const ShoppingCart = () => {
           </Card>
         </div>
       </div>
+
+      {/* Remove Item Alert Dialog */}
+      <AlertDialog open={showRemoveDialog} onOpenChange={setShowRemoveDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-inter">
+              Xác nhận xóa sản phẩm
+            </AlertDialogTitle>
+            <AlertDialogDescription className="font-inter">
+              Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng không?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="font-inter">Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmRemoveItem}
+              className="bg-destructive hover:bg-destructive/90 font-inter text-white"
+            >
+              Xóa
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Clear Cart Alert Dialog */}
+      <AlertDialog open={showClearDialog} onOpenChange={setShowClearDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-inter">
+              Xác nhận xóa giỏ hàng
+            </AlertDialogTitle>
+            <AlertDialogDescription className="font-inter">
+              Bạn có chắc chắn muốn xóa toàn bộ sản phẩm trong giỏ hàng không?
+              Hành động này không thể hoàn tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="font-inter">Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmClearCart}
+              className="bg-destructive hover:bg-destructive/90 font-inter"
+            >
+              Xóa tất cả
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
