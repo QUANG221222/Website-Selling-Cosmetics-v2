@@ -37,14 +37,19 @@ export const fetchCart = createAsyncThunk(
 // Add to cart
 export const addToCart = createAsyncThunk(
   "cart/addToCart",
-  async (data: AddToCartData, { rejectWithValue }) => {
+  async (payload: AddToCartData, { rejectWithValue }) => {
     try {
-      const response = await cartApi.addToCart(data);
+      // gọi API thêm vào giỏ hàng
+      const response = await cartApi.addToCart(payload);
       return response.data;
     } catch (error: any) {
-      const message = error?.response?.data?.message || "Failed to add to cart";
-      toast.error(message);
-      return rejectWithValue(message);
+      if (error.response?.status === 401) {
+        if (typeof window !== "undefined") {
+          window.location.replace("/users/login");
+        }
+        return rejectWithValue("Phiên đăng nhập đã hết hạn!");
+      }
+      return rejectWithValue(error.message);
     }
   }
 );

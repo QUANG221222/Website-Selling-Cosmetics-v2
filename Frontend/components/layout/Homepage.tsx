@@ -1,10 +1,11 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import { useRouter } from "next/dist/client/components/navigation";
 import { useSelector } from "react-redux";
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useState, useRef } from "react";
 import {
   fetchAllCosmetics,
   selectAllCosmetics,
@@ -17,33 +18,39 @@ import { addToCart } from "@/lib/redux/cart/cartSlice";
 import SkeletonProductCardList from "../product/SkeletonProductCardList";
 import { toast } from "sonner";
 import { selectCurrentUser } from "@/lib/redux/user/userSlice";
+import Link from "next/link";
+import { Search } from "lucide-react";
 
 const HomePage = () => {
   const router = useRouter();
   const cosmetics = useSelector(selectAllCosmetics);
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector(selectCurrentUser);
+  const [searchQuery, setSearchQuery] = useState("");
+  const productsRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     dispatch(fetchAllCosmetics());
   }, [dispatch]);
+
   // Handle view product detail
   const handleViewProduct = (cosmetic: Cosmetic) => {
     // Navigate to product detail page
     router.push(`/product/${cosmetic._id}`);
   };
+
   // Handle add to cart
   const handleAddToCart = (
     cosmetic: Cosmetic,
     quantity: number = 1,
     variant?: string
   ) => {
-    if(user == null) {
-        setTimeout(() => {
-            router.push('users/login')
-            toast.error("Hãy đăng nhập để thêm sản phẩm vào giỏ hàng!")
-        }, 500);
-        return;
+    if (user == null) {
+      setTimeout(() => {
+        router.push("/users/login");
+        toast.error("Hãy đăng nhập để thêm sản phẩm vào giỏ hàng!");
+      }, 500);
+      return;
     }
     dispatch(
       addToCart({
@@ -52,11 +59,32 @@ const HomePage = () => {
         variant,
       })
     );
-    toast.success("Đã thêm sản phẩm vào giỏ hàng!")
+    toast.success("Đã thêm sản phẩm vào giỏ hàng!");
   };
+
   const handleDirect = () => {
     router.push("/product");
   };
+
+  // Filter products based on search query
+  const filteredCosmetics = cosmetics.filter((cosmetic) =>
+    cosmetic.nameCosmetic.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Show only first 10 products on homepage
+  const displayedCosmetics = filteredCosmetics.slice(0, 10);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      // Scroll to products section
+      productsRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  };
+
   return (
     <div className="space-y-16">
       {/* Hero Banner */}
@@ -80,6 +108,25 @@ const HomePage = () => {
             <p className="font-inter text-foreground text-lg leading-relaxed">
               Mỹ phẩm an toàn, chất lượng từ thiên nhiên
             </p>
+
+            {/* Search Bar */}
+            <form onSubmit={handleSearch} className="relative max-w-xl">
+              <Input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Tìm kiếm sản phẩm..."
+                className="pl-12 pr-4 py-6 bg-white border-border text-foreground placeholder:text-muted-foreground rounded-full shadow-lg"
+              />
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Button
+                type="submit"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-brand-deep-pink hover:bg-brand-deep-pink/90 text-white font-poppins rounded-full"
+              >
+                Tìm kiếm
+              </Button>
+            </form>
+
             <Button
               onClick={handleDirect}
               className="bg-brand-deep-pink hover:bg-brand-deep-pink/90 text-white font-poppins px-8 py-3 cursor-pointer"
@@ -92,35 +139,62 @@ const HomePage = () => {
       </section>
 
       {/* Featured Products */}
-      <section className="container mx-auto px-4">
+      <section
+        ref={productsRef}
+        className="container mx-auto px-4 scroll-mt-24"
+      >
         <div className="text-center space-y-4 mb-12">
           <h2 className="font-inter text-foreground">
-            Sản Phẩm Được Yêu Thích
+            {searchQuery
+              ? `Kết quả tìm kiếm cho "${searchQuery}"`
+              : "Sản Phẩm Được Yêu Thích"}
           </h2>
           <p className="text-muted-foreground font-inter text-lg max-w-2xl mx-auto">
-            Khám phá những sản phẩm đang dẫn đầu xu hướng làm đẹp.
+            {searchQuery
+              ? `Tìm thấy ${filteredCosmetics.length} sản phẩm`
+              : "Khám phá những sản phẩm đang dẫn đầu xu hướng làm đẹp."}
           </p>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-          <Suspense fallback={<SkeletonProductCardList />}>
-            <ProductCardList
-              cosmetics={cosmetics}
-              onAddToCart={handleAddToCart}
-              onViewDetail={handleViewProduct}
-            />
-          </Suspense>
-        </div>
+        {displayedCosmetics.length > 0 ? (
+          <>
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+              <Suspense fallback={<SkeletonProductCardList />}>
+                <ProductCardList
+                  cosmetics={displayedCosmetics}
+                  onAddToCart={handleAddToCart}
+                  onViewDetail={handleViewProduct}
+                />
+              </Suspense>
+            </div>
 
-        <div className="text-center">
-          <Button
-            variant="outline"
-            className="border-brand-pink text-brand-deep-pink hover:bg-brand-pink hover:text-foreground font-poppins px-8"
-            size="lg"
-          >
-            Xem Tất Cả Sản Phẩm
-          </Button>
-        </div>
+            <div className="text-center">
+              <Link
+                href={
+                  searchQuery
+                    ? `/product?search=${encodeURIComponent(searchQuery)}`
+                    : "/product"
+                }
+                className="p-3 bg-brand-deep-pink inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium cursor-pointer transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border-brand-pink text-white hover:bg-brand-pink hover:text-foreground font-poppins px-8"
+              >
+                Xem Tất Cả Sản Phẩm
+              </Link>
+            </div>
+          </>
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground font-inter text-lg">
+              Không tìm thấy sản phẩm phù hợp với từ khóa "{searchQuery}".
+            </p>
+            <Button
+              onClick={() => setSearchQuery("")}
+              variant="outline"
+              className="mt-4 border-brand-pink text-brand-deep-pink hover:bg-brand-pink font-poppins"
+            >
+              Xóa tìm kiếm
+            </Button>
+          </div>
+        )}
       </section>
 
       {/* About Section */}

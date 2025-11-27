@@ -31,7 +31,7 @@ Router.route('/:id')
     controllers.orderController.getOrderById
   )
   .put(
-    middlewares.authHandlingMiddleware.isAdmin,
+    middlewares.authHandlingMiddleware.isAuthorized,
     validations.orderValidation.updateOrder,
     controllers.orderController.updateOrder
   )

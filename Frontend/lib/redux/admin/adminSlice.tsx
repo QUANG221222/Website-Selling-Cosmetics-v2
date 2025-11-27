@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "@/lib/api/axios";
 import { toast } from "sonner";
+import { User } from "@/lib/types";
 
 interface AdminLoginData {
   email: string;
@@ -8,7 +9,7 @@ interface AdminLoginData {
 }
 
 interface AdminState {
-  currentAdmin: any | null;
+  currentAdmin: User | null;
   loading: boolean;
   error: string | null;
 }
