@@ -85,7 +85,7 @@ const ORDER_COLLECTION_SCHEMA: Joi.ObjectSchema = Joi.object({
     .pattern(/^[0-9]{10,11}$/)
     .required(),
   receiverAddress: Joi.string().trim().min(10).max(200).required(),
-  orderNotes: Joi.string().trim().max(500).optional(),
+  orderNotes: Joi.string().trim().max(500).optional().allow(''),
   items: Joi.array()
     .items(
       Joi.object({
@@ -361,7 +361,6 @@ const findAllWithPagination = async (
   limit: number = 10
 ): Promise<{ orders: IOrder[]; total: number }> => {
   try {
-    
     const skip = (page - 1) * limit
     const orders = await GET_DB()
       .collection(COLLECTION_NAME)
@@ -411,7 +410,6 @@ const findByUserIdWithPagination = async (
     throw new Error(error)
   }
 }
-
 
 // ===== EXPORTS =====
 export type {
