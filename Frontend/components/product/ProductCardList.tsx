@@ -3,7 +3,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Cosmetic } from "@/lib/types";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/animate-ui/components/buttons/button";
 import { useEffect, useRef, useState } from "react";
 
 interface ProductProps {

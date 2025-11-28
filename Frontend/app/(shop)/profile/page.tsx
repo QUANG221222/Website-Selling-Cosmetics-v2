@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsContents, TabsList, TabsTrigger } from '@/components/animate-ui/components/animate/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -206,224 +206,226 @@ const UserAccount = () => {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="profile">
-          <Card className="border-border">
-            <CardHeader>
-              <CardTitle className="font-inter text-foreground mt-3">
-                Thông Tin Cá Nhân
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-center space-x-6">
-                <Avatar className="h-20 w-20">
-                  <AvatarFallback className="bg-brand-pink text-foreground font-poppins text-lg">
-                    {currentUser?.fullName.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <Button variant="outline" className="border-brand-pink text-brand-deep-pink hover:bg-brand-pink font-poppins">
-                  Thay đổi ảnh đại diện
-                </Button>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label className="font-inter font-medium">Họ và tên</Label>
-                  <Input
-                    value={currentUser?.fullName || ''}
-                    className="bg-input-background border-border"
-                    disabled
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="font-inter font-medium">Tên đăng nhập</Label>
-                  <Input
-                    value={currentUser.username || ''}
-                    className="bg-input-background border-border"
-                    disabled
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="font-inter font-medium">Email</Label>
-                  <Input
-                    value={currentUser.email || ''}
-                    className="bg-input-background border-border"
-                    disabled
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="font-inter font-medium">Số điện thoại</Label>
-                  <Input
-                    value={currentUser?.phone || ''}
-                    className="bg-input-background border-border"
-                    disabled
-                  />
-                </div>
-              </div>
-
-              <Button className="bg-brand-deep-pink hover:bg-brand-deep-pink/90 text-white font-poppins mb-3">
-                Cập nhật thông tin
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="orders">
-          <Card className="border-border">
-            <CardHeader>
-              <CardTitle className="font-inter text-foreground mt-3">
-                Lịch Sử Đơn Hàng
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-                {orders.length > 0 ? (
-                <div className="space-y-4">
-                  {/* Desktop Table */}
-                  <div className="hidden md:block">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="font-inter">Mã đơn hàng</TableHead>
-                          <TableHead className="font-inter">Ngày đặt</TableHead>
-                          <TableHead className="font-inter">Tổng tiền</TableHead>
-                          <TableHead className="font-inter">Trạng thái</TableHead>
-                          <TableHead className="font-inter"></TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {orders.map((order) => (
-                          <TableRow key={order?._id}>
-                            <TableCell className="font-poppins font-medium">
-                              #{order?._id}
-                            </TableCell>
-                            <TableCell className="font-inter">
-                              {formatDate(order.createdAt)}
-                            </TableCell>
-                            <TableCell className="font-poppins font-medium text-brand-deep-pink">
-                              {formatCurrency(order.totalAmount)}
-                            </TableCell>
-                            <TableCell>
-                              {getStatusBadge(order.status)}
-                            </TableCell>
-                            <TableCell>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="font-poppins"
-                                onClick={() =>handleViewDetails(order)}
-
-                              >
-                                <Eye className="h-4 w-4 mr-2" />
-                                Xem
-                              </Button>
-                            {order.status == 'pending' && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="font-poppins text-destructive hover:bg-destructive hover:text-white"
-                                onClick={() => handleDeleteOrder(order._id)}
-                              >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Hủy
-                              </Button>
-                            )}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
+        <TabsContents className="w-full">
+            <TabsContent value="profile">
+              <Card className="border-border">
+                <CardHeader>
+                  <CardTitle className="font-inter text-foreground mt-3">
+                    Thông Tin Cá Nhân
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="flex items-center space-x-6">
+                    <Avatar className="h-20 w-20">
+                      <AvatarFallback className="bg-brand-pink text-foreground font-poppins text-lg">
+                        {currentUser?.fullName.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <Button variant="outline" className="border-brand-pink text-brand-deep-pink hover:bg-brand-pink font-poppins">
+                      Thay đổi ảnh đại diện
+                    </Button>
                   </div>
-
-                  {/* Mobile Cards */}
-                  <div className="md:hidden space-y-4">
-                    {orders.map((order) => (
-                      <Card key={order?._id} className="border-border">
-                        <CardContent className="p-4 space-y-3">
-                          <div className="flex justify-between items-start">
-                            <div className="space-y-1">
-                              <p className="font-poppins font-medium text-foreground">
-                                {order?._id}
-                              </p>
-                              <p className="text-muted-foreground font-inter">
-                                {formatDate(order.createdAt)}
-                              </p>
-                            </div>  
-                            <Badge className={(order.status)}>
-                              {(order.status)}
-                            </Badge>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="font-poppins font-medium text-brand-deep-pink">
-                              {formatCurrency(order.totalAmount)}
-                            </span>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                             onClick={() =>handleViewDetails(order)}
-                              className="border-brand-pink text-brand-deep-pink hover:bg-brand-pink font-poppins"
-                            >
-                              <Eye className="h-4 w-4 mr-2" />
-                              Xem chi tiết
-                            </Button>
-                          </div>
-                          </CardContent>
-                      </Card>
-                    ))}
+    
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label className="font-inter font-medium">Họ và tên</Label>
+                      <Input
+                        value={currentUser?.fullName || ''}
+                        className="bg-input-background border-border"
+                        disabled
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="font-inter font-medium">Tên đăng nhập</Label>
+                      <Input
+                        value={currentUser.username || ''}
+                        className="bg-input-background border-border"
+                        disabled
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="font-inter font-medium">Email</Label>
+                      <Input
+                        value={currentUser.email || ''}
+                        className="bg-input-background border-border"
+                        disabled
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="font-inter font-medium">Số điện thoại</Label>
+                      <Input
+                        value={currentUser?.phone || ''}
+                        className="bg-input-background border-border"
+                        disabled
+                      />
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground font-inter">
-                    Bạn chưa có đơn hàng nào.
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="settings">
-          <Card className="border-border">
-            <CardHeader>
-              <CardTitle className="font-inter text-foreground mt-3">
-                Cài Đặt Tài Khoản
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
-                <h3 className="font-inter font-medium text-foreground">
-                  Đổi mật khẩu
-                </h3>
-                <div className="space-y-4 max-w-md">
-                  <div className="space-y-2">
-                    <Label className="font-inter font-medium">Mật khẩu hiện tại</Label>
-                    <Input
-                      type="password"
-                      className="bg-input-background border-border"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="font-inter font-medium">Mật khẩu mới</Label>
-                    <Input
-                      type="password"
-                      className="bg-input-background border-border"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="font-inter font-medium">Xác nhận mật khẩu mới</Label>
-                    <Input
-                      type="password"
-                      className="bg-input-background border-border"
-                    />
-                  </div>
+    
                   <Button className="bg-brand-deep-pink hover:bg-brand-deep-pink/90 text-white font-poppins mb-3">
-                    Cập nhật mật khẩu
+                    Cập nhật thông tin
                   </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                </CardContent>
+              </Card>
+            </TabsContent>
+    
+            <TabsContent value="orders">
+              <Card className="border-border">
+                <CardHeader>
+                  <CardTitle className="font-inter text-foreground mt-3">
+                    Lịch Sử Đơn Hàng
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    {orders.length > 0 ? (
+                    <div className="space-y-4">
+                      {/* Desktop Table */}
+                      <div className="hidden md:block">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead className="font-inter">Mã đơn hàng</TableHead>
+                              <TableHead className="font-inter">Ngày đặt</TableHead>
+                              <TableHead className="font-inter">Tổng tiền</TableHead>
+                              <TableHead className="font-inter">Trạng thái</TableHead>
+                              <TableHead className="font-inter"></TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {orders.map((order) => (
+                              <TableRow key={order?._id}>
+                                <TableCell className="font-poppins font-medium">
+                                  #{order?._id}
+                                </TableCell>
+                                <TableCell className="font-inter">
+                                  {formatDate(order.createdAt)}
+                                </TableCell>
+                                <TableCell className="font-poppins font-medium text-brand-deep-pink">
+                                  {formatCurrency(order.totalAmount)}
+                                </TableCell>
+                                <TableCell>
+                                  {getStatusBadge(order.status)}
+                                </TableCell>
+                                <TableCell>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="font-poppins"
+                                    onClick={() =>handleViewDetails(order)}
+    
+                                  >
+                                    <Eye className="h-4 w-4 mr-2" />
+                                    Xem
+                                  </Button>
+                                {order.status == 'pending' && (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="font-poppins text-destructive hover:bg-destructive hover:text-white"
+                                    onClick={() => handleDeleteOrder(order._id)}
+                                  >
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    Hủy
+                                  </Button>
+                                )}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+    
+                      {/* Mobile Cards */}
+                      <div className="md:hidden space-y-4">
+                        {orders.map((order) => (
+                          <Card key={order?._id} className="border-border">
+                            <CardContent className="p-4 space-y-3">
+                              <div className="flex justify-between items-start">
+                                <div className="space-y-1">
+                                  <p className="font-poppins font-medium text-foreground">
+                                    {order?._id}
+                                  </p>
+                                  <p className="text-muted-foreground font-inter">
+                                    {formatDate(order.createdAt)}
+                                  </p>
+                                </div>  
+                                <Badge className={(order.status)}>
+                                  {(order.status)}
+                                </Badge>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="font-poppins font-medium text-brand-deep-pink">
+                                  {formatCurrency(order.totalAmount)}
+                                </span>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                 onClick={() =>handleViewDetails(order)}
+                                  className="border-brand-pink text-brand-deep-pink hover:bg-brand-pink font-poppins"
+                                >
+                                  <Eye className="h-4 w-4 mr-2" />
+                                  Xem chi tiết
+                                </Button>
+                              </div>
+                              </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                      <p className="text-muted-foreground font-inter">
+                        Bạn chưa có đơn hàng nào.
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+    
+            <TabsContent value="settings">
+              <Card className="border-border">
+                <CardHeader>
+                  <CardTitle className="font-inter text-foreground mt-3">
+                    Cài Đặt Tài Khoản
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-4">
+                    <h3 className="font-inter font-medium text-foreground">
+                      Đổi mật khẩu
+                    </h3>
+                    <div className="space-y-4 max-w-md">
+                      <div className="space-y-2">
+                        <Label className="font-inter font-medium">Mật khẩu hiện tại</Label>
+                        <Input
+                          type="password"
+                          className="bg-input-background border-border"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="font-inter font-medium">Mật khẩu mới</Label>
+                        <Input
+                          type="password"
+                          className="bg-input-background border-border"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="font-inter font-medium">Xác nhận mật khẩu mới</Label>
+                        <Input
+                          type="password"
+                          className="bg-input-background border-border"
+                        />
+                      </div>
+                      <Button className="bg-brand-deep-pink hover:bg-brand-deep-pink/90 text-white font-poppins mb-3">
+                        Cập nhật mật khẩu
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+        </TabsContents>
       </Tabs>
 
        {/* Order Details Dialog */}

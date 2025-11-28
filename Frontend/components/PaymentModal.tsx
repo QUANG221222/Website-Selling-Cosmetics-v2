@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { generateQRPayment } from "@/lib/api/payment";
+import { Button } from "./animate-ui/components/buttons/button";
 
 export default function PaymentModal({
   amount,
@@ -96,7 +97,7 @@ export default function PaymentModal({
         )}
 
         {!qrCode ? (
-          <button
+          <Button
             onClick={handleGenerateQR}
             disabled={loading}
             className="w-full bg-brand-deep-pink text-white hover:bg-brand-deep-pink/80 py-3 rounded-lg font-semibold transition focus-brand"
@@ -105,7 +106,7 @@ export default function PaymentModal({
             }}
           >
             {loading ? "Đang tạo mã QR..." : "Tạo mã QR"}
-          </button>
+          </Button>
         ) : (
           <div className="text-center">
             <img
@@ -126,7 +127,7 @@ export default function PaymentModal({
           </div>
         )}
         {qrCode && (
-          <button
+          <Button
             onClick={() => {
               onPaid();
               onClose();
@@ -134,7 +135,7 @@ export default function PaymentModal({
             className="w-full py-3 rounded-lg font-semibold transition focus-brand hover:opacity-90 text-white cursor-pointer bg-brand-deep-pink"
           >
             Xác nhận thanh toán
-          </button>
+          </Button>
         )}
 
         {error && (
@@ -149,12 +150,12 @@ export default function PaymentModal({
           </div>
         )}
 
-        <button
+        <Button
           onClick={onClose}
           className="w-full mt-4 py-2 rounded-lg font-semibold transition focus-brand bg-foreground text-white cursor-pointer hover:opacity-90"
         >
           Đóng
-        </button>
+        </Button>
       </div>
     </div>
   );
