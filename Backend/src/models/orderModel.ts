@@ -34,7 +34,7 @@ interface IOrderItem {
 
 interface IOrderPayment {
   status: 'unpaid' | 'paid' | 'failed'
-  method?: string // 'COD' | 'Credit Card' | 'Bank Transfer'
+  method?: 'COD' | 'BANK' | string // 'COD' | 'Credit Card' | 'Bank Transfer'
   amount: number
   paidAt?: Date
 }
@@ -58,7 +58,7 @@ interface ICreateOrderData {
   status: 'pending' | 'processing' | 'completed' | 'cancelled'
   payment: {
     status: 'unpaid' | 'paid' | 'failed'
-    method?: string
+    method?: 'COD' | 'BANK' | string
     amount: number
     paidAt?: Date
   }

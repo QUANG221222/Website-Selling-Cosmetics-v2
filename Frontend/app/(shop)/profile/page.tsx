@@ -302,9 +302,7 @@ const UserAccount = () => {
                               {formatCurrency(order.totalAmount)}
                             </TableCell>
                             <TableCell>
-                              <Badge className={(order.status)}>
-                                {(order.status)}
-                              </Badge>
+                              {getStatusBadge(order.status)}
                             </TableCell>
                             <TableCell>
                               <Button
@@ -317,7 +315,7 @@ const UserAccount = () => {
                                 <Eye className="h-4 w-4 mr-2" />
                                 Xem
                               </Button>
-                                {order.status !== 'cancelled' && (
+                            {order.status == 'pending' && (
                               <Button
                                 variant="ghost"
                                 size="sm"

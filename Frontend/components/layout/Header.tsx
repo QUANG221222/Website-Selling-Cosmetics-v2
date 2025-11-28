@@ -11,8 +11,15 @@ import CartBadge from "@/components/cart/CartBadge";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/lib/redux/user/userSlice";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { NAV_ITEMS } from "@/lib/constans"; // Thêm dòng này
 
-const Header = () => {
+const Header = ({
+  selectedTab,
+  setSelectedTab,
+}: {
+  selectedTab: (typeof NAV_ITEMS)[0];
+  setSelectedTab: (tab: (typeof NAV_ITEMS)[0]) => void;
+}) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const currentUser = useSelector(selectCurrentUser);
 
@@ -28,7 +35,10 @@ const Header = () => {
 
             {/* Navigation - Center */}
             <nav className="hidden md:flex items-center space-x-8 flex-1 justify-center mx-8">
-              <NavItems />
+              <NavItems
+                selectedTab={selectedTab}
+                setSelectedTab={setSelectedTab}
+              />
             </nav>
 
             {/* Action Buttons */}
@@ -84,10 +94,12 @@ const Header = () => {
               <div className="space-y-4">
                 {/* Mobile Navigation */}
                 <nav className="space-y-2">
-                  <NavItems />
+                  <NavItems
+                    selectedTab={selectedTab}
+                    setSelectedTab={setSelectedTab}
+                  />
                   <button
                     onClick={() => {
-                      // onNavigate('account');
                       setIsMenuOpen(false);
                     }}
                     className="block w-full text-left py-2 font-inter transition-colors hover:text-brand-deep-pink text-foreground cursor-pointer"

@@ -6,6 +6,7 @@ import { cartRouter } from './carts'
 import { addressRouter } from './addresses'
 import { orderRouter } from './orders'
 import { dashboardRouter } from './dashboard'
+import { paymentRouter } from './payment'
 
 const Router = express.Router()
 
@@ -22,5 +23,7 @@ Router.use('/addresses', addressRouter)
 Router.use('/orders', orderRouter)
 
 Router.use('/dashboard', dashboardRouter)
+
+Router.use('/payment', paymentRouter);
 
 export const APIs_V1 = Router
