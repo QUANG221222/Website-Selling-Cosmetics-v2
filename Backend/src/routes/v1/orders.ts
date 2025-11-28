@@ -31,7 +31,6 @@ Router.route('/:id')
     controllers.orderController.getOrderById
   )
   .put(
-    middlewares.authHandlingMiddleware.isAuthorized,
     validations.orderValidation.updateOrder,
     controllers.orderController.updateOrder
   )

@@ -6,7 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, CreditCard, Truck } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-    fetchCartItemSelected,
+  fetchCartItemSelected,
   selectCartItems,
   selectCartItemsSelected,
   selectCartTotalPrice,
@@ -27,6 +27,13 @@ import { CreateOrderData } from "@/lib/api/order";
 import { toast } from "sonner";
 import { AddressSelect } from "@/components/address/AddressSelect";
 import { Address } from "@/lib/api/address";
+import PaymentModal from "@/components/PaymentModal";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"; // Thêm import Dialog
 
 const Checkout = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -35,8 +42,12 @@ const Checkout = () => {
   const selectedCartItems = useSelector(selectCartItemsSelected);
   const selectedTotalPrice = useSelector(selectCartTotalPrice);
   const createLoading = useSelector(selectCreateOrderLoading);
+  const [showPayment, setShowPayment] = useState(false);
 
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
+  const [pendingOrder, setPendingOrder] = useState<CreateOrderData | null>(
+    null
+  );
 
   const {
     register,
@@ -54,7 +65,7 @@ const Checkout = () => {
     },
   });
 
-   useEffect(() => {
+  useEffect(() => {
     if (selectedCartItems.length === 0) {
       toast.error("Vui lòng chọn sản phẩm để thanh toán!");
       router.push("/cart");
@@ -68,12 +79,21 @@ const Checkout = () => {
       setValue("receiverAddress", selectedAddress.addressDetail);
     }
   }, [selectedAddress, setValue]);
-  
-    const handleAddressChange = (address: Address | null, index: number) => {
+
+  const handleAddressChange = (address: Address | null, index: number) => {
     setSelectedAddress(address);
   };
 
   const onSubmit = async (data: CreateOrderData) => {
+    if (data.paymentMethod === "BANK") {
+      setPendingOrder(data);
+      setShowPayment(true);
+      return;
+    }
+    await handleOrder(data);
+  };
+
+  const handleOrder = async (data: CreateOrderData) => {
     try {
       console.log("Checkout Data:", data);
 
@@ -84,7 +104,10 @@ const Checkout = () => {
         orderNotes: data.orderNotes,
         paymentMethod: data.paymentMethod,
         items: selectedCartItems
-          .filter((item) => item.cosmetic?._id && item.cosmetic?.discountPrice !== undefined)
+          .filter(
+            (item) =>
+              item.cosmetic?._id && item.cosmetic?.discountPrice !== undefined
+          )
           .map((item) => ({
             cosmeticId: item.cosmetic!._id,
             quantity: item.quantity,
@@ -95,7 +118,7 @@ const Checkout = () => {
 
       // Dispatch create order action
       await dispatch(createOrder(orderData)).unwrap();
-      
+
       toast.success("Đặt hàng thành công!");
       // Redirect to order success page
       router.push("/");
@@ -110,10 +133,11 @@ const Checkout = () => {
   };
 
   const shipping = useMemo(
-    () => (selectedTotalPrice > 500000 ? 0 : selectedTotalPrice > 0 ? 30000 : 0),
+    () =>
+      selectedTotalPrice > 500000 ? 0 : selectedTotalPrice > 0 ? 30000 : 0,
     [selectedTotalPrice]
   );
-  
+
   const total = useMemo(
     () => selectedTotalPrice + shipping,
     [selectedTotalPrice, shipping]
@@ -132,7 +156,10 @@ const Checkout = () => {
     <div className="container mx-auto px-4 py-8">
       {/* Back Button */}
 
-       <Link href="/cart" className="mb-6 font-poppins flex items-center text-white bg-brand-deep-pink px-4 py-2 rounded-md hover:underline w-fit cursor-pointer">
+      <Link
+        href="/cart"
+        className="mb-6 font-poppins flex items-center text-white bg-brand-deep-pink px-4 py-2 rounded-md hover:underline w-fit cursor-pointer"
+      >
         <ArrowLeft className="h-4 w-4 mr-2" />
         Quay lại
       </Link>
@@ -152,8 +179,7 @@ const Checkout = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 pb-3">
-                <AddressSelect onAddressChange={handleAddressChange}
-                 />
+                <AddressSelect onAddressChange={handleAddressChange} />
                 <Separator className="my-4" />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -239,7 +265,11 @@ const Checkout = () => {
                       className="space-y-4"
                     >
                       <div className="flex items-center space-x-3 p-4 border border-border rounded-lg cursor-pointer">
-                        <RadioGroupItem value="COD" id="cod" className="cursor-pointer" />
+                        <RadioGroupItem
+                          value="COD"
+                          id="cod"
+                          className="cursor-pointer"
+                        />
                         <Label htmlFor="cod" className="flex-1">
                           <div className="space-y-1">
                             <p className="font-inter font-medium text-foreground">
@@ -253,7 +283,11 @@ const Checkout = () => {
                       </div>
 
                       <div className="flex items-center space-x-3 p-4 border border-border rounded-lg cursor-pointer">
-                        <RadioGroupItem value="BANK" id="bank" className="cursor-pointer"/>
+                        <RadioGroupItem
+                          value="BANK"
+                          id="bank"
+                          className="cursor-pointer"
+                        />
                         <Label htmlFor="bank" className="flex-1">
                           <div className="space-y-1">
                             <p className="font-inter font-medium text-foreground">
@@ -279,7 +313,9 @@ const Checkout = () => {
             {/* Submit Button */}
             <Button
               type="submit"
-              disabled={isSubmitting || createLoading || selectedCartItems.length === 0}
+              disabled={
+                isSubmitting || createLoading || selectedCartItems.length === 0
+              }
               className="w-full bg-brand-deep-pink hover:bg-brand-deep-pink/90 text-white font-poppins py-3 cursor-pointer"
               size="lg"
             >
@@ -294,8 +330,27 @@ const Checkout = () => {
             </Button>
           </form>
         </div>
-
-        {/* Order Summary */}
+        {/* Xóa nút Thanh toán bằng QR Code ở đây */}
+        {/* Dialog PaymentModal */}
+        <Dialog open={showPayment} onOpenChange={setShowPayment}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Thanh toán chuyển khoản</DialogTitle>
+            </DialogHeader>
+            <PaymentModal
+              amount={total}
+              onClose={() => setShowPayment(false)}
+              onPaid={async () => {
+                setShowPayment(false);
+                if (pendingOrder) {
+                  await handleOrder(pendingOrder);
+                  setPendingOrder(null);
+                }
+              }}
+            />
+          </DialogContent>
+        </Dialog>
+        {/* ...existing code... */}
         <div className="lg:col-span-1">
           <Card className="border-border sticky top-24">
             <CardHeader>

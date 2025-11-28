@@ -34,7 +34,7 @@ interface IOrderItem {
 
 interface IOrderPayment {
   status: 'unpaid' | 'paid' | 'failed'
-  method?: string // 'COD' | 'Credit Card' | 'Bank Transfer'
+  method?: 'COD' | 'BANK' | string // 'COD' | 'Credit Card' | 'Bank Transfer'
   amount: number
   paidAt?: Date
 }
@@ -58,7 +58,7 @@ interface ICreateOrderData {
   status: 'pending' | 'processing' | 'completed' | 'cancelled'
   payment: {
     status: 'unpaid' | 'paid' | 'failed'
-    method?: string
+    method?: 'COD' | 'BANK' | string
     amount: number
     paidAt?: Date
   }
@@ -85,7 +85,7 @@ const ORDER_COLLECTION_SCHEMA: Joi.ObjectSchema = Joi.object({
     .pattern(/^[0-9]{10,11}$/)
     .required(),
   receiverAddress: Joi.string().trim().min(10).max(200).required(),
-  orderNotes: Joi.string().trim().max(500).optional(),
+  orderNotes: Joi.string().trim().max(500).optional().allow(''),
   items: Joi.array()
     .items(
       Joi.object({

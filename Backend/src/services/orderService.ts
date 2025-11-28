@@ -26,7 +26,7 @@ interface IOrderResponse {
   status: 'pending' | 'processing' | 'completed' | 'cancelled'
   payment: {
     status: 'unpaid' | 'paid' | 'failed'
-    method?: string
+    method?: 'COD' | 'BANK' | string
     amount: number
     paidAt?: Date
   }
@@ -82,6 +82,14 @@ const createNew = async (req: Request): Promise<IOrderResponse> => {
       })
     }
 
+    // Xác định trạng thái thanh toán
+    let paymentStatus: 'unpaid' | 'paid' = 'unpaid'
+    let paidAt: Date | undefined = undefined
+    if (paymentMethod === 'BANK') {
+      paymentStatus = 'paid'
+      paidAt = new Date()
+    }
+
     const newOrderData: ICreateOrderData = {
       userId,
       receiverName,
@@ -93,9 +101,10 @@ const createNew = async (req: Request): Promise<IOrderResponse> => {
       totalItems,
       status: 'pending',
       payment: {
-        status: 'unpaid',
+        status: paymentStatus,
         method: paymentMethod || 'COD',
-        amount: totalAmount
+        amount: totalAmount,
+        ...(paidAt ? { paidAt } : {})
       }
     }
 
@@ -124,21 +133,22 @@ const createNew = async (req: Request): Promise<IOrderResponse> => {
     if (userCart && userCart.items && userCart.items.length > 0) {
       // Get IDs of ordered items
       const orderedCosmeticIds = items.map((item: any) => item.cosmeticId)
-      
+
       // Filter out ordered items from cart
       const remainingItems = userCart.items.filter(
-        (cartItem: any) => !orderedCosmeticIds.includes(cartItem.cosmeticId.toString())
+        (cartItem: any) =>
+          !orderedCosmeticIds.includes(cartItem.cosmeticId.toString())
       )
-      
+
       // Recalculate cart totals
       let newTotalAmount = 0
       let newTotalItems = 0
-      
+
       for (const cartItem of remainingItems) {
         newTotalAmount += cartItem.subtotal
         newTotalItems += cartItem.quantity
       }
-      
+
       // Update cart with remaining items
       await models.cartModel.updateById(userCart._id!.toString(), {
         items: remainingItems,
@@ -166,10 +176,7 @@ const getById = async (id: string): Promise<IOrderResponse> => {
   try {
     const order = await models.orderModel.findOneById(id)
     if (!order) {
-      throw new ApiError(
-        StatusCodes.NOT_FOUND,
-        'Không tìm thấy đơn hàng'
-      )
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy đơn hàng')
     }
     return pickOrder(order)
   } catch (error: any) {
@@ -193,10 +200,7 @@ const updateById = async (
   try {
     const existingOrder = await models.orderModel.findOneById(id)
     if (!existingOrder) {
-      throw new ApiError(
-        StatusCodes.NOT_FOUND,
-        'Không tìm thấy đơn hàng'
-      )
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy đơn hàng')
     }
     // If status is masked as pending, subtract cosmetic quantities
     if (updateData.status && existingOrder.status === 'pending') {
@@ -246,10 +250,7 @@ const deleteById = async (id: string): Promise<void> => {
   try {
     const existingOrder = await models.orderModel.findOneById(id)
     if (!existingOrder) {
-      throw new ApiError(
-        StatusCodes.NOT_FOUND,
-        'Không tìm thấy đơn hàng'
-      )
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy đơn hàng')
     }
     await models.orderModel.deleteById(id)
     // Set order status to 'cancelled' if not already
@@ -316,11 +317,8 @@ const getByUserIdWithPagination = async (
   limit: number = 7
 ): Promise<PaginatedResponse<IOrderResponse>> => {
   try {
-    const { orders, total } = await models.orderModel.findByUserIdWithPagination(
-      userId,
-      page,
-      limit
-    )
+    const { orders, total } =
+      await models.orderModel.findByUserIdWithPagination(userId, page, limit)
 
     const paginationInfo = calculatePagination(total, page, limit)
 
