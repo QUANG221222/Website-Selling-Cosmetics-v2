@@ -1,5 +1,5 @@
 "use client";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/animate-ui/components/buttons/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -500,7 +500,7 @@ const ShoppingCart = () => {
               <div className="space-y-3 pt-4">
                 <Button
                   onClick={handleCheckout}
-                  className="w-full bg-brand-deep-pink hover:bg-brand-deep-pink/90 text-white font-poppins py-3"
+                  className="w-full cursor-pointer bg-brand-deep-pink hover:bg-brand-deep-pink/90 text-white font-poppins py-3"
                   size="lg"
                 >
                   Tiến hành thanh toán
@@ -508,7 +508,7 @@ const ShoppingCart = () => {
                 <Button
                   onClick={handleContinueShopping}
                   variant="outline"
-                  className="w-full font-poppins"
+                  className="w-full cursor-pointer font-poppins"
                 >
                   Tiếp tục mua sắm
                 </Button>
