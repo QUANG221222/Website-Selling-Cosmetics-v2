@@ -5,6 +5,7 @@ import { cartController } from './cartController'
 import { addressController } from './addressController'
 import { orderController } from './orderController'
 import { dashboardController } from './dashboardController'
+import { chatController } from './chatController'
 
 export type {
   CreateUserRequest,
@@ -54,5 +55,6 @@ export const controllers = {
   cartController,
   addressController,
   orderController,
-  dashboardController
+  dashboardController,
+  chatController
 }

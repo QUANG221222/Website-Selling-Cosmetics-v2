@@ -4,6 +4,7 @@ import { cosmeticModel } from './cosmeticModel'
 import { cartModel } from './cartModel'
 import { addressModel } from './addressModel'
 import { orderModel } from './orderModel'
+import {chatModel} from './chatModel'
 
 export type { ICreateUserData, IUser } from './userModel'
 export type { IAdmin, ICreateAdminData } from './adminModel'
@@ -39,5 +40,6 @@ export const models = {
   cosmeticModel,
   cartModel,
   addressModel,
-  orderModel
+  orderModel,
+  chatModel
 }
