@@ -6,6 +6,7 @@ import { cartRouter } from './carts'
 import { addressRouter } from './addresses'
 import { orderRouter } from './orders'
 import { dashboardRouter } from './dashboard'
+import { chatRouter } from './chats'
 import { paymentRouter } from './payment'
 
 const Router = express.Router()
@@ -21,6 +22,8 @@ Router.use('/carts', cartRouter)
 Router.use('/addresses', addressRouter)
 
 Router.use('/orders', orderRouter)
+
+Router.use('/chats', chatRouter)
 
 Router.use('/dashboard', dashboardRouter)
 

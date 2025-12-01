@@ -1,4 +1,5 @@
 import express from 'express'
+import http from 'http'
 import session from 'express-session'
 import { sessionConfig } from './configs/session'
 import { middlewares } from '~/middlewares'
@@ -8,9 +9,14 @@ import { APIs_V1 } from '~/routes/v1/index'
 import cors from 'cors'
 import { corsOptions } from '~/configs/cors'
 import { limiter } from './configs/limiter'
+import { initializeSocket } from '~/sockets'
 
 const StartServer = () => {
   const app = express()
+  const server = http.createServer(app)
+
+  // Initialize Socket.IO
+  initializeSocket(server)
 
   if (env.BUILD_MODE === 'production') {
     app.set('trust proxy', 1) // trust first proxy
@@ -35,13 +41,17 @@ const StartServer = () => {
   app.use(middlewares.errorHandlingMiddleware)
 
   if (env.BUILD_MODE === 'dev') {
-    app.listen(Number(env.LOCAL_APP_PORT), String(env.LOCAL_APP_HOST), () => {
-      console.log(
-        `LOCAL DEV: Hello ${env.AUTHOR_NAME}, Server is running at http://${env.LOCAL_APP_HOST}:${env.LOCAL_APP_PORT}`
-      )
-    })
+    server.listen(
+      Number(env.LOCAL_APP_PORT),
+      String(env.LOCAL_APP_HOST),
+      () => {
+        console.log(
+          `LOCAL DEV: Hello ${env.AUTHOR_NAME}, Server is running at http://${env.LOCAL_APP_HOST}:${env.LOCAL_APP_PORT}`
+        )
+      }
+    )
   } else {
-    app.listen(Number(process.env.PORT), () => {
+    server.listen(Number(process.env.PORT), () => {
       console.log(
         `PRODUCTION: Hello ${env.AUTHOR_NAME}, Backend Server is running successfully at Port: ${process.env.PORT}`
       )

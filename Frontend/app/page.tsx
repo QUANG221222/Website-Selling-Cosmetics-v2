@@ -2,6 +2,8 @@
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
 import HomePage from "@/components/layout/Homepage";
+import ChatWidget from "@/components/socket/ChatWidget";
+import { SocketProvider } from "@/lib/socket/SocketContext";
 import UserAccount from "@/app/(shop)/profile/page";
 import ProductPage from "@/app/(shop)/product/page";
 import ShoppingCart from "@/app/(shop)/cart/page";
@@ -29,7 +31,7 @@ export default function Home() {
   }, [pathname]);
 
   return (
-    <>
+    <SocketProvider>
       <Header selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
       <main style={{ minHeight: 80 }}>
         <AnimatePresence mode="wait">
@@ -46,6 +48,7 @@ export default function Home() {
         </AnimatePresence>
       </main>
       <Footer />
-    </>
+      <ChatWidget />
+    </SocketProvider>
   );
 }
