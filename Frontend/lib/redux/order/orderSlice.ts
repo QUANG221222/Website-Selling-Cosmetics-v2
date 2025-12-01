@@ -142,7 +142,6 @@ export const deleteOrder = createAsyncThunk(
   async (orderId: string, { rejectWithValue }) => {
     try {
       await orderApi.deleteOrder(orderId);
-      toast.success("Đơn hàng đã được xóa");
       return orderId;
     } catch (error: any) {
       const message =

@@ -18,19 +18,19 @@ const Dashboard = () => {
         </Suspense>
       </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-4">
-        {/* Revenue Chart */}
+      {/* Revenue Chart - Full Width */}
+      <div className="w-full">
         <Suspense fallback={<SkeletonRevenueChart />}>
           <RevenueChart />
         </Suspense>
       </div>
 
-      {/* Orders Chart */}
-      <Suspense fallback={<SkeletonOrdersChart />}>
-        <OrdersChart />
-      </Suspense>
-
-      
+      {/* Orders Chart - Full Width */}
+      <div className="w-full">
+        <Suspense fallback={<SkeletonOrdersChart />}>
+          <OrdersChart />
+        </Suspense>
+      </div>
     </div>
   );
 };
