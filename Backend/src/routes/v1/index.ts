@@ -7,6 +7,7 @@ import { addressRouter } from './addresses'
 import { orderRouter } from './orders'
 import { dashboardRouter } from './dashboard'
 import { chatRouter } from './chats'
+import { paymentRouter } from './payment'
 
 const Router = express.Router()
 
@@ -25,5 +26,7 @@ Router.use('/orders', orderRouter)
 Router.use('/chats', chatRouter)
 
 Router.use('/dashboard', dashboardRouter)
+
+Router.use('/payment', paymentRouter);
 
 export const APIs_V1 = Router

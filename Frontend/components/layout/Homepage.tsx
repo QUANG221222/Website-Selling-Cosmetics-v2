@@ -1,5 +1,5 @@
 "use client";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/animate-ui/components/buttons/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
@@ -189,7 +189,7 @@ const HomePage = () => {
             <Button
               onClick={() => setSearchQuery("")}
               variant="outline"
-              className="mt-4 border-brand-pink text-brand-deep-pink hover:bg-brand-pink font-poppins"
+              className="mt-4 cursor-pointer border-brand-pink text-brand-deep-pink hover:bg-brand-pink font-poppins"
             >
               Xóa tìm kiếm
             </Button>

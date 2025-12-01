@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/animate-ui/components/buttons/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -30,6 +30,11 @@ import {
   selectCurrentUser,
 } from "@/lib/redux/user/userSlice";
 
+import { Lens } from "@/components/ui/lens";
+ 
+import { motion } from "motion/react";
+import { cn } from "@/lib/utils";
+
 const cosmeticDetail = () => {
   const params = useParams();
   const router = useRouter();
@@ -45,6 +50,7 @@ const cosmeticDetail = () => {
 
   // Check if product is out of stock
   const isOutOfStock = !cosmetic?.quantity || cosmetic.quantity <= 0;
+  const [hovering, setHovering] = useState(false);
 
   // ✅ Fetch user từ session khi component mount
   useEffect(() => {
@@ -202,16 +208,20 @@ const cosmeticDetail = () => {
         {/* cosmetic Images */}
         <div className="space-y-4">
           <div className="aspect-square overflow-hidden rounded-lg border border-border relative w-full h-[400px] md:h-[450px] lg:h-[500px]">
-            <Image
-              src={cosmetic?.image || ""}
-              alt={cosmetic?.nameCosmetic || "cosmetic Image"}
-              fill
-              priority
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              className={`object-contain w-full h-full hover:scale-105 transition-transform duration-300 ${
-                isOutOfStock ? "grayscale" : ""
-              }`}
-            />
+
+            <Lens hovering={hovering} setHovering={setHovering}>
+                <img
+                  src={cosmetic?.image || ""}
+                  alt={cosmetic?.nameCosmetic || "cosmetic Image"}
+                  width={500}
+                  height={500}
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  className={`object-contain w-full h-full ${
+                    isOutOfStock ? "grayscale" : ""
+                  }`}
+                />
+            </Lens>
+    
 
             {/* Out of Stock Overlay */}
             {isOutOfStock && (
