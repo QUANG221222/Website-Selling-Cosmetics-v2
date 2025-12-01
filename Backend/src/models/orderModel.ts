@@ -300,9 +300,9 @@ const getTotalOrdersProcessing = async (): Promise<number> => {
 const getRevenueByYear = async (year: number): Promise<number> => {
   try {
     const startDate = new Date(year, 0, 1).getTime()
-    console.log('start date', startDate)
+    // console.log('start date', startDate)
     const endDate = new Date(year + 1, 0, 1).getTime()
-    console.log('end date', endDate)
+    // console.log('end date', endDate)
     const results = await GET_DB()
       .collection(COLLECTION_NAME)
       .aggregate([
