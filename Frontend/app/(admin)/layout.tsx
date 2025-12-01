@@ -1,9 +1,5 @@
 "use client";
 
-<<<<<<< HEAD
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/animate-ui/components/radix/sidebar";
-import { BarChart3, Users, ShoppingCart, Package, Settings, LogOut } from "lucide-react";
-=======
 import {
   Sidebar,
   SidebarContent,
@@ -14,7 +10,7 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarTrigger,
-} from "@/components/ui/sidebar";
+} from "@/components/animate-ui/components/radix/sidebar";
 import {
   BarChart3,
   Users,
@@ -24,7 +20,6 @@ import {
   LogOut,
   MessageCircle,
 } from "lucide-react";
->>>>>>> d6e4d15cc508e5a72230ac43420d796ddd51cbd3
 import { Button } from "@/components/ui/button";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -87,51 +82,6 @@ const layout = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-<<<<<<< HEAD
-     <SidebarProvider>
-      <div className="flex h-screen w-full">
-        <Sidebar>
-          <SidebarHeader className="border-b border-sidebar-border p-4">
-            <div className="flex items-center gap-2">
-              <Package className="h-6 w-6" />
-              <span className="font-semibold">Beauty Admin</span>
-            </div>
-          </SidebarHeader>
-          
-          <SidebarContent className="p-2">
-            <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.id}>
-                  <Link href={item.href}>
-                    <SidebarMenuButton
-                      isActive={pathname === item.id}
-                      className="w-full justify-start"
-                    >
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.label}</span>
-                    </SidebarMenuButton>
-                  </Link>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarContent>
-          
-          <SidebarFooter className="border-t border-sidebar-border p-4 space-y-4">
-            {/* Admin Info */}
-            <div className="flex items-center gap-3 px-2">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback className="bg-primary text-primary-foreground">
-                  {getInitials(currentAdmin?.username || 'AD')}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">
-                  {currentAdmin?.username || 'Admin'}
-                </p>
-                <p className="text-xs text-muted-foreground truncate">
-                  {currentAdmin?.email || ''}
-                </p>
-=======
     <SocketProvider>
       <SidebarProvider>
         <div className="flex h-screen w-full">
@@ -139,8 +89,7 @@ const layout = ({ children }: { children: React.ReactNode }) => {
             <SidebarHeader className="border-b border-sidebar-border p-4">
               <div className="flex items-center gap-2">
                 <Package className="h-6 w-6" />
-                <span className="font-semibold">Admin Panel</span>
->>>>>>> d6e4d15cc508e5a72230ac43420d796ddd51cbd3
+                <span className="font-semibold">Beauty Admin</span>
               </div>
             </SidebarHeader>
 
@@ -167,32 +116,31 @@ const layout = ({ children }: { children: React.ReactNode }) => {
               <div className="flex items-center gap-3 px-2">
                 <Avatar className="h-8 w-8">
                   <AvatarFallback className="bg-primary text-primary-foreground">
-                    {getInitials(currentAdmin?.data?.adminName || "AD")}
+                    {getInitials(currentAdmin?.username || "AD")}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">
-                    {currentAdmin?.data?.adminName || "Admin"}
+                    {currentAdmin?.username || "Admin"}
                   </p>
                   <p className="text-xs text-muted-foreground truncate">
-                    {currentAdmin?.data?.email || ""}
+                    {currentAdmin?.email || ""}
                   </p>
                 </div>
               </div>
-
               {/* Logout Button */}
               <Button
-                variant="ghost"
-                className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent"
+                variant="destructive"
+                size="sm"
+                className="w-full"
                 onClick={handleLogout}
               >
                 <LogOut className="h-4 w-4 mr-2" />
-                Đăng xuất
+                Logout
               </Button>
             </SidebarFooter>
           </Sidebar>
-
-          <main className="flex-1 overflow-auto">{children}</main>
+          <div className="flex-1 overflow-auto bg-gray-50 p-6">{children}</div>
         </div>
       </SidebarProvider>
     </SocketProvider>
