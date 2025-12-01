@@ -43,7 +43,7 @@ const UsersManagement = () => {
 
     const pagination = useSelector(selectUserPagination);
     const [currentPage, setCurrentPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
+    const [pageSize, setPageSize] = useState(8);
 
    // Fetch users with pagination
     useEffect(() => {
@@ -283,7 +283,7 @@ const UsersManagement = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="8">8</SelectItem>
                   <SelectItem value="20">20</SelectItem>
                   <SelectItem value="50">50</SelectItem>
                 </SelectContent>

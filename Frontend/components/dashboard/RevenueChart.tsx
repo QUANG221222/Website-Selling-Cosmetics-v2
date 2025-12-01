@@ -13,7 +13,15 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, CartesianGrid, LabelList } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  ResponsiveContainer,
+  CartesianGrid,
+  LabelList,
+} from "recharts";
 import { dashboardApi } from "@/lib/api/dashboard";
 
 const changeMonth = (month: number): string => {
@@ -59,8 +67,18 @@ export default function RevenueChart() {
     }).format(amount);
   };
 
+  // Format rút gọn cho label
+  const formatShortCurrency = (amount: number) => {
+    if (amount >= 1000000) {
+      return `${(amount / 1000000).toFixed(1)}M đ`;
+    } else if (amount >= 1000) {
+      return `${(amount / 1000).toFixed(0)}K đ`;
+    }
+    return `${amount} đ`;
+  };
+
   return (
-    <Card className="col-span-12 lg:col-span-6 xl:col-span-4">
+    <Card className="col-span-1">
       <CardHeader>
         <CardTitle className="pt-2">Doanh thu theo tháng</CardTitle>
         <CardDescription>
@@ -76,46 +94,48 @@ export default function RevenueChart() {
               color: "hsl(var(--chart-1))",
             },
           }}
-          className="h-[350px] w-[80%] pb-3"
+          className="h-[350px] w-full"
         >
+          <ResponsiveContainer width="100%" height="100%">
             <BarChart
-            accessibilityLayer
-                data={revenueData}
-                  margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+              data={revenueData}
+              margin={{ top: 30, right: 10, bottom: 5, left: 10 }}
             >
-                <CartesianGrid  />
-                <XAxis 
-                    dataKey="month"
-                    tickLine={false}
-                    tickMargin={10}
-                    axisLine={false}
+              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <XAxis
+                dataKey="month"
+                tickLine={false}
+                tickMargin={10}
+                axisLine={false}
+                style={{ fontSize: "12px" }}
+              />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                tickFormatter={formatShortCurrency}
+                style={{ fontSize: "12px" }}
+              />
+              <ChartTooltip
+                content={<ChartTooltipContent />}
+                formatter={(value: number) => [
+                  formatCurrency(value),
+                  "Doanh thu",
+                ]}
+              />
+              <Bar dataKey="revenue" fill="var(--color-chart-1)" radius={6}>
+                <LabelList
+                  dataKey="revenue"
+                  position="top"
+                  offset={8}
+                  className="fill-foreground"
+                  fontSize={11}
+                  formatter={(value: number) => {
+                    return value > 0 ? formatShortCurrency(value) : "";
+                  }}
                 />
-
-                <ChartTooltip
-                    content={<ChartTooltipContent />}
-                    formatter={(value: number) => [
-                    formatCurrency(value),
-                         " Doanh thu"
-                    ]}
-                />
-                <Bar 
-                    dataKey="revenue" 
-                    fill="var(--color-chart-1)" 
-                    radius={6} 
-                >
-                    <LabelList
-                        dataKey="revenue"
-                        position="top"
-                        offset={12}
-                        className="fill-foreground"
-                        fontSize={12}
-                         formatter={(value: number) => {
-                          // Chỉ hiển thị nếu có giá trị
-                          return value > 0 ? formatCurrency(value) : "";
-                        }}
-                    />
-                </Bar>
+              </Bar>
             </BarChart>
+          </ResponsiveContainer>
         </ChartContainer>
       </CardContent>
     </Card>
