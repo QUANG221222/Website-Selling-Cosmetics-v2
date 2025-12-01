@@ -34,6 +34,7 @@ export const pickUser = (user: any): any => {
   return pick(user, [
     '_id',
     'email',
+    'adminName',
     'username',
     'fullName',
     'role',

@@ -39,7 +39,7 @@ const SignIn = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-md mx-auto">
-        <Card className="border-border">
+        <Card className="border-border bg-violet-50">
           <CardHeader className="text-center mt-1">
             <CardTitle className="font-inter text-foreground pt-3">
               Đăng nhập
